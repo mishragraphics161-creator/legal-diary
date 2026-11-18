@@ -1,45 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a">
+  <meta name="theme-color" content="#090d16">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Legal Diary - Court Case & Hearing Tracker</title>
+  <title>Legal Diary • Modern Court Case & Hearing Tracker</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
           colors: {
             brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              500: '#0284c7',
-              600: '#0369a1',
-              700: '#075985',
-              800: '#0c4a6e',
-              900: '#082f49'
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            dark: {
+              bg: '#090d16',
+              surface: '#0f172a',
+              card: '#131d31',
+              border: 'rgba(255, 255, 255, 0.08)',
+            }
+          },
+          animation: {
+            'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-4px)' },
             }
           }
         }
       }
     }
   </script>
+
   <style>
-    /* Safe-area insets for notched phones */
     body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       -webkit-tap-highlight-color: transparent;
+      background-color: #090d16;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 50%);
+      background-attachment: fixed;
     }
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
@@ -48,109 +79,172 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* Smooth transitions for bottom sheet */
+    /* Modern Glassmorphic card styling */
+    .glass-card {
+      background: linear-gradient(135deg, rgba(20, 29, 47, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    .glass-header {
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glass-nav {
+      background: rgba(13, 20, 36, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
     .sheet-transition {
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen antialiased flex flex-col items-center">
+<body class="text-slate-100 min-h-screen antialiased flex flex-col items-center select-none">
 
-  <!-- Mobile Container (Centered on desktop, full-width on mobile) -->
-  <div class="w-full max-w-lg min-h-screen flex flex-col bg-slate-900 pb-24 relative shadow-2xl">
+  <!-- Mobile Container (Max 520px centered, full width on phone) -->
+  <div class="w-full max-w-lg min-h-screen flex flex-col pb-28 relative shadow-2xl">
 
     <!-- Top Sticky Header -->
-    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+    <header class="sticky top-0 z-30 glass-header px-4 py-3">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+        
+        <!-- Brand Title & Date -->
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
             <i data-lucide="scale" class="w-5 h-5 text-white"></i>
           </div>
           <div>
-            <h1 class="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
-              Legal Diary
-              <span id="supabaseBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Demo Mode</span>
-            </h1>
-            <p id="todayDateStr" class="text-xs text-slate-400">Loading today's date...</p>
+            <div class="flex items-center gap-2">
+              <h1 class="text-base font-extrabold text-white tracking-tight">Legal Diary</h1>
+              <span id="supabaseBadge" class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                Demo Mode
+              </span>
+            </div>
+            <p id="todayDateStr" class="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Loading date...
+            </p>
           </div>
         </div>
         
+        <!-- Header Controls -->
         <div class="flex items-center space-x-2">
-          <!-- Refresh Button -->
-          <button id="refreshBtn" onclick="app.refreshData()" class="p-2 text-slate-400 hover:text-white bg-slate-800/80 rounded-lg active:scale-95 transition" title="Refresh">
+          <!-- Refresh -->
+          <button id="refreshBtn" onclick="app.refreshData()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-white/5 active:scale-95 transition shadow-sm" title="Refresh Database">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           </button>
-          <!-- Settings Icon -->
-          <button onclick="app.openSettingsModal()" class="p-2 text-slate-400 hover:text-white bg-slate-800/80 rounded-lg active:scale-95 transition" title="Database Settings">
-            <i data-lucide="settings" class="w-4 h-4"></i>
+          <!-- Supabase Config -->
+          <button onclick="app.openSettingsModal()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-white/5 active:scale-95 transition shadow-sm" title="Database Configuration">
+            <i data-lucide="database" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <!-- Search Bar -->
+      <!-- Quick Metrics Bar (Touch Cards) -->
+      <div class="grid grid-cols-4 gap-2 mt-3 pt-1">
+        
+        <!-- Metric: Today -->
+        <button onclick="app.setQuickFilter('today')" class="group relative overflow-hidden bg-slate-800/60 hover:bg-red-950/30 border border-white/5 hover:border-red-500/30 p-2 rounded-xl text-left transition active:scale-95">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today</span>
+            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+          </div>
+          <div class="text-lg font-black text-white mt-0.5" id="metricToday">0</div>
+        </button>
+
+        <!-- Metric: Tomorrow -->
+        <button onclick="app.setQuickFilter('tomorrow')" class="group bg-slate-800/60 hover:bg-amber-950/30 border border-white/5 hover:border-amber-500/30 p-2 rounded-xl text-left transition active:scale-95">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tomorrow</span>
+          <div class="text-lg font-black text-amber-400 mt-0.5" id="metricTomorrow">0</div>
+        </button>
+
+        <!-- Metric: Week -->
+        <button onclick="app.setQuickFilter('this_week')" class="group bg-slate-800/60 hover:bg-sky-950/30 border border-white/5 hover:border-sky-500/30 p-2 rounded-xl text-left transition active:scale-95">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">7 Days</span>
+          <div class="text-lg font-black text-sky-400 mt-0.5" id="metricWeek">0</div>
+        </button>
+
+        <!-- Metric: All -->
+        <button onclick="app.setQuickFilter('all')" class="group bg-slate-800/60 hover:bg-indigo-950/30 border border-white/5 hover:border-indigo-500/30 p-2 rounded-xl text-left transition active:scale-95">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total</span>
+          <div class="text-lg font-black text-indigo-400 mt-0.5" id="metricAll">0</div>
+        </button>
+
+      </div>
+
+      <!-- Search Input with Glass Styling -->
       <div class="mt-3 relative">
         <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
         <input 
           type="text" 
           id="searchInput" 
           oninput="app.handleSearch(this.value)"
-          placeholder="Search case no, party, court, stage..."
-          class="w-full bg-slate-800/90 text-sm text-white placeholder-slate-400 pl-10 pr-4 py-2.5 rounded-xl border border-slate-700/80 focus:outline-none focus:border-sky-500 transition shadow-inner"
+          placeholder="Search by case no, party, court, stage..."
+          class="w-full bg-slate-800/70 text-sm text-white placeholder-slate-400 pl-10 pr-9 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-indigo-500/80 focus:ring-2 focus:ring-indigo-500/20 transition shadow-inner"
         >
-        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Quick Filter Chips (Horizontal Scrollable) -->
-      <div class="flex space-x-2 mt-3 overflow-x-auto hide-scrollbar pb-1 text-xs">
-        <button onclick="app.setQuickFilter('all')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-sky-600 text-white" data-filter="all">
+      <!-- Quick Filter Chips -->
+      <div class="flex space-x-2 mt-3 overflow-x-auto hide-scrollbar pb-0.5 text-xs font-semibold">
+        <button onclick="app.setQuickFilter('all')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/30" data-filter="all">
           All Cases (<span id="countAll">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('today')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="today">
+        <button onclick="app.setQuickFilter('today')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="today">
           🔴 Today (<span id="countToday">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('tomorrow')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="tomorrow">
+        <button onclick="app.setQuickFilter('tomorrow')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="tomorrow">
           🟡 Tomorrow (<span id="countTomorrow">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('this_week')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="this_week">
+        <button onclick="app.setQuickFilter('this_week')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="this_week">
           📅 This Week (<span id="countWeek">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('overdue')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="overdue">
-          ⚠️ Passed Dates (<span id="countOverdue">0</span>)
+        <button onclick="app.setQuickFilter('overdue')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="overdue">
+          ⚠️ Passed (<span id="countOverdue">0</span>)
         </button>
       </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 px-4 py-3">
+    <!-- Main Content Feed -->
+    <main class="flex-1 px-4 py-4">
 
-      <!-- View Header Summary -->
+      <!-- View Title & Action Bar -->
       <div class="flex items-center justify-between mb-3 px-1">
-        <h2 id="viewTitle" class="text-xs font-semibold uppercase tracking-wider text-slate-400">All Registered Cases</h2>
-        <button onclick="app.printDailyBoard()" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium bg-sky-500/10 px-2 py-1 rounded-md border border-sky-500/20 active:scale-95 transition">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
+          <h2 id="viewTitle" class="text-xs font-bold uppercase tracking-wider text-slate-400">All Registered Cases</h2>
+        </div>
+        <button onclick="app.printDailyBoard()" class="text-xs text-sky-400 hover:text-white flex items-center gap-1.5 font-semibold bg-sky-500/10 hover:bg-sky-500/20 px-3 py-1.5 rounded-xl border border-sky-500/30 active:scale-95 transition shadow-sm">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-          Print Daily Board
+          Print Cause List
         </button>
       </div>
 
-      <!-- Cases List Container -->
-      <div id="casesList" class="space-y-3">
-        <!-- Rendered dynamically by app.js -->
-        <div class="p-8 text-center text-slate-400 text-sm">
-          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-sky-500 border-t-transparent mb-2"></div>
-          <p>Loading case files...</p>
+      <!-- Dynamic Cases Container -->
+      <div id="casesList" class="space-y-3.5">
+        <div class="p-12 text-center text-slate-400 text-sm">
+          <div class="inline-block animate-spin rounded-full h-7 w-7 border-2 border-indigo-500 border-t-transparent mb-3"></div>
+          <p class="font-medium">Loading court case files...</p>
         </div>
       </div>
 
-      <!-- Empty State -->
+      <!-- Empty State View -->
       <div id="emptyState" class="hidden py-16 px-4 text-center">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-slate-800/80 flex items-center justify-center text-slate-500 border border-slate-700/50">
-          <i data-lucide="folder-search" class="w-8 h-8"></i>
+        <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-slate-800/50 flex items-center justify-center text-slate-500 border border-white/5 shadow-inner">
+          <i data-lucide="folder-search" class="w-9 h-9 text-slate-400"></i>
         </div>
-        <h3 class="text-base font-semibold text-slate-200">No cases found</h3>
-        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Iss filter me koi case file nahi mili. Nayi court case file add karne ke liye '+' button dabayein.</p>
-        <button onclick="app.openCaseModal()" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-xl shadow-lg shadow-sky-600/30 transition">
+        <h3 class="text-base font-bold text-slate-200">No Cases Found</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">Iss category me filhaal koi case nahi hai. Naya case add karne ke liye neeche '+' button dabayein.</p>
+        <button onclick="app.openCaseModal()" class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95">
           <i data-lucide="plus" class="w-4 h-4"></i> Add New Case
         </button>
       </div>
@@ -161,51 +255,56 @@
     <div class="fixed bottom-20 right-4 z-40 max-w-lg mx-auto">
       <button 
         onclick="app.openCaseModal()"
-        class="w-14 h-14 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-sky-500/40 active:scale-90 hover:scale-105 transition-transform"
+        class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-500 text-white flex items-center justify-center shadow-xl shadow-indigo-600/40 border border-white/20 active:scale-90 hover:scale-105 transition-all group"
         title="Add Case File"
       >
-        <i data-lucide="plus" class="w-7 h-7"></i>
+        <i data-lucide="plus" class="w-7 h-7 group-hover:rotate-90 transition-transform duration-300"></i>
       </button>
     </div>
 
-    <!-- Mobile Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 flex justify-around items-center py-2 px-4 max-w-lg mx-auto">
-      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="today">
-        <i data-lucide="calendar-check" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Today</span>
+    <!-- Bottom Mobile Dock Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 glass-nav flex justify-around items-center py-2.5 px-4 max-w-lg mx-auto">
+      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="today">
+        <i data-lucide="calendar-check-2" class="w-5 h-5"></i>
+        <span class="text-[10px] font-semibold mt-1">Today</span>
       </button>
 
-      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-sky-400 transition" data-tab="all">
+      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-indigo-400 transition" data-tab="all">
         <i data-lucide="briefcase" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">All Cases</span>
+        <span class="text-[10px] font-semibold mt-1">All Cases</span>
       </button>
 
-      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="upcoming">
+      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="upcoming">
         <i data-lucide="calendar-days" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Upcoming</span>
+        <span class="text-[10px] font-semibold mt-1">Upcoming</span>
       </button>
 
-      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="settings">
+      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="settings">
         <i data-lucide="database" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Database</span>
+        <span class="text-[10px] font-semibold mt-1">Database</span>
       </button>
     </nav>
 
   </div>
 
-  <!-- MODAL: Add / Edit Case (Mobile Bottom Sheet Style) -->
-  <div id="caseModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
-    <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
+  <!-- MODAL: Add / Edit Case (Mobile Bottom Sheet) -->
+  <div id="caseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-white/10 w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
       
+      <!-- Pull handle for mobile touch -->
+      <div class="pt-3 pb-1 flex justify-center sm:hidden">
+        <div class="w-12 h-1 bg-slate-700 rounded-full"></div>
+      </div>
+
       <!-- Modal Header -->
-      <div class="px-5 py-4 border-b border-slate-700/80 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
+      <div class="px-5 py-3 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <i data-lucide="file-plus-2" class="w-4 h-4"></i>
           </div>
-          <h3 id="caseModalTitle" class="text-sm font-bold text-white">Add Court Case File</h3>
+          <h3 id="caseModalTitle" class="text-sm font-bold text-white tracking-tight">Add Court Case File</h3>
         </div>
-        <button onclick="app.closeCaseModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg bg-slate-700/50">
+        <button onclick="app.closeCaseModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl bg-slate-800/80 border border-white/5">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -216,25 +315,25 @@
 
         <!-- Case Number -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Case Number / CNR <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Case Number / CNR <span class="text-rose-400">*</span></label>
           <input 
             type="text" 
             id="caseNumber" 
             required 
             placeholder="e.g. WP(C) 1042/2024 or CS 45/2023"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           >
         </div>
 
         <!-- Parties Name -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Parties Name (Petitioner vs Respondent) <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Parties Name (Petitioner vs Respondent) <span class="text-rose-400">*</span></label>
           <input 
             type="text" 
             id="caseParties" 
             required 
             placeholder="e.g. Ramesh Kumar vs State of UP & Ors."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           >
         </div>
 
@@ -245,17 +344,17 @@
             <input 
               type="text" 
               id="caseCourt" 
-              placeholder="e.g. High Court / District Court Saket"
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+              placeholder="e.g. High Court / Saket Court"
+              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             >
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Court Room / Judge Name</label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Court Room / Judge</label>
             <input 
               type="text" 
               id="caseJudge" 
-              placeholder="e.g. Courtroom 4 / Justice Sharma"
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+              placeholder="e.g. Room 4 / Justice Sharma"
+              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             >
           </div>
         </div>
@@ -263,22 +362,22 @@
         <!-- Next Hearing Date (NDOH) & Stage -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Next Date of Hearing (NDOH) <span class="text-red-400">*</span></label>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Next Date of Hearing (NDOH) <span class="text-rose-400">*</span></label>
             <input 
               type="date" 
               id="caseNextDate" 
               required
-              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
             >
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Hearing Stage / Purpose</label>
-            <select id="caseStage" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+            <select id="caseStage" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
               <option value="Final Arguments">Final Arguments</option>
               <option value="Evidence / Cross">Evidence / Cross Examination</option>
               <option value="Framing of Issues">Framing of Issues</option>
               <option value="Admission / Notice">Admission / Notice</option>
-              <option value="Filing of Written Statement">Filing of WS / Reply</option>
+              <option value="Filing of WS / Reply">Filing of WS / Reply</option>
               <option value="Bail Hearing">Bail Hearing</option>
               <option value="Order / Judgment">Order / Judgment</option>
               <option value="Miscellaneous">Miscellaneous</option>
@@ -286,25 +385,25 @@
           </div>
         </div>
 
-        <!-- Senior's Instructions / Notes -->
+        <!-- Senior's Instructions -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Senior's Instructions / Action Items</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Senior's Instructions / Action Directive</label>
           <textarea 
             id="caseInstructions" 
             rows="2" 
-            placeholder="e.g. Rejoinder draft karke file karni hai, Vakalatnama verify karna hai..."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 resize-none"
+            placeholder="e.g. Rejoinder draft karke file karni hai, Citation 2021 ready rakhna..."
+            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
           ></textarea>
         </div>
 
         <!-- File / Google Drive Link -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">File Dossier / Google Drive Link</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">File Dossier / Drive Link</label>
           <input 
             type="url" 
             id="caseDriveLink" 
             placeholder="https://drive.google.com/..."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
           >
         </div>
 
@@ -312,7 +411,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
-            <select id="casePriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+            <select id="casePriority" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
               <option value="Normal">Normal</option>
               <option value="Urgent">🔴 Urgent</option>
               <option value="Routine">Routine</option>
@@ -320,7 +419,7 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">Case Status</label>
-            <select id="caseStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+            <select id="caseStatus" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
               <option value="Active">Active</option>
               <option value="Reserved for Order">Reserved for Order</option>
               <option value="Disposed">Disposed / Closed</option>
@@ -328,13 +427,13 @@
           </div>
         </div>
 
-        <!-- Modal Submit Button -->
+        <!-- Submit Button -->
         <div class="pt-2">
           <button 
             type="submit" 
-            class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
+            class="w-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-xl shadow-indigo-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
           >
-            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
             <span id="saveBtnText">Save Court Case</span>
           </button>
         </div>
@@ -344,14 +443,14 @@
   </div>
 
   <!-- MODAL: Quick Update NDOH (Courtroom Fast-Action) -->
-  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
-    <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
         <div>
           <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-sky-400"></i> Update Hearing Date (NDOH)
+            <i data-lucide="calendar-plus" class="w-4 h-4 text-indigo-400"></i> Update Next Hearing Date
           </h3>
-          <p id="ndohCaseTitle" class="text-xs text-slate-400 mt-0.5 truncate">Case No</p>
+          <p id="ndohCaseTitle" class="text-xs text-slate-400 mt-0.5 truncate font-mono">Case No</p>
         </div>
         <button onclick="app.closeNdohModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -361,13 +460,24 @@
       <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-3.5">
         <input type="hidden" id="ndohCaseId">
         
+        <!-- Preset Date Quick Chips -->
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">New Hearing Date (NDOH) <span class="text-red-400">*</span></label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Quick Date Presets</label>
+          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar text-[11px] font-semibold">
+            <button type="button" onclick="app.setNdohPreset(1)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">Tomorrow</button>
+            <button type="button" onclick="app.setNdohPreset(7)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+7 Days</button>
+            <button type="button" onclick="app.setNdohPreset(14)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+14 Days</button>
+            <button type="button" onclick="app.setNdohPreset(30)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+1 Month</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">New Hearing Date (NDOH) <span class="text-rose-400">*</span></label>
           <input 
             type="date" 
             id="ndohDate" 
             required 
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
           >
         </div>
 
@@ -377,23 +487,23 @@
             type="text" 
             id="ndohStage" 
             placeholder="e.g. For Orders, For Cross of PW-1"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
           >
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Today's Court Proceedings / Order Summary</label>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Today's Court Proceedings / Summary</label>
           <textarea 
             id="ndohNotes" 
             rows="2" 
             placeholder="e.g. Adjourned on request of respondent counsel, next date fixed..."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 resize-none"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
           ></textarea>
         </div>
 
         <button 
           type="submit" 
-          class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 rounded-xl shadow-md text-sm active:scale-95 transition"
+          class="w-full bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/30 text-sm active:scale-95 transition"
         >
           Confirm New Date
         </button>
@@ -402,16 +512,16 @@
   </div>
 
   <!-- MODAL: Settings & Supabase Configuration -->
-  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-5 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-2xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
             <i data-lucide="database" class="w-4 h-4"></i>
           </div>
           <div>
             <h3 class="text-sm font-bold text-white">Supabase Cloud Settings</h3>
-            <p class="text-[11px] text-slate-400">Sync data across all devices</p>
+            <p class="text-[11px] text-slate-400">Sync data across devices</p>
           </div>
         </div>
         <button onclick="app.closeSettingsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
@@ -426,7 +536,7 @@
             type="text" 
             id="cfgUrl" 
             placeholder="https://xyzcompany.supabase.co"
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
           >
         </div>
 
@@ -436,17 +546,17 @@
             type="password" 
             id="cfgKey" 
             placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-500"
+            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
           >
-          <p class="text-[10px] text-slate-500 mt-1">Keys browser ke local storage me safe rehti hain aur public repository me share nahi hongi.</p>
+          <p class="text-[10px] text-slate-500 mt-1">Keys browser storage me save hongi, public repo me nahi jayengi.</p>
         </div>
 
         <div class="pt-2 flex flex-col gap-2">
-          <button onclick="app.saveSupabaseConfig()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs active:scale-95 transition">
+          <button onclick="app.saveSupabaseConfig()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl text-xs active:scale-95 transition shadow-lg shadow-emerald-600/30">
             Save & Connect to Supabase
           </button>
-          <button onclick="app.useDemoMode()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium py-2 rounded-xl text-xs transition">
-            Reset to Local Demo Mode
+          <button onclick="app.useDemoMode()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition border border-white/5">
+            Reset to Demo Mode
           </button>
         </div>
       </div>
@@ -456,7 +566,7 @@
   <!-- Toast Notification Container -->
   <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none"></div>
 
-  <!-- App Logic Scripts -->
+  <!-- App Script -->
   <script src="app.js"></script>
 </body>
 </html>

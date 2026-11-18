@@ -11,8 +11,8 @@
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Lucide Icons (Official UMD CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -134,7 +134,7 @@
           </button>
           <!-- Settings -->
           <button onclick="app.openSettingsModal()" class="w-8 h-8 rounded-full bg-ios-card flex items-center justify-center text-ios-blue active:opacity-60 transition" title="Settings">
-            <i data-lucide="gear" class="w-4 h-4"></i>
+            <i data-lucide="settings" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
@@ -247,7 +247,7 @@
       </button>
 
       <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="settings">
-        <i data-lucide="slider" class="w-5 h-5"></i>
+        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
         <span class="text-[10px] font-medium mt-1">Settings</span>
       </button>
     </nav>

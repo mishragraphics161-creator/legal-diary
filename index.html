@@ -231,36 +231,39 @@
         </div>
       </div>
 
-      <!-- Persistent Row: Title ("Case Diary") + Settings Icon (ALWAYS VISIBLE ON SCROLL) -->
-      <div class="flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <div class="w-7 h-7 rounded-[8px] bg-ios-blue/15 text-ios-blue flex items-center justify-center">
+      <!-- Persistent Row: 3 Items Inline (Title + Searchbar + Settings Icon) -->
+      <div class="flex items-center gap-2 sm:gap-3 w-full py-0.5">
+        
+        <!-- 1. Title: "Case Diary" -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <div class="w-7 h-7 rounded-[8px] bg-ios-blue/15 text-ios-blue flex items-center justify-center shrink-0">
             <i data-lucide="scale" class="w-4 h-4"></i>
           </div>
-          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">Case Diary</h1>
+          <h1 class="text-[15px] sm:text-[17px] font-extrabold tracking-tight whitespace-nowrap">Case Diary</h1>
         </div>
 
-        <!-- Settings Icon: Stays visible on scroll as requested -->
-        <button onclick="app.openSettingsModal()" class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-ios-blue active:opacity-60 transition shadow-sm" title="Settings">
+        <!-- 2. Searchbar (Inline Middle) -->
+        <div class="relative flex-1 min-w-0">
+          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+            <i data-lucide="search" class="w-3.5 h-3.5 text-ios-gray"></i>
+          </div>
+          <input 
+            type="text" 
+            id="searchInput" 
+            oninput="app.handleSearch(this.value)"
+            placeholder="Search cases..."
+            class="w-full ios-input text-[13px] sm:text-[14px] placeholder-ios-gray pl-8 pr-7 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-ios-blue transition"
+          >
+          <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2 flex items-center text-ios-gray">
+            <i data-lucide="x-circle" class="w-3.5 h-3.5 fill-ios-gray text-black dark:text-white"></i>
+          </button>
+        </div>
+
+        <!-- 3. Settings Icon (Inline Right) -->
+        <button onclick="app.openSettingsModal()" class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-ios-blue active:opacity-60 transition shrink-0 shadow-sm" title="Settings">
           <i data-lucide="settings" class="w-4 h-4"></i>
         </button>
-      </div>
 
-      <!-- Persistent Row: Search Bar (ALWAYS VISIBLE ON SCROLL) -->
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-          <i data-lucide="search" class="w-4 h-4 text-ios-gray"></i>
-        </div>
-        <input 
-          type="text" 
-          id="searchInput" 
-          oninput="app.handleSearch(this.value)"
-          placeholder="Search case, party, court, stage, remarks..."
-          class="w-full ios-input text-[14px] sm:text-[15px] placeholder-ios-gray pl-10 pr-9 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-ios-blue/50 transition"
-        >
-        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-ios-gray">
-          <i data-lucide="x-circle" class="w-4 h-4 fill-ios-gray text-black dark:text-white"></i>
-        </button>
       </div>
 
       <!-- Collapsible Bottom Row: iOS Segmented Control Filter (HIDES ON SCROLL) -->

@@ -7,6 +7,8 @@ class LegalDiaryApp {
     this.currentTab = 'all';
     this.quickFilter = 'all';
     this.searchQuery = '';
+    this.selectedCourt = 'all';
+    this.expandedCardIds = new Set();
     this.supabaseClient = null;
     this.isSupabaseConnected = false;
     this.currentTheme = localStorage.getItem('legal_diary_theme') || 'dark';
@@ -59,11 +61,12 @@ class LegalDiaryApp {
     }, { passive: true });
   }
 
-  // Theme Toggle (Dark / Light)
+  // Theme Toggle (Dark / Light) with daisyUI + Tailwind Sync
   applyTheme(theme) {
     this.currentTheme = theme;
     localStorage.setItem('legal_diary_theme', theme);
     const root = document.documentElement;
+    root.setAttribute('data-theme', theme);
     if (theme === 'dark') {
       root.classList.add('dark');
     } else {
@@ -114,16 +117,16 @@ class LegalDiaryApp {
     }
   }
 
-  // Storage badge (Rebranded from Demo Mode to Device Storage)
+  // Storage badge (Rebranded from Demo Mode to Device Storage - Borderless Clean Tag)
   updateBadge(connected) {
     const badge = document.getElementById('supabaseBadge');
     if (!badge) return;
     if (connected) {
-      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-ios-green animate-pulse"></span> <span>Cloud Synced</span>`;
-      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-green/15 text-ios-green border border-ios-green/30 flex items-center gap-1.5';
+      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-xs bg-success animate-pulse"></span> <span>Cloud Synced</span>`;
+      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-success/15 text-success text-[11px] font-semibold';
     } else {
-      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-ios-orange animate-pulse"></span> <span>Device Storage</span>`;
-      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30 flex items-center gap-1.5';
+      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-xs bg-warning animate-pulse"></span> <span>Device Storage</span>`;
+      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/15 text-warning text-[11px] font-semibold';
     }
   }
 
@@ -503,13 +506,13 @@ class LegalDiaryApp {
     return Math.round(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  // iOS 15 Status Pill Info
+  // Clean rectangular status tags (Borderless soft fills)
   getHearingBadgeInfo(targetDateStr, status) {
     if (status === 'Disposed') {
       return {
         text: 'Disposed',
-        badgeClass: 'bg-black/10 dark:bg-[#2C2C2E] text-ios-gray',
-        dateClass: 'text-ios-gray'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-base-200/80 text-base-content/60',
+        dateClass: 'text-base-content/60'
       };
     }
 
@@ -518,32 +521,32 @@ class LegalDiaryApp {
     if (diff < 0) {
       return {
         text: `Passed (${Math.abs(diff)}d ago)`,
-        badgeClass: 'bg-ios-red/15 text-ios-red font-semibold',
-        dateClass: 'text-ios-red'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-error/15 text-error',
+        dateClass: 'text-error font-semibold'
       };
     } else if (diff === 0) {
       return {
         text: 'Today',
-        badgeClass: 'bg-ios-red text-white font-bold',
-        dateClass: 'text-ios-red font-bold'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-black rounded-lg bg-error text-white shadow-xs animate-pulse',
+        dateClass: 'text-error font-bold'
       };
     } else if (diff === 1) {
       return {
         text: 'Tomorrow',
-        badgeClass: 'bg-ios-orange/20 text-ios-orange font-semibold',
-        dateClass: 'text-ios-orange font-semibold'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-warning/20 text-warning',
+        dateClass: 'text-warning font-semibold'
       };
     } else if (diff <= 7) {
       return {
         text: `In ${diff} Days`,
-        badgeClass: 'bg-ios-blue/15 text-ios-blue font-medium',
-        dateClass: 'text-ios-blue font-medium'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-info/15 text-info',
+        dateClass: 'text-info font-medium'
       };
     } else {
       return {
         text: `In ${diff} Days`,
-        badgeClass: 'bg-black/10 dark:bg-[#2C2C2E] text-ios-gray font-medium',
-        dateClass: 'text-neutral-700 dark:text-white'
+        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-base-200 text-base-content/75',
+        dateClass: 'text-base-content/75'
       };
     }
   }
@@ -590,16 +593,16 @@ class LegalDiaryApp {
     }
   }
 
-  // iOS Tab Switcher
+  // Tab Switcher
   switchTab(tab) {
     this.currentTab = tab;
     document.querySelectorAll('.nav-tab').forEach(el => {
       if (el.dataset.tab === tab) {
-        el.classList.add('text-ios-blue');
-        el.classList.remove('text-ios-gray');
+        el.classList.add('text-primary');
+        el.classList.remove('text-base-content/60');
       } else {
-        el.classList.remove('text-ios-blue');
-        el.classList.add('text-ios-gray');
+        el.classList.remove('text-primary');
+        el.classList.add('text-base-content/60');
       }
     });
 
@@ -676,6 +679,15 @@ class LegalDiaryApp {
         return true;
       })
       .filter(item => {
+        // Quick Court Dropdown Filter
+        if (this.selectedCourt && this.selectedCourt !== 'all') {
+          if (!item.court_name || !item.court_name.toLowerCase().includes(this.selectedCourt.toLowerCase())) {
+            return false;
+          }
+        }
+        return true;
+      })
+      .filter(item => {
         if (!this.searchQuery) return true;
         const q = this.searchQuery;
         return (
@@ -701,6 +713,26 @@ class LegalDiaryApp {
     }
   }
 
+  // Filter by Court Dropdown
+  filterByCourt(court) {
+    this.selectedCourt = court;
+    this.render();
+    if (court !== 'all') {
+      this.showToast(`Filtered: ${court}`, 'info');
+    }
+  }
+
+  // Quick preset helpers for Modal
+  setCourtPreset(court) {
+    const el = document.getElementById('caseCourt');
+    if (el) el.value = court;
+  }
+
+  setStagePreset(stage) {
+    const el = document.getElementById('caseStage');
+    if (el) el.value = stage;
+  }
+
   // Quick preset helper in NDOH modal
   setNdohPreset(days) {
     const d = new Date();
@@ -711,7 +743,29 @@ class LegalDiaryApp {
     }
   }
 
-  // Render iOS 15 Inset Grouped Table Cards
+  // Toggle Card Expansion (Collapsible Accordion)
+  toggleCard(id) {
+    if (this.expandedCardIds.has(id)) {
+      this.expandedCardIds.delete(id);
+    } else {
+      this.expandedCardIds.add(id);
+    }
+    const content = document.getElementById(`card-details-${id}`);
+    const chevron = document.getElementById(`card-chevron-${id}`);
+    if (content && chevron) {
+      if (this.expandedCardIds.has(id)) {
+        content.classList.add('expanded');
+        chevron.classList.add('expanded');
+      } else {
+        content.classList.remove('expanded');
+        chevron.classList.remove('expanded');
+      }
+    } else {
+      this.render();
+    }
+  }
+
+  // Render iOS 15 Inset Grouped Table Cards (Collapsible Accordion Style)
   render() {
     const container = document.getElementById('casesList');
     const emptyState = document.getElementById('emptyState');
@@ -729,132 +783,141 @@ class LegalDiaryApp {
       const badge = this.getHearingBadgeInfo(c.next_hearing_date, c.status);
       const displayDate = this.formatDisplayDate(c.next_hearing_date);
       const isUrgent = c.priority === 'Urgent';
+      const isExpanded = this.expandedCardIds.has(c.id);
 
       return `
-        <div class="ios-card shadow-sm hover:shadow-md transition">
+        <div class="card bg-base-100 rounded-2xl shadow-sm hover:shadow-md transition duration-150 overflow-hidden">
           
-          <!-- Card Header Cell -->
-          <div class="p-3.5 sm:p-4">
-            <div class="flex items-start justify-between gap-2">
-              <div class="flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <!-- iOS Case Number Pill -->
+          <!-- Collapsed Card Header (Always Visible - Tap to Expand/Collapse) -->
+          <div 
+            onclick="app.toggleCard('${c.id}')"
+            class="p-4 sm:p-5 cursor-pointer select-none active:bg-base-200/50 transition flex flex-col gap-2"
+          >
+            <!-- Row 1: CourtName (Left) vs [in __ days] (Right) -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="inline-flex items-center px-2.5 py-1 text-[11px] font-bold font-mono tracking-wide text-primary bg-primary/10 rounded-lg truncate">
+                  ${c.court_name || 'Court/Forum'}
+                </span>
+                ${c.judge_name ? `<span class="text-base-content/60 truncate text-[11px] hidden sm:inline">(${c.judge_name})</span>` : ''}
+              </div>
+
+              <!-- Days Tag: [ in __ days ] / [ Today ] (Borderless clean tag) -->
+              <span class="${badge.badgeClass}">
+                ${badge.text}
+              </span>
+            </div>
+
+            <!-- Row 2: CaseName (Left) vs Chevron (Right) -->
+            <div class="flex items-center justify-between gap-2.5">
+              <h3 class="text-[15px] sm:text-[16px] font-bold text-base-content leading-snug truncate flex-1">
+                ${c.parties}
+              </h3>
+              
+              <!-- Chevron Box (Borderless soft tile) -->
+              <div id="card-chevron-${c.id}" class="w-6 h-6 rounded-lg bg-base-200/60 flex items-center justify-center text-base-content/60 shrink-0 card-chevron ${isExpanded ? 'expanded' : ''}">
+                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expandable Details Section (Shown when expanded) -->
+          <div id="card-details-${c.id}" class="card-collapsible-content ${isExpanded ? 'expanded' : ''}">
+            
+            <div class="divider my-0 opacity-15"></div>
+
+            <!-- Detailed Information Cell -->
+            <div class="p-4 sm:p-5 bg-base-200/40 space-y-3 text-[13px]">
+              
+              <!-- Case Number + Exact Date Row -->
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5">
                   <button 
-                    onclick="app.copyToClipboard('${c.case_number}', 'Case No.')" 
-                    class="inline-flex items-center gap-1 text-[12px] font-mono font-semibold text-ios-blue bg-ios-blue/10 hover:bg-ios-blue/20 px-2 py-0.5 rounded-[6px] active:opacity-60 transition"
+                    onclick="event.stopPropagation(); app.copyToClipboard('${c.case_number}', 'Case No.')" 
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-base-100 text-base-content hover:bg-base-200 active:scale-95 transition cursor-pointer shadow-xs"
                     title="Tap to copy"
                   >
                     <span>${c.case_number}</span>
-                    <i data-lucide="copy" class="w-3 h-3 text-ios-blue"></i>
+                    <i data-lucide="copy" class="w-3 h-3 text-base-content/50"></i>
                   </button>
 
                   ${isUrgent ? `
-                    <span class="text-[10px] font-bold tracking-wide uppercase bg-ios-red/15 text-ios-red px-1.5 py-0.5 rounded-[5px]">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-error/15 text-error text-[10px] font-bold uppercase tracking-wider">
                       Urgent
                     </span>
                   ` : ''}
                 </div>
 
-                <!-- Case Title -->
-                <h3 class="text-[15px] sm:text-[16px] font-bold text-neutral-900 dark:text-white mt-1.5 leading-snug">
-                  ${c.parties}
-                </h3>
+                <div class="text-[12px] ${badge.dateClass} font-semibold flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                  <span>Hearing: ${displayDate}</span>
+                </div>
               </div>
+
+              <!-- Stage & Court Room Details -->
+              <div class="flex items-center gap-2 text-base-content text-xs">
+                <span class="font-bold uppercase tracking-wider text-base-content/60">Stage:</span>
+                <span class="font-semibold text-warning">${c.hearing_stage || 'General'}</span>
+                ${c.judge_name ? `<span class="text-base-content/60 truncate"> • ${c.judge_name}</span>` : ''}
+              </div>
+
+              <!-- Senior Directive / Remarks Row -->
+              ${c.senior_instructions ? `
+                <div class="mt-2 p-3 rounded-xl bg-base-100/90 text-xs text-base-content italic flex items-start gap-2 shadow-xs">
+                  <i data-lucide="message-square" class="w-3.5 h-3.5 text-warning shrink-0 mt-0.5"></i>
+                  <span class="flex-1">"${c.senior_instructions}"</span>
+                </div>
+              ` : ''}
+
+            </div>
+
+            <div class="divider my-0 opacity-15"></div>
+
+            <!-- Action Footer Cell (Borderless soft controls) -->
+            <div class="p-3 bg-base-100 flex items-center justify-between gap-2" onclick="event.stopPropagation()">
               
-              <!-- iOS Status Badge -->
-              <div class="flex flex-col items-end shrink-0">
-                <span class="text-[11px] px-2.5 py-0.5 rounded-full ${badge.badgeClass}">
-                  ${badge.text}
-                </span>
-                <span class="text-[12px] ${badge.dateClass} mt-1 font-semibold flex items-center gap-1">
-                  <i data-lucide="calendar" class="w-3 h-3"></i>
-                  ${displayDate}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Divider -->
-          <div class="ios-divider"></div>
-
-          <!-- Information Cell (Court & Stage) -->
-          <div class="p-3.5 sm:p-4 ios-card-inner space-y-2 text-[13px]">
-            ${c.court_name ? `
-              <div class="flex items-center gap-2 text-neutral-900 dark:text-white">
-                <div class="w-5 h-5 rounded-[5px] bg-ios-blue flex items-center justify-center shrink-0">
-                  <i data-lucide="landmark" class="w-3 h-3 text-white"></i>
-                </div>
-                <span class="font-semibold truncate">${c.court_name}</span>
-                ${c.judge_name ? `<span class="text-ios-gray truncate text-[12px]">(${c.judge_name})</span>` : ''}
-              </div>
-            ` : ''}
-
-            <div class="flex items-center gap-2 text-neutral-900 dark:text-white">
-              <div class="w-5 h-5 rounded-[5px] bg-ios-purple flex items-center justify-center shrink-0">
-                <i data-lucide="gavel" class="w-3 h-3 text-white"></i>
-              </div>
-              <span class="font-medium">Stage: <span class="text-ios-orange font-semibold">${c.hearing_stage || 'General'}</span></span>
-            </div>
-
-            <!-- Senior Directive Row (Remarks) -->
-            ${c.senior_instructions ? `
-              <div class="flex items-start gap-2 pt-1 border-t border-black/5 dark:border-white/5">
-                <div class="w-5 h-5 rounded-[5px] bg-ios-orange flex items-center justify-center shrink-0 mt-0.5">
-                  <i data-lucide="message-square" class="w-3 h-3 text-white"></i>
-                </div>
-                <div class="flex-1 text-[13px] text-neutral-700 dark:text-[#D1D1D6] leading-relaxed italic">
-                  "${c.senior_instructions}"
-                </div>
-              </div>
-            ` : ''}
-          </div>
-
-          <!-- Divider -->
-          <div class="ios-divider"></div>
-
-          <!-- Action Footer Cell -->
-          <div class="p-2.5 bg-black/5 dark:bg-[#1C1C1E] flex items-center justify-between gap-2">
-            
-            <!-- Quick NDOH Update -->
-            <button 
-              onclick="app.openNdohModal('${c.id}')"
-              class="flex-1 bg-ios-blue/15 hover:bg-ios-blue/25 text-ios-blue font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center justify-center gap-1.5 active:opacity-60 transition"
-            >
-              <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
-              Update Date
-            </button>
-
-            <!-- WhatsApp Share -->
-            <button 
-              onclick="app.shareOnWhatsApp('${c.id}')"
-              class="bg-ios-green/15 hover:bg-ios-green/25 text-ios-green font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center gap-1.5 active:opacity-60 transition"
-              title="Share on WhatsApp"
-            >
-              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-              WhatsApp
-            </button>
-
-            <!-- Drive Dossier Link -->
-            ${c.file_drive_link ? `
-              <a 
-                href="${c.file_drive_link}" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="bg-black/10 dark:bg-[#2C2C2E] text-ios-blue p-2 rounded-[10px] active:opacity-60 transition"
-                title="Open Dossier"
+              <!-- Quick NDOH Update -->
+              <button 
+                onclick="app.openNdohModal('${c.id}')"
+                class="btn btn-sm btn-primary rounded-xl flex-1 gap-1.5 font-bold shadow-xs border-none"
               >
-                <i data-lucide="link" class="w-4 h-4"></i>
-              </a>
-            ` : ''}
+                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+                Update Date
+              </button>
 
-            <!-- More / Edit / Delete -->
-            <div class="flex items-center space-x-1">
-              <button onclick="app.editCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-blue rounded-lg active:opacity-60 transition" title="Edit">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
+              <!-- WhatsApp Share -->
+              <button 
+                onclick="app.shareOnWhatsApp('${c.id}')"
+                class="btn btn-sm btn-success rounded-xl text-white gap-1.5 font-semibold shadow-xs border-none"
+                title="Share on WhatsApp"
+              >
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                WhatsApp
               </button>
-              <button onclick="app.deleteCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-red rounded-lg active:opacity-60 transition" title="Delete">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
+
+              <!-- Drive Dossier Link -->
+              ${c.file_drive_link ? `
+                <a 
+                  href="${c.file_drive_link}" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none"
+                  title="Open Dossier"
+                >
+                  <i data-lucide="link" class="w-4 h-4 text-info"></i>
+                </a>
+              ` : ''}
+
+              <!-- Edit / Delete -->
+              <div class="flex items-center space-x-1">
+                <button onclick="app.editCase('${c.id}')" class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none text-base-content/70 hover:text-primary" title="Edit">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+                <button onclick="app.deleteCase('${c.id}')" class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none text-base-content/70 hover:text-error" title="Delete">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </div>
+
             </div>
 
           </div>
@@ -1198,22 +1261,25 @@ _Sent via Legal Diary_`;
     this.showToast('Reset to 23 Cases', 'info');
   }
 
-  // iOS 15 Pill HUD Notification
+  // Toast Notification (Borderless clean card)
   showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `px-4 py-2 rounded-full shadow-2xl text-[13px] font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-[#2C2C2E]/95 dark:bg-[#2C2C2E]/95 bg-white/95 text-black dark:text-white backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-lg`;
+    toast.className = `px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-base-100/95 text-base-content backdrop-blur-xl`;
     
     let icon = 'check-circle-2';
-    let iconColor = 'text-ios-green';
+    let iconColor = 'text-success';
     if (type === 'error') {
       icon = 'alert-circle';
-      iconColor = 'text-ios-red';
+      iconColor = 'text-error';
     } else if (type === 'warning') {
       icon = 'alert-triangle';
-      iconColor = 'text-ios-orange';
+      iconColor = 'text-warning';
+    } else if (type === 'info') {
+      icon = 'info';
+      iconColor = 'text-info';
     }
 
     toast.innerHTML = `

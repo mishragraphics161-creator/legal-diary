@@ -1,0 +1,24 @@
+{
+  "name": "new",
+  "version": "1.0.0",
+  "description": "A modern, minimalistic, mobile-first web app designed for advocates, juniors, and legal teams to manage court case files, track upcoming hearing dates (NDOH), share instant WhatsApp updates with seniors, and print daily cause lists.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mishragraphics161-creator/legal-diary.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mishragraphics161-creator/legal-diary/issues"
+  },
+  "homepage": "https://github.com/mishragraphics161-creator/legal-diary#readme",
+  "dependencies": {
+    "daisyui": "^5.8.1"
+  }
+}

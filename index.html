@@ -1,14 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="dark" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Case Diary • iOS 15</title>
+  <title>Case Diary • iOS 15 + daisyUI</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- daisyUI Component Library (Official CDN) -->
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.min.css" rel="stylesheet" type="text/css" />
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons (Official UMD CDN) -->
@@ -65,94 +67,52 @@
       scrollbar-width: none;
     }
 
-    /* DARK THEME STYLES (iOS Dark Mode) */
+    /* DARK THEME STYLES (iOS Dark Mode - Seamless Borderless Surfaces) */
     html.dark body {
-      background-color: #000000;
+      background-color: #0c0c0e;
       color: #FFFFFF;
     }
     html.dark .ios-card {
       background-color: #1C1C1E;
-      border: 0.5px solid rgba(84, 84, 88, 0.35);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
     }
     html.dark .ios-card-inner {
       background-color: #252528;
     }
     html.dark .ios-blur-bar {
-      background-color: rgba(22, 22, 24, 0.85);
-      border-bottom: 0.5px solid rgba(84, 84, 88, 0.45);
+      background-color: rgba(18, 18, 20, 0.90);
     }
     html.dark .ios-blur-tabbar {
-      background-color: rgba(28, 28, 30, 0.90);
-      border-top: 0.5px solid rgba(84, 84, 88, 0.45);
-    }
-    html.dark .ios-segmented {
-      background-color: #1C1C1E;
-      border: 0.5px solid rgba(84, 84, 88, 0.3);
-    }
-    html.dark .ios-segmented-item.active {
-      background-color: #3A3A3C;
-      color: #FFFFFF;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    }
-    html.dark .ios-divider {
-      background-color: rgba(84, 84, 88, 0.45);
-    }
-    html.dark .ios-input {
-      background-color: #1C1C1E;
-      color: #FFFFFF;
+      background-color: rgba(24, 24, 26, 0.92);
     }
     html.dark .ios-modal-surface {
       background-color: #1C1C1E;
-      border-color: #38383A;
     }
     html.dark .ios-modal-group {
-      background-color: #2C2C2E;
+      background-color: #252528;
     }
 
-    /* LIGHT THEME STYLES (iOS Light Mode) */
+    /* LIGHT THEME STYLES (iOS Light Mode - Seamless Borderless Surfaces) */
     html:not(.dark) body {
       background-color: #F2F2F7;
       color: #000000;
     }
     html:not(.dark) .ios-card {
       background-color: #FFFFFF;
-      border: 0.5px solid rgba(60, 60, 67, 0.15);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     }
     html:not(.dark) .ios-card-inner {
       background-color: #F8F8FA;
     }
     html:not(.dark) .ios-blur-bar {
-      background-color: rgba(249, 249, 251, 0.88);
-      border-bottom: 0.5px solid rgba(60, 60, 67, 0.2);
+      background-color: rgba(249, 249, 251, 0.92);
     }
     html:not(.dark) .ios-blur-tabbar {
-      background-color: rgba(255, 255, 255, 0.92);
-      border-top: 0.5px solid rgba(60, 60, 67, 0.2);
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
-    }
-    html:not(.dark) .ios-segmented {
-      background-color: #E3E3E8;
-      border: 0.5px solid rgba(60, 60, 67, 0.12);
-    }
-    html:not(.dark) .ios-segmented-item {
-      color: #6C6C70;
-    }
-    html:not(.dark) .ios-segmented-item.active {
-      background-color: #FFFFFF;
-      color: #000000;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-    }
-    html:not(.dark) .ios-divider {
-      background-color: rgba(60, 60, 67, 0.15);
-    }
-    html:not(.dark) .ios-input {
-      background-color: #E3E3E8;
-      color: #000000;
+      background-color: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
     }
     html:not(.dark) .ios-modal-surface {
       background-color: #FFFFFF;
-      border-color: #E5E5EA;
     }
     html:not(.dark) .ios-modal-group {
       background-color: #F2F2F7;
@@ -168,8 +128,38 @@
       backdrop-filter: saturate(180%) blur(25px);
       -webkit-backdrop-filter: saturate(180%) blur(25px);
     }
-    .ios-divider {
-      height: 0.5px;
+
+    :root {
+      --rounded-badge: 0.5rem;
+      --rounded-btn: 0.75rem;
+      --rounded-box: 1rem;
+    }
+
+    /* Seamless Borderless Tab Switcher */
+    .ios-segmented-item {
+      color: var(--fallback-bc, oklch(var(--bc)/0.6));
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: none !important;
+    }
+    .ios-segmented-item:hover {
+      color: var(--fallback-bc, oklch(var(--bc)/0.9));
+      background-color: var(--fallback-b2, oklch(var(--b2)/0.5));
+    }
+    .ios-segmented-item.active {
+      color: var(--fallback-p, oklch(var(--p)/1)) !important;
+      background-color: var(--fallback-b1, oklch(var(--b1)/1)) !important;
+      font-weight: 700 !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+      border: none !important;
+    }
+
+    /* Custom Dropdown Select styling */
+    select.daisy-court-select {
+      border-radius: 8px;
+      cursor: pointer;
+      border: none !important;
+      transition: all 0.15s ease;
     }
     .sheet-transition {
       transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
@@ -193,6 +183,24 @@
       padding-bottom: 0 !important;
       pointer-events: none;
     }
+
+    /* Card Collapsible Details on Tap */
+    .card-collapsible-content {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    }
+    .card-collapsible-content.expanded {
+      max-height: 600px;
+      opacity: 1;
+    }
+    .card-chevron {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card-chevron.expanded {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 <body class="min-h-screen antialiased flex flex-col select-none">
@@ -200,89 +208,94 @@
   <!-- Responsive Adaptive Container: Full-width on mobile, expands smoothly to max-w-4xl (900px) on laptop/desktop -->
   <div class="w-full max-w-4xl min-h-screen flex flex-col mx-auto px-3 sm:px-6 pb-28 relative">
 
-    <!-- iOS 15 Top Navigation Bar with Dynamic Scroll Collapse -->
-    <header id="mainHeader" class="sticky top-0 z-30 ios-blur-bar -mx-3 sm:-mx-6 px-4 sm:px-6 pt-2 pb-2.5 mb-2 transition-all duration-300">
+    <!-- Dynamic Top Navigation Bar with Scroll Collapse (Seamless Borderless Design) -->
+    <header id="mainHeader" class="sticky top-0 z-30 bg-base-100/95 backdrop-blur-md shadow-xs -mx-3 sm:-mx-6 px-4 sm:px-6 pt-2 pb-2 mb-2 transition-all duration-300">
       
       <!-- Collapsible Top Bar: Device Storage badge, Date, Print, Theme & Refresh buttons (HIDES ON SCROLL) -->
       <div id="collapsibleHeaderTop" class="collapsible-header-section flex items-center justify-between mb-2">
         <div class="flex items-center gap-2">
-          <!-- Status Badge -->
-          <span id="supabaseBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30 flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-ios-orange animate-pulse"></span>
+          <!-- Status Badge: Borderless clean tag -->
+          <div id="supabaseBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/15 text-warning text-[11px] font-semibold">
+            <span class="w-1.5 h-1.5 rounded-xs bg-warning animate-pulse"></span>
             <span>Device Storage</span>
-          </span>
-          <p id="todayDateStr" class="text-[11px] text-ios-gray font-medium">Loading date...</p>
+          </div>
+          <p id="todayDateStr" class="text-[11px] text-base-content/60 font-medium">Loading date...</p>
         </div>
 
         <div class="flex items-center space-x-1.5">
           <!-- Print Daily List -->
-          <button onclick="app.printDailyBoard()" class="text-[11px] text-ios-blue font-semibold flex items-center gap-1 px-2.5 py-1 rounded-full bg-ios-blue/10 hover:bg-ios-blue/20 active:opacity-60 transition" title="Print Daily Cause List">
-            <i data-lucide="printer" class="w-3 h-3"></i>
+          <button onclick="app.printDailyBoard()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 gap-1 text-primary font-semibold border-none" title="Print Daily Cause List">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
             <span class="hidden sm:inline">Print</span>
           </button>
           <!-- Theme Toggle (Dark / Light) -->
-          <button id="themeToggleBtn" onclick="app.toggleTheme()" class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-ios-blue active:opacity-60 transition" title="Toggle Theme">
+          <button id="themeToggleBtn" onclick="app.toggleTheme()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary border-none" title="Toggle Theme">
             <i id="themeIcon" data-lucide="sun" class="w-3.5 h-3.5"></i>
           </button>
           <!-- Refresh -->
-          <button id="refreshBtn" onclick="app.refreshData()" class="w-7 h-7 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-ios-blue active:opacity-60 transition" title="Refresh">
+          <button id="refreshBtn" onclick="app.refreshData()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary border-none" title="Refresh">
             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
           </button>
         </div>
       </div>
 
-      <!-- Persistent Row: 3 Items Inline (Title + Searchbar + Settings Icon) -->
+      <!-- Persistent Row: EXACTLY 3 Items Inline (Title + Searchbar + Settings Icon) -->
       <div class="flex items-center gap-2 sm:gap-3 w-full py-0.5">
         
         <!-- 1. Title: "Case Diary" -->
         <div class="flex items-center gap-1.5 shrink-0">
-          <div class="w-7 h-7 rounded-[8px] bg-ios-blue/15 text-ios-blue flex items-center justify-center shrink-0">
+          <div class="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
             <i data-lucide="scale" class="w-4 h-4"></i>
           </div>
-          <h1 class="text-[15px] sm:text-[17px] font-extrabold tracking-tight whitespace-nowrap">Case Diary</h1>
+          <h1 class="text-[15px] sm:text-[16px] font-extrabold tracking-tight whitespace-nowrap text-base-content">Case Diary</h1>
         </div>
 
         <!-- 2. Searchbar (Inline Middle) -->
         <div class="relative flex-1 min-w-0">
           <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-            <i data-lucide="search" class="w-3.5 h-3.5 text-ios-gray"></i>
+            <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/50"></i>
           </div>
           <input 
             type="text" 
             id="searchInput" 
             oninput="app.handleSearch(this.value)"
             placeholder="Search cases..."
-            class="w-full ios-input text-[13px] sm:text-[14px] placeholder-ios-gray pl-8 pr-7 py-1.5 rounded-xl focus:outline-none focus:ring-1 focus:ring-ios-blue transition"
+            class="input input-sm border-none bg-base-200/60 focus:bg-base-200 w-full rounded-xl text-[13px] sm:text-[14px] text-base-content placeholder:text-base-content/40 pl-8 pr-7 focus:outline-none transition"
           >
-          <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2 flex items-center text-ios-gray">
-            <i data-lucide="x-circle" class="w-3.5 h-3.5 fill-ios-gray text-black dark:text-white"></i>
+          <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2 flex items-center text-base-content/50 hover:text-base-content">
+            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
           </button>
         </div>
 
         <!-- 3. Settings Icon (Inline Right) -->
-        <button onclick="app.openSettingsModal()" class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center text-ios-blue active:opacity-60 transition shrink-0 shadow-sm" title="Settings">
+        <button onclick="app.openSettingsModal()" class="btn btn-sm rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary shrink-0 border-none" title="Settings">
           <i data-lucide="settings" class="w-4 h-4"></i>
         </button>
 
       </div>
 
-      <!-- Collapsible Bottom Row: iOS Segmented Control Filter (HIDES ON SCROLL) -->
-      <div id="collapsibleHeaderBottom" class="collapsible-header-section mt-2.5">
-        <div class="ios-segmented flex text-[12px] font-semibold">
-          <button onclick="app.setQuickFilter('all')" class="ios-segmented-item active flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="all">
-            All (<span id="countAll">0</span>)
+      <!-- Collapsible Bottom Row: Soft Borderless Tab Switcher (HIDES ON SCROLL) -->
+      <div id="collapsibleHeaderBottom" class="collapsible-header-section mt-2">
+        <div class="flex items-center gap-1 bg-base-200/50 p-1 rounded-xl overflow-x-auto hide-scrollbar text-xs font-semibold">
+          <button onclick="app.setQuickFilter('all')" class="ios-segmented-item active py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="all">
+            <span>All</span>
+            <span id="countAll" class="px-1.5 py-0.2 rounded-md bg-primary/15 text-primary font-mono text-[10px]">0</span>
           </button>
-          <button onclick="app.setQuickFilter('today')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="today">
-            Today (<span id="countToday">0</span>)
+          <button onclick="app.setQuickFilter('today')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="today">
+            <span>Today</span>
+            <span id="countToday" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
           </button>
-          <button onclick="app.setQuickFilter('tomorrow')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="tomorrow">
-            Tmrw (<span id="countTomorrow">0</span>)
+          <button onclick="app.setQuickFilter('tomorrow')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="tomorrow">
+            <span>Tmrw</span>
+            <span id="countTomorrow" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
           </button>
-          <button onclick="app.setQuickFilter('this_week')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="this_week">
-            7 Days (<span id="countWeek">0</span>)
+          <button onclick="app.setQuickFilter('this_week')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="this_week">
+            <span>7 Days</span>
+            <span id="countWeek" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
           </button>
-          <button onclick="app.setQuickFilter('overdue')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="overdue">
-            Passed (<span id="countOverdue">0</span>)
+          <button onclick="app.setQuickFilter('overdue')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="overdue">
+            <span>Passed</span>
+            <span id="countOverdue" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
           </button>
         </div>
       </div>
@@ -292,63 +305,80 @@
     <!-- Main Content Area: Responsive Grid (1 col on mobile, 2 cols on tablet/desktop) -->
     <main class="flex-1 py-2">
 
-      <!-- Section Title -->
-      <div class="flex items-center justify-between mb-3 px-1">
-        <h2 id="viewTitle" class="text-[13px] uppercase font-semibold tracking-wider text-ios-gray">All Registered Cases</h2>
-        <span class="text-xs text-ios-gray font-medium" id="casesCountNotice">23 cases</span>
+      <!-- Section Title & Quick Court Filter Dropdown -->
+      <div class="flex items-center justify-between mb-3 px-1 gap-2">
+        <h2 id="viewTitle" class="text-[13px] uppercase font-bold tracking-wider text-base-content/70 truncate">All Registered Cases</h2>
+        
+        <!-- Borderless Court Dropdown Filter -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <select id="courtFilterSelect" onchange="app.filterByCourt(this.value)" class="select select-xs sm:select-sm font-semibold text-xs bg-base-200/80 border-none text-base-content focus:bg-base-200 focus:outline-none rounded-lg cursor-pointer">
+            <option value="all">🏛️ All Courts</option>
+            <option value="ACJM-5">ACJM-5 (4)</option>
+            <option value="CJSD">CJSD (1)</option>
+            <option value="Gram Nay. Gola">Gram Nay. Gola (3)</option>
+            <option value="FTC-41">FTC-41 (1)</option>
+            <option value="CO-IInd">CO-IInd (1)</option>
+            <option value="AFC-1st">AFC-1st (2)</option>
+            <option value="ACJM-3">ACJM-3 (2)</option>
+            <option value="DJ">DJ (1)</option>
+            <option value="ADJ/FTC">ADJ/FTC (1)</option>
+            <option value="AJM-3">AJM-3 (1)</option>
+            <option value="ADJ-2nd">ADJ-2nd (1)</option>
+          </select>
+        </div>
       </div>
 
       <!-- Responsive Grid for Case Cards -->
       <div id="casesList" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-        <div class="col-span-full p-12 text-center text-ios-gray text-sm">
-          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-ios-blue border-t-transparent mb-2"></div>
+        <div class="col-span-full p-12 text-center text-base-content/60 text-sm">
+          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mb-2"></div>
           <p>Loading case files...</p>
         </div>
       </div>
 
       <!-- Empty State -->
       <div id="emptyState" class="hidden col-span-full py-16 px-4 text-center">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-black/5 dark:bg-white/5 flex items-center justify-center text-ios-gray">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-base-200 flex items-center justify-center text-base-content/60">
           <i data-lucide="folder" class="w-8 h-8"></i>
         </div>
-        <h3 class="text-base font-bold">No Cases Found</h3>
-        <p class="text-xs text-ios-gray mt-1 max-w-xs mx-auto">Iss filter me koi case nahi mila. Naya case add karne ke liye '+' button dabayein.</p>
-        <button onclick="app.openCaseModal()" class="mt-4 px-5 py-2 bg-ios-blue text-white text-xs font-semibold rounded-full active:opacity-75 transition">
+        <h3 class="text-base font-bold text-base-content">No Cases Found</h3>
+        <p class="text-xs text-base-content/60 mt-1 max-w-xs mx-auto">Iss filter me koi case nahi mila. Naya case add karne ke liye '+' button dabayein.</p>
+        <button onclick="app.openCaseModal()" class="btn btn-sm btn-primary mt-4 font-bold shadow-md">
           + Add New Case
         </button>
       </div>
 
     </main>
 
-    <!-- iOS Floating Action Button (FAB) -->
+    <!-- Floating Action Button (FAB - Clean Rounded Square, Borderless) -->
     <div class="fixed bottom-20 right-4 sm:right-8 z-40">
       <button 
         onclick="app.openCaseModal()"
-        class="w-14 h-14 rounded-full bg-ios-blue text-white flex items-center justify-center shadow-lg shadow-ios-blue/40 active:scale-95 transition-transform"
+        class="btn btn-primary rounded-2xl w-14 h-14 shadow-xl hover:scale-105 active:scale-95 text-white transition-all font-bold border-none"
         title="Add Case File"
       >
-        <i data-lucide="plus" class="w-7 h-7"></i>
+        <i data-lucide="plus" class="w-6 h-6"></i>
       </button>
     </div>
 
-    <!-- iOS 15 Bottom Tab Bar -->
-    <nav class="fixed bottom-0 left-0 right-0 z-40 ios-blur-tabbar flex justify-around items-center pt-2 pb-5 px-4 max-w-lg mx-auto sm:rounded-t-2xl">
-      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="today">
+    <!-- Bottom Tab Bar (Clean Executive Bar, Borderless) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-base-100/95 backdrop-blur-md flex justify-around items-center py-2 px-3 max-w-lg mx-auto sm:rounded-t-2xl shadow-2xl border-none">
+      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="today">
         <i data-lucide="calendar" class="w-5 h-5"></i>
         <span class="text-[10px] font-medium mt-1">Today</span>
       </button>
 
-      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-ios-blue transition" data-tab="all">
+      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-primary transition" data-tab="all">
         <i data-lucide="folder" class="w-5 h-5"></i>
         <span class="text-[10px] font-medium mt-1">All Cases</span>
       </button>
 
-      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="upcoming">
+      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="upcoming">
         <i data-lucide="clock" class="w-5 h-5"></i>
         <span class="text-[10px] font-medium mt-1">Upcoming</span>
       </button>
 
-      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="settings">
+      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="settings">
         <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
         <span class="text-[10px] font-medium mt-1">Settings</span>
       </button>
@@ -356,139 +386,180 @@
 
   </div>
 
-  <!-- iOS 15 Bottom Sheet Modal: Add / Edit Case -->
+  <!-- Modal: Add / Edit Case (Borderless Surfaces) -->
   <div id="caseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="ios-modal-surface border-t sm:border w-full max-w-lg rounded-t-[26px] sm:rounded-[22px] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
+    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl p-0 overflow-hidden sheet-transition">
       
-      <!-- iOS Grabber -->
+      <!-- Grabber -->
       <div class="pt-3 pb-1 flex justify-center sm:hidden">
-        <div class="w-9 h-1 bg-ios-gray rounded-full opacity-60"></div>
+        <div class="w-10 h-1 bg-base-content/20 rounded-full"></div>
       </div>
 
       <!-- Header -->
-      <div class="px-4 py-2.5 flex items-center justify-between border-b border-black/10 dark:border-white/10">
-        <button type="button" onclick="app.closeCaseModal()" class="text-ios-blue text-[15px] active:opacity-60">
+      <div class="px-5 py-3.5 flex items-center justify-between">
+        <button type="button" onclick="app.closeCaseModal()" class="btn btn-sm rounded-xl btn-ghost border-none text-base-content/70">
           Cancel
         </button>
-        <h3 id="caseModalTitle" class="text-[16px] font-semibold tracking-tight">New Case File</h3>
-        <button type="button" onclick="document.getElementById('caseSubmitTrigger').click()" class="text-ios-blue text-[15px] font-bold active:opacity-60">
+        <h3 id="caseModalTitle" class="text-base font-bold tracking-tight">New Case File</h3>
+        <button type="button" onclick="document.getElementById('caseSubmitTrigger').click()" class="btn btn-sm rounded-xl btn-primary border-none font-bold">
           Save
         </button>
       </div>
 
       <!-- Form -->
-      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-4 space-y-3.5 flex-1">
+      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-4 space-y-4 flex-1">
         <input type="hidden" id="caseId">
         <button type="submit" id="caseSubmitTrigger" class="hidden"></button>
 
-        <!-- Group 1 -->
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Case No.</span>
+        <!-- Group 1: Identification -->
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Case Number</span>
+            </label>
             <input 
               type="text" 
               id="caseNumber" 
               required 
-              placeholder="Case #01 or WP 1042/2024"
-              class="w-full bg-transparent text-[15px] font-mono placeholder-ios-gray focus:outline-none"
+              placeholder="e.g. Case #01 or WP 1042/2024"
+              class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
           </div>
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Parties</span>
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Parties / Case Name</span>
+            </label>
             <input 
               type="text" 
               id="caseParties" 
               required 
-              placeholder="Pawan Gupta v. Vishvanath"
-              class="w-full bg-transparent text-[15px] placeholder-ios-gray focus:outline-none"
+              placeholder="e.g. Pawan Gupta v. Vishvanath"
+              class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
           </div>
         </div>
 
-        <!-- Group 2 -->
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Court/Forum</span>
+        <!-- Group 2: Court & Judge -->
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Court / Forum</span>
+            </label>
             <input 
               type="text" 
               id="caseCourt" 
               placeholder="ACJM-5 / CJSD / FTC-41"
-              class="w-full bg-transparent text-[15px] placeholder-ios-gray focus:outline-none"
+              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
           </div>
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Judge/Room</span>
+          <!-- Quick Court Presets (Borderless soft chips) -->
+          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
+            <span class="text-[11px] font-semibold text-base-content/60 self-center">Quick:</span>
+            <button type="button" onclick="app.setCourtPreset('ACJM-5')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">ACJM-5</button>
+            <button type="button" onclick="app.setCourtPreset('CJSD')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">CJSD</button>
+            <button type="button" onclick="app.setCourtPreset('Gram Nay. Gola')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">Gram Nay. Gola</button>
+            <button type="button" onclick="app.setCourtPreset('FTC-41')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">FTC-41</button>
+            <button type="button" onclick="app.setCourtPreset('CO-IInd')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">CO-IInd</button>
+            <button type="button" onclick="app.setCourtPreset('DJ')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">DJ</button>
+          </div>
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Judge / Room</span>
+            </label>
             <input 
               type="text" 
               id="caseJudge" 
               placeholder="Room 4 / Special Judge"
-              class="w-full bg-transparent text-[15px] placeholder-ios-gray focus:outline-none"
+              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
           </div>
         </div>
 
-        <!-- Group 3 -->
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="px-3.5 py-2.5 flex items-center justify-between">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">NDOH Date</span>
-            <input 
-              type="date" 
-              id="caseNextDate" 
-              required
-              class="bg-transparent text-[15px] focus:outline-none text-right font-medium"
-            >
+        <!-- Group 3: NDOH & Stage -->
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="form-control">
+              <label class="label py-0.5">
+                <span class="label-text font-semibold text-xs text-base-content/70">Next Hearing (NDOH)</span>
+              </label>
+              <input 
+                type="date" 
+                id="caseNextDate" 
+                required
+                class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+            </div>
+            <div class="form-control">
+              <label class="label py-0.5">
+                <span class="label-text font-semibold text-xs text-base-content/70">Hearing Stage</span>
+              </label>
+              <select id="caseStage" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
+                <option value="Final Arguments">Final Arguments</option>
+                <option value="Evidence / Cross">Evidence / Cross</option>
+                <option value="Framing of Issues">Framing of Issues</option>
+                <option value="Admission / Notice">Admission / Notice</option>
+                <option value="Filing of WS / Reply">Filing of WS / Reply</option>
+                <option value="Bail Hearing">Bail Hearing</option>
+                <option value="Order / Judgment">Order / Judgment</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+            </div>
           </div>
-          <div class="px-3.5 py-2.5 flex items-center justify-between">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Stage</span>
-            <select id="caseStage" class="bg-transparent text-[15px] text-ios-blue focus:outline-none text-right font-semibold">
-              <option value="Final Arguments">Final Arguments</option>
-              <option value="Evidence / Cross">Evidence / Cross</option>
-              <option value="Framing of Issues">Framing of Issues</option>
-              <option value="Admission / Notice">Admission / Notice</option>
-              <option value="Filing of WS / Reply">Filing of WS / Reply</option>
-              <option value="Bail Hearing">Bail Hearing</option>
-              <option value="Order / Judgment">Order / Judgment</option>
-              <option value="Miscellaneous">Miscellaneous</option>
-            </select>
+          <!-- Quick Stage Presets (Borderless soft chips) -->
+          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
+            <span class="text-[11px] font-semibold text-base-content/60 self-center">Preset:</span>
+            <button type="button" onclick="app.setStagePreset('Final Arguments')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Arguments</button>
+            <button type="button" onclick="app.setStagePreset('Evidence / Cross')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Evidence</button>
+            <button type="button" onclick="app.setStagePreset('Framing of Issues')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Issues</button>
+            <button type="button" onclick="app.setStagePreset('Admission / Notice')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Notice</button>
+            <button type="button" onclick="app.setStagePreset('Bail Hearing')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Bail</button>
           </div>
         </div>
 
-        <!-- Group 4 -->
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="p-3.5">
-            <span class="text-[13px] text-ios-gray block mb-1">Senior's Remarks / Instructions</span>
+        <!-- Group 4: Senior Instructions & Drive Link -->
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Senior's Remarks / Instructions</span>
+            </label>
             <textarea 
               id="caseInstructions" 
               rows="2" 
-              placeholder="2 files, Skeleton, FR, 144(3) BNSS, Notice..."
-              class="w-full bg-transparent text-[14px] placeholder-ios-gray focus:outline-none resize-none"
+              placeholder="e.g. 2 files, Skeleton, FR, 144(3) BNSS, Notice..."
+              class="textarea border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
             ></textarea>
           </div>
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-28 shrink-0">Drive Link</span>
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Drive / Document Link</span>
+            </label>
             <input 
               type="url" 
               id="caseDriveLink" 
               placeholder="https://drive.google.com/..."
-              class="w-full bg-transparent text-[14px] placeholder-ios-gray focus:outline-none"
+              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
           </div>
         </div>
 
-        <!-- Group 5 -->
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="px-3.5 py-2.5 flex items-center justify-between">
-            <span class="text-[14px] text-ios-gray">Priority</span>
-            <select id="casePriority" class="bg-transparent text-[14px] text-ios-blue font-semibold focus:outline-none">
-              <option value="Normal">Normal</option>
-              <option value="Urgent">Urgent</option>
-              <option value="Routine">Routine</option>
+        <!-- Group 5: Priority & Status -->
+        <div class="bg-base-200/50 p-4 rounded-2xl grid grid-cols-2 gap-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Priority</span>
+            </label>
+            <select id="casePriority" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
+              <option value="Normal">🟢 Normal</option>
+              <option value="Urgent">🔴 Urgent</option>
+              <option value="Routine">⚪ Routine</option>
             </select>
           </div>
-          <div class="px-3.5 py-2.5 flex items-center justify-between">
-            <span class="text-[14px] text-ios-gray">Status</span>
-            <select id="caseStatus" class="bg-transparent text-[14px] text-ios-blue font-semibold focus:outline-none">
-              <option value="Active">Active</option>
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Status</span>
+            </label>
+            <select id="caseStatus" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
+              <option value="Active">Active Case</option>
               <option value="Reserved for Order">Reserved for Order</option>
               <option value="Disposed">Disposed / Closed</option>
             </select>
@@ -499,97 +570,127 @@
     </div>
   </div>
 
-  <!-- iOS 15 Modal: Quick Update NDOH -->
+  <!-- Modal: Quick Update NDOH (Borderless Clean Surfaces) -->
   <div id="ndohModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="ios-modal-surface border-t sm:border w-full max-w-md rounded-t-[26px] sm:rounded-[22px] p-5 shadow-2xl sheet-transition">
+    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
       
       <div class="pt-1 pb-1 flex justify-center sm:hidden">
-        <div class="w-9 h-1 bg-ios-gray rounded-full opacity-60"></div>
+        <div class="w-10 h-1 bg-base-content/20 rounded-full"></div>
       </div>
 
-      <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
-        <button type="button" onclick="app.closeNdohModal()" class="text-ios-blue text-[15px]">Cancel</button>
-        <h3 class="text-[15px] font-semibold">Update Hearing Date</h3>
-        <button type="button" onclick="document.getElementById('ndohSubmitTrigger').click()" class="text-ios-blue font-bold text-[15px]">Done</button>
+      <div class="flex items-center justify-between pb-3">
+        <button type="button" onclick="app.closeNdohModal()" class="btn btn-sm rounded-xl btn-ghost border-none text-base-content/70">Cancel</button>
+        <h3 class="text-base font-bold">Update Hearing Date</h3>
+        <button type="button" onclick="document.getElementById('ndohSubmitTrigger').click()" class="btn btn-sm rounded-xl btn-primary border-none font-bold">Done</button>
       </div>
 
-      <p id="ndohCaseTitle" class="text-xs text-ios-gray mt-2 px-1 truncate font-mono">Case No</p>
+      <p id="ndohCaseTitle" class="text-xs text-base-content/70 mt-1 px-1 truncate font-mono">Case No</p>
 
-      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-3.5 mt-3">
+      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-4 mt-3">
         <input type="hidden" id="ndohCaseId">
         <button type="submit" id="ndohSubmitTrigger" class="hidden"></button>
         
-        <!-- Quick Presets -->
-        <div class="flex gap-1.5 overflow-x-auto hide-scrollbar text-[12px] font-semibold">
-          <button type="button" onclick="app.setNdohPreset(1)" class="px-3 py-1.5 rounded-full ios-modal-group text-ios-blue active:opacity-60">Tomorrow</button>
-          <button type="button" onclick="app.setNdohPreset(7)" class="px-3 py-1.5 rounded-full ios-modal-group text-ios-blue active:opacity-60">+7 Days</button>
-          <button type="button" onclick="app.setNdohPreset(14)" class="px-3 py-1.5 rounded-full ios-modal-group text-ios-blue active:opacity-60">+14 Days</button>
-          <button type="button" onclick="app.setNdohPreset(30)" class="px-3 py-1.5 rounded-full ios-modal-group text-ios-blue active:opacity-60">+1 Month</button>
+        <!-- Quick Presets (Borderless soft chips) -->
+        <div class="flex gap-1.5 overflow-x-auto hide-scrollbar">
+          <button type="button" onclick="app.setNdohPreset(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">Tomorrow</button>
+          <button type="button" onclick="app.setNdohPreset(7)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+7 Days</button>
+          <button type="button" onclick="app.setNdohPreset(14)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+14 Days</button>
+          <button type="button" onclick="app.setNdohPreset(30)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+1 Month</button>
         </div>
 
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="px-3.5 py-2.5 flex items-center justify-between">
-            <span class="text-[14px] text-ios-gray">New NDOH Date</span>
-            <input type="date" id="ndohDate" required class="bg-transparent text-[15px] focus:outline-none font-semibold">
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">New NDOH Date</span>
+            </label>
+            <input type="date" id="ndohDate" required class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
           </div>
-          <div class="px-3.5 py-2.5 flex items-center">
-            <span class="text-[14px] text-ios-gray w-24 shrink-0">New Stage</span>
-            <input type="text" id="ndohStage" placeholder="For Orders / Evidence" class="w-full bg-transparent text-[15px] focus:outline-none">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">New Stage</span>
+            </label>
+            <select id="ndohStage" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
+              <option value="Final Arguments">Final Arguments</option>
+              <option value="Evidence / Cross">Evidence / Cross</option>
+              <option value="Framing of Issues">Framing of Issues</option>
+              <option value="Admission / Notice">Admission / Notice</option>
+              <option value="Filing of WS / Reply">Filing of WS / Reply</option>
+              <option value="Bail Hearing">Bail Hearing</option>
+              <option value="Order / Judgment">Order / Judgment</option>
+              <option value="Miscellaneous">Miscellaneous</option>
+            </select>
           </div>
-          <div class="p-3.5">
-            <span class="text-[13px] text-ios-gray block mb-1">Today's Order / Proceeding Note</span>
-            <textarea id="ndohNotes" rows="2" placeholder="Adjourned on request of respondent..." class="w-full bg-transparent text-[14px] focus:outline-none resize-none"></textarea>
+          <!-- NDOH Stage Quick Chips -->
+          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
+            <span class="text-[11px] font-semibold text-base-content/60 self-center">Quick:</span>
+            <button type="button" onclick="document.getElementById('ndohStage').value='Final Arguments'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Arguments</button>
+            <button type="button" onclick="document.getElementById('ndohStage').value='Evidence / Cross'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Evidence</button>
+            <button type="button" onclick="document.getElementById('ndohStage').value='Framing of Issues'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Issues</button>
+            <button type="button" onclick="document.getElementById('ndohStage').value='Order / Judgment'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Order</button>
+          </div>
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Today's Order / Proceeding Note</span>
+            </label>
+            <textarea id="ndohNotes" rows="2" placeholder="Adjourned on request of respondent..." class="textarea border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"></textarea>
           </div>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- iOS 15 Settings Modal (Explains Storage & Supabase Sync) -->
+  <!-- Settings Modal (Borderless Clean Surfaces) -->
   <div id="settingsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="ios-modal-surface border-t sm:border w-full max-w-md rounded-t-[26px] sm:rounded-[22px] p-5 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
+    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3">
         <div>
-          <h3 class="text-[16px] font-bold">Storage & Settings</h3>
-          <p class="text-[11px] text-ios-gray">Device storage & cloud sync</p>
+          <h3 class="text-base font-bold">Storage & Settings</h3>
+          <p class="text-[11px] text-base-content/60">Device storage & cloud sync</p>
         </div>
-        <button onclick="app.closeSettingsModal()" class="text-ios-blue text-[15px] font-bold">Done</button>
+        <button onclick="app.closeSettingsModal()" class="btn btn-sm rounded-xl btn-primary border-none">Done</button>
       </div>
 
       <!-- Explanation Box -->
-      <div class="mt-3.5 p-3 rounded-[12px] bg-ios-blue/10 border border-ios-blue/20 text-xs text-ios-blue space-y-1">
-        <p class="font-bold flex items-center gap-1.5">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i> Storage Information
-        </p>
-        <p class="text-[11px] opacity-90 leading-relaxed">
-          Abhi aapke saare 23 cases <b>Device Storage</b> me safe hain (bina internet ke bhi chalega). Agar aap inhein kisi doosre phone ya computer se access karna chahte hain, toh neeche Supabase Project keys save karein.
-        </p>
+      <div class="alert alert-info mt-3.5 p-3 rounded-2xl text-xs space-y-1 shadow-sm border-none">
+        <div class="flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
+          <div>
+            <p class="font-bold">Storage Information</p>
+            <p class="text-[11px] opacity-90 leading-relaxed mt-0.5">
+              Abhi aapke saare 23 cases <b>Device Storage</b> me safe hain (bina internet ke bhi chalega). Agar aap inhein kisi doosre phone ya computer se access karna chahte hain, toh neeche Supabase Project keys save karein.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div class="space-y-3.5 text-xs mt-3.5">
-        <div class="ios-modal-group rounded-[14px] overflow-hidden divide-y divide-black/10 dark:divide-white/10">
-          <div class="p-3">
-            <label class="block font-semibold text-ios-gray mb-1">Supabase Project URL</label>
-            <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co" class="w-full bg-transparent font-mono text-[13px] focus:outline-none">
+        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Supabase Project URL</span>
+            </label>
+            <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co" class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/40">
           </div>
-          <div class="p-3">
-            <label class="block font-semibold text-ios-gray mb-1">Anon Public Key</label>
-            <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5..." class="w-full bg-transparent font-mono text-[13px] focus:outline-none">
+          <div class="form-control">
+            <label class="label py-0.5">
+              <span class="label-text font-semibold text-xs text-base-content/70">Anon Public Key</span>
+            </label>
+            <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5..." class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/40">
           </div>
         </div>
 
-        <button onclick="app.saveSupabaseConfig()" class="w-full bg-ios-blue text-white font-bold py-3 rounded-[12px] text-[14px] active:opacity-75 transition shadow-sm">
+        <button onclick="app.saveSupabaseConfig()" class="btn btn-primary rounded-xl w-full shadow-sm font-bold border-none">
           Save & Enable Cloud Sync
         </button>
-        <button onclick="app.useDemoMode()" class="w-full ios-modal-group text-ios-red font-semibold py-2.5 rounded-[12px] text-[13px] active:opacity-75 transition">
+        <button onclick="app.useDemoMode()" class="btn btn-ghost bg-error/10 hover:bg-error/20 text-error rounded-xl w-full text-xs font-semibold border-none">
           Reset to Default 23 Cases
         </button>
       </div>
     </div>
   </div>
 
-  <!-- iOS Pill HUD Notification -->
-  <div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-auto pointer-events-none"></div>
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast toast-top toast-center z-50 pointer-events-none"></div>
 
   <!-- App Script -->
   <script src="app.js"></script>

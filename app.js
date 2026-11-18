@@ -1,5 +1,5 @@
-// Legal Diary - iOS 15 Design Pattern
-// Authentic Apple Human Interface Guidelines for Web
+// Legal Diary • Modern Mobile-Centric Architecture
+// Things 3 & iOS 18 Design: No Pills • No Card Borders • Seamless Timeline Flow
 
 class LegalDiaryApp {
   constructor() {
@@ -34,15 +34,14 @@ class LegalDiaryApp {
     }
   }
 
-  // Dynamic iOS 15 Header Scroll Collapse Listener
+  // Dynamic Header Scroll Collapse Listener
   initScrollListener() {
     window.addEventListener('scroll', () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       const topSection = document.getElementById('collapsibleHeaderTop');
       const bottomSection = document.getElementById('collapsibleHeaderBottom');
 
-      // When scrolling down, keep ONLY: Case Diary, Search bar, Settings icon
-      // Hide everything else!
+      // Scroll collapse: hides utility row & filter rail, keeping strictly 3 items inline
       if (scrollY > 20) {
         if (topSection && !topSection.classList.contains('collapsed')) {
           topSection.classList.add('collapsed');
@@ -61,80 +60,75 @@ class LegalDiaryApp {
     }, { passive: true });
   }
 
-  // Theme Toggle (Dark / Light) with daisyUI + Tailwind Sync
+  // Theme Toggle
+  toggleTheme() {
+    this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(this.currentTheme);
+    localStorage.setItem('legal_diary_theme', this.currentTheme);
+  }
+
   applyTheme(theme) {
-    this.currentTheme = theme;
-    localStorage.setItem('legal_diary_theme', theme);
-    const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-    const icon = document.getElementById('themeIcon');
-    if (icon) {
-      icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+    document.documentElement.setAttribute('data-theme', theme);
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+      themeIcon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
       if (window.lucide) lucide.createIcons();
     }
-  }
-
-  toggleTheme() {
-    const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
-    this.applyTheme(newTheme);
-    this.showToast(newTheme === 'dark' ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
-  }
-
-  // Format today's date for iOS Navigation title
-  renderTodayDate() {
-    const today = new Date();
-    const options = { weekday: 'long', month: 'long', day: 'numeric' };
-    const dateStr = today.toLocaleDateString('en-US', options);
-    const dateEl = document.getElementById('todayDateStr');
-    if (dateEl) {
-      dateEl.textContent = dateStr;
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', theme === 'dark' ? '#0b0e14' : '#f8fafc');
     }
   }
 
-  // Initialize Supabase Client
+  // Today Date String
+  renderTodayDate() {
+    const el = document.getElementById('todayDateStr');
+    if (el) {
+      const now = new Date();
+      el.textContent = now.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  }
+
+  // Supabase Client Initialization
   initSupabase() {
-    const url = localStorage.getItem(this.STORAGE_KEY_URL);
-    const key = localStorage.getItem(this.STORAGE_KEY_KEY);
+    const url = localStorage.getItem(this.STORAGE_KEY_URL) || '';
+    const key = localStorage.getItem(this.STORAGE_KEY_KEY) || '';
+
+    const urlInput = document.getElementById('cfgUrl');
+    const keyInput = document.getElementById('cfgKey');
+    if (urlInput) urlInput.value = url;
+    if (keyInput) keyInput.value = key;
+
+    const badge = document.getElementById('supabaseBadge');
 
     if (url && key && window.supabase) {
       try {
         this.supabaseClient = window.supabase.createClient(url, key);
         this.isSupabaseConnected = true;
-        this.updateBadge(true);
-      } catch (err) {
-        console.error('Supabase init error:', err);
+        if (badge) {
+          badge.textContent = 'Cloud Connected';
+          badge.style.color = 'var(--color-primary)';
+        }
+      } catch (e) {
+        console.error('Supabase init error:', e);
         this.isSupabaseConnected = false;
-        this.updateBadge(false);
+        if (badge) badge.textContent = 'Device Storage';
       }
     } else {
       this.isSupabaseConnected = false;
-      this.updateBadge(false);
+      if (badge) badge.textContent = 'Device Storage';
     }
   }
 
-  // Storage badge (Rebranded from Demo Mode to Device Storage - Borderless Clean Tag)
-  updateBadge(connected) {
-    const badge = document.getElementById('supabaseBadge');
-    if (!badge) return;
-    if (connected) {
-      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-xs bg-success animate-pulse"></span> <span>Cloud Synced</span>`;
-      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-success/15 text-success text-[11px] font-semibold';
-    } else {
-      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-xs bg-warning animate-pulse"></span> <span>Device Storage</span>`;
-      badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/15 text-warning text-[11px] font-semibold';
-    }
-  }
-
-  // 23 Actual Real Court Cases given by Senior
+  // 23 Sample Court Cases (Realistic Advocate Cause List)
   getSampleCases() {
-    const today = new Date();
+    const now = new Date();
     const formatDate = (offsetDays) => {
-      const d = new Date(today);
+      const d = new Date(now);
       d.setDate(d.getDate() + offsetDays);
       return d.toISOString().split('T')[0];
     };
@@ -142,128 +136,63 @@ class LegalDiaryApp {
     return [
       {
         id: 'case-1',
-        case_number: 'Case #01',
-        parties: 'Pawan Gupta v. Vishvanath Pitariya',
+        case_number: 'Case #1',
+        parties: 'Pawan Gupta v. Vishwanath Pitariya',
         court_name: 'ACJM-5',
         judge_name: '',
-        next_hearing_date: formatDate(0), // Today
-        hearing_stage: 'Final Arguments',
-        senior_instructions: '',
+        next_hearing_date: formatDate(-1),
+        hearing_stage: 'Summons / Notice',
+        senior_instructions: 'Pairokar to appear with verification',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Urgent'
+        priority: 'Normal'
       },
       {
         id: 'case-2',
-        case_number: 'Case #02',
-        parties: 'Pawan Gupta v. Raman Gupta',
-        court_name: 'CJSD',
+        case_number: 'Case #2',
+        parties: 'Jafar Ali v. State of U.P.',
+        court_name: 'CO-IInd',
         judge_name: '',
-        next_hearing_date: formatDate(1), // Tomorrow
-        hearing_stage: 'Evidence / Cross',
-        senior_instructions: '',
+        next_hearing_date: formatDate(-1),
+        hearing_stage: 'Police Report / CD',
+        senior_instructions: '2 files',
         file_drive_link: '',
         status: 'Active',
         priority: 'Normal'
       },
       {
         id: 'case-3',
-        case_number: 'Case #03',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'ACJM-4',
+        case_number: 'Case #3',
+        parties: 'Pawan Gupta v. Raman Gupta',
+        court_name: 'CJSD',
         judge_name: '',
-        next_hearing_date: formatDate(2),
-        hearing_stage: 'Framing of Issues',
-        senior_instructions: '',
+        next_hearing_date: formatDate(0),
+        hearing_stage: 'Written Statement',
+        senior_instructions: 'Order / Judgment',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Normal'
+        priority: 'Urgent'
       },
       {
         id: 'case-4',
-        case_number: 'Case #04',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'ACJM-1',
-        judge_name: '',
-        next_hearing_date: formatDate(3),
-        hearing_stage: 'Admission / Notice',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal'
-      },
-      {
-        id: 'case-5',
-        case_number: 'Case #05',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'DJ',
-        judge_name: '',
-        next_hearing_date: formatDate(4),
-        hearing_stage: 'Final Arguments',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent'
-      },
-      {
-        id: 'case-6',
-        case_number: 'Case #06',
-        parties: 'Jafar Ali v. State of U.P.',
-        court_name: 'CO-IInd',
-        judge_name: '',
-        next_hearing_date: formatDate(0), // Today
-        hearing_stage: 'Miscellaneous',
-        senior_instructions: '2 files',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent'
-      },
-      {
-        id: 'case-7',
-        case_number: 'Case #07',
+        case_number: 'Case #4',
         parties: 'Smt. Chhavi Rastogi v. Aman',
         court_name: 'FTC-41',
         judge_name: '',
-        next_hearing_date: formatDate(1), // Tomorrow
-        hearing_stage: 'Evidence / Cross',
-        senior_instructions: '',
+        next_hearing_date: formatDate(0),
+        hearing_stage: 'Mediation / Settlement',
+        senior_instructions: 'Warrant to issue',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Normal'
+        priority: 'Urgent'
       },
       {
-        id: 'case-8',
-        case_number: 'Case #08',
-        parties: 'Pawan Singh v. Kailash Singh',
-        court_name: 'ACJJD-5',
-        judge_name: '',
-        next_hearing_date: formatDate(2),
-        hearing_stage: 'Framing of Issues',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal'
-      },
-      {
-        id: 'case-9',
-        case_number: 'Case #09',
-        parties: 'Vimal v. Komal Singh',
-        court_name: 'AFC-1st',
-        judge_name: '',
-        next_hearing_date: formatDate(3),
-        hearing_stage: 'Miscellaneous',
-        senior_instructions: 'Skeleton',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal'
-      },
-      {
-        id: 'case-10',
-        case_number: 'Case #10',
+        id: 'case-5',
+        case_number: 'Case #5',
         parties: 'Mumtaz v. Unknown',
         court_name: 'ACJM-3',
         judge_name: '',
-        next_hearing_date: formatDate(1), // Tomorrow
+        next_hearing_date: formatDate(0),
         hearing_stage: 'Admission / Notice',
         senior_instructions: 'FR',
         file_drive_link: '',
@@ -271,13 +200,78 @@ class LegalDiaryApp {
         priority: 'Urgent'
       },
       {
+        id: 'case-6',
+        case_number: 'Case #6',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'ACJM-4',
+        judge_name: '',
+        next_hearing_date: formatDate(1),
+        hearing_stage: 'Charge / Plea',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-7',
+        case_number: 'Case #7',
+        parties: 'Pawan Singh v. Kailash Singh',
+        court_name: 'ACJJD-5',
+        judge_name: '',
+        next_hearing_date: formatDate(1),
+        hearing_stage: 'Summons / Notice',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-8',
+        case_number: 'Case #8',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'ACJM-1',
+        judge_name: '',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-9',
+        case_number: 'Case #9',
+        parties: 'Vimal v. Komal Singh',
+        court_name: 'AFC-1st',
+        judge_name: '',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-10',
+        case_number: 'Case #10',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'DJ',
+        judge_name: '',
+        next_hearing_date: formatDate(3),
+        hearing_stage: 'Appeal Hearing',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
         id: 'case-11',
         case_number: 'Case #11',
-        parties: 'Alok Verma v. Raunak Juneja',
-        court_name: 'AJM-3',
+        parties: 'Gyanendara Mishra',
+        court_name: 'District Court',
         judge_name: '',
-        next_hearing_date: formatDate(5),
-        hearing_stage: 'Evidence / Cross',
+        next_hearing_date: formatDate(3),
+        hearing_stage: 'Miscellaneous',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -286,24 +280,24 @@ class LegalDiaryApp {
       {
         id: 'case-12',
         case_number: 'Case #12',
-        parties: 'State v. Dharampal',
-        court_name: 'ADJ/FTC',
+        parties: 'Pooja v. Kaushal Singh',
+        court_name: 'AFC-1st',
         judge_name: '',
-        next_hearing_date: formatDate(6),
-        hearing_stage: 'Final Arguments',
+        next_hearing_date: formatDate(4),
+        hearing_stage: 'Evidence / Cross',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Urgent'
+        priority: 'Normal'
       },
       {
         id: 'case-13',
         case_number: 'Case #13',
         parties: 'State v. Dharampal',
-        court_name: 'ACJM-5',
+        court_name: 'ADJ/FTC',
         judge_name: '',
-        next_hearing_date: formatDate(8),
-        hearing_stage: 'Evidence / Cross',
+        next_hearing_date: formatDate(5),
+        hearing_stage: 'Witness Examination',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -312,24 +306,24 @@ class LegalDiaryApp {
       {
         id: 'case-14',
         case_number: 'Case #14',
-        parties: 'Shree Devi v. Janardan',
-        court_name: 'ACJM/FTC',
+        parties: 'Release – Pramod Kumar',
+        court_name: 'ACJM-5',
         judge_name: '',
-        next_hearing_date: formatDate(9),
-        hearing_stage: 'Framing of Issues',
-        senior_instructions: '',
+        next_hearing_date: formatDate(6),
+        hearing_stage: 'Order / Judgment',
+        senior_instructions: 'Sampoorna Nagar',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Normal'
+        priority: 'Urgent'
       },
       {
         id: 'case-15',
         case_number: 'Case #15',
-        parties: 'Shree Devi v. Janardan',
-        court_name: 'FC',
+        parties: 'Smt. Kishori Devi v. Pushpendra Kumar',
+        court_name: 'Gram Nay. Gola',
         judge_name: '',
-        next_hearing_date: formatDate(10),
-        hearing_stage: 'Miscellaneous',
+        next_hearing_date: formatDate(6),
+        hearing_stage: 'Framing of Issues',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -338,23 +332,23 @@ class LegalDiaryApp {
       {
         id: 'case-16',
         case_number: 'Case #16',
-        parties: 'Gyanendara Mishra',
-        court_name: 'District Court',
+        parties: 'Ram Gulam v. Sahab Dayal',
+        court_name: 'Gram Nay. Gola',
         judge_name: '',
-        next_hearing_date: formatDate(4),
-        hearing_stage: 'Admission / Notice',
-        senior_instructions: 'Notice',
+        next_hearing_date: formatDate(6),
+        hearing_stage: 'Written Statement',
+        senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Urgent'
+        priority: 'Normal'
       },
       {
         id: 'case-17',
         case_number: 'Case #17',
-        parties: 'Prathvi Pal v. Banvari',
-        court_name: 'ACJM-3',
+        parties: 'Daya Shankar Mishra v. Kulwant Singh',
+        court_name: 'Gram Nay. Gola',
         judge_name: '',
-        next_hearing_date: formatDate(12),
+        next_hearing_date: formatDate(6),
         hearing_stage: 'Evidence / Cross',
         senior_instructions: '',
         file_drive_link: '',
@@ -364,11 +358,11 @@ class LegalDiaryApp {
       {
         id: 'case-18',
         case_number: 'Case #18',
-        parties: 'Madhuri Devi v. Geeta Devi',
-        court_name: 'ADJ-2nd',
+        parties: 'State v. Dharampal',
+        court_name: 'ACJM-5',
         judge_name: '',
-        next_hearing_date: formatDate(14),
-        hearing_stage: 'Final Arguments',
+        next_hearing_date: formatDate(7),
+        hearing_stage: 'Charge / Plea',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -377,37 +371,37 @@ class LegalDiaryApp {
       {
         id: 'case-19',
         case_number: 'Case #19',
-        parties: 'Pooja v. Kaushal Singh',
-        court_name: 'AFC-1st',
+        parties: 'Madhuri Devi v. Geeta Devi',
+        court_name: 'ADJ-2nd',
         judge_name: '',
-        next_hearing_date: formatDate(5),
-        hearing_stage: 'Miscellaneous',
-        senior_instructions: '144(3) BNSS',
+        next_hearing_date: formatDate(7),
+        hearing_stage: 'Arguments on Injunction',
+        senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Urgent'
+        priority: 'Normal'
       },
       {
         id: 'case-20',
         case_number: 'Case #20',
-        parties: 'Release – Pramod Kumar',
-        court_name: 'ACJM-5',
+        parties: 'Alok Verma v. Raunak Juneja',
+        court_name: 'AJM-3',
         judge_name: '',
-        next_hearing_date: formatDate(7),
-        hearing_stage: 'Order / Judgment',
-        senior_instructions: 'Sampoorna Nagar',
+        next_hearing_date: formatDate(8),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
-        priority: 'Urgent'
+        priority: 'Normal'
       },
       {
         id: 'case-21',
         case_number: 'Case #21',
-        parties: 'Smt. Kishori Devi v. Pushpendra Kumar',
-        court_name: 'Gram Nay. Gola',
+        parties: 'Shree Devi v. Janardan',
+        court_name: 'FC',
         judge_name: '',
-        next_hearing_date: formatDate(16),
-        hearing_stage: 'Evidence / Cross',
+        next_hearing_date: formatDate(9),
+        hearing_stage: 'Cross Examination',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -416,11 +410,11 @@ class LegalDiaryApp {
       {
         id: 'case-22',
         case_number: 'Case #22',
-        parties: 'Ram Gulam v. Sahab Dayal',
-        court_name: 'Gram Nay. Gola',
+        parties: 'Prathvi Pal v. Banvari',
+        court_name: 'ACJM-3',
         judge_name: '',
-        next_hearing_date: formatDate(18),
-        hearing_stage: 'Framing of Issues',
+        next_hearing_date: formatDate(11),
+        hearing_stage: 'Summons / Notice',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -429,11 +423,11 @@ class LegalDiaryApp {
       {
         id: 'case-23',
         case_number: 'Case #23',
-        parties: 'Daya Shankar Mishra v. Kulwant Singh',
-        court_name: 'Gram Nay. Gola',
+        parties: 'Shree Devi v. Janardan',
+        court_name: 'ACJM/FTC',
         judge_name: '',
-        next_hearing_date: formatDate(20),
-        hearing_stage: 'Final Arguments',
+        next_hearing_date: formatDate(15),
+        hearing_stage: 'Order / Judgment',
         senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
@@ -442,7 +436,7 @@ class LegalDiaryApp {
     ];
   }
 
-  // Load cases
+  // Load cases from Cloud or Local
   async loadCases() {
     if (this.isSupabaseConnected && this.supabaseClient) {
       try {
@@ -484,15 +478,15 @@ class LegalDiaryApp {
   // Refresh
   async refreshData() {
     const btn = document.getElementById('refreshBtn');
-    if (btn) btn.classList.add('animate-spin');
+    if (btn) btn.style.transform = 'rotate(180deg)';
     await this.loadCases();
     this.updateCounters();
     this.render();
-    if (btn) btn.classList.remove('animate-spin');
-    this.showToast('List Updated', 'success');
+    if (btn) btn.style.transform = 'none';
+    this.showToast('List Refreshed', 'success');
   }
 
-  // Date difference
+  // Date calculation
   getDateDifference(targetDateStr) {
     if (!targetDateStr) return 999;
     const today = new Date();
@@ -506,13 +500,13 @@ class LegalDiaryApp {
     return Math.round(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  // Clean rectangular status tags (Borderless soft fills)
-  getHearingBadgeInfo(targetDateStr, status) {
+  // Clean Typography Status (NO PILLS)
+  getHearingStatusInfo(targetDateStr, status) {
     if (status === 'Disposed') {
       return {
+        statusKey: 'passed',
         text: 'Disposed',
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-base-200/80 text-base-content/60',
-        dateClass: 'text-base-content/60'
+        dateClass: 'time-passed'
       };
     }
 
@@ -520,38 +514,37 @@ class LegalDiaryApp {
 
     if (diff < 0) {
       return {
-        text: `Passed (${Math.abs(diff)}d ago)`,
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-error/15 text-error',
-        dateClass: 'text-error font-semibold'
+        statusKey: 'passed',
+        text: `Passed (${Math.abs(diff)}d)`,
+        dateClass: 'time-passed'
       };
     } else if (diff === 0) {
       return {
-        text: 'Today',
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-black rounded-lg bg-error text-white shadow-xs animate-pulse',
-        dateClass: 'text-error font-bold'
+        statusKey: 'today',
+        text: '<span class="pulse-bullet"></span> TODAY',
+        dateClass: 'time-today'
       };
     } else if (diff === 1) {
       return {
+        statusKey: 'tomorrow',
         text: 'Tomorrow',
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-warning/20 text-warning',
-        dateClass: 'text-warning font-semibold'
+        dateClass: 'time-tomorrow'
       };
     } else if (diff <= 7) {
       return {
+        statusKey: 'upcoming',
         text: `In ${diff} Days`,
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-info/15 text-info',
-        dateClass: 'text-info font-medium'
+        dateClass: 'time-upcoming'
       };
     } else {
       return {
+        statusKey: 'upcoming',
         text: `In ${diff} Days`,
-        badgeClass: 'inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded-lg bg-base-200 text-base-content/75',
-        dateClass: 'text-base-content/75'
+        dateClass: 'time-upcoming'
       };
     }
   }
 
-  // Format date display
   formatDisplayDate(dateStr) {
     if (!dateStr) return 'No Date';
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -586,23 +579,16 @@ class LegalDiaryApp {
     setSafe('countTomorrow', tomorrowCount);
     setSafe('countWeek', weekCount);
     setSafe('countOverdue', overdueCount);
-
-    const countNotice = document.getElementById('casesCountNotice');
-    if (countNotice) {
-      countNotice.textContent = `${this.cases.length} cases total`;
-    }
   }
 
-  // Tab Switcher
+  // Bottom Dock Navigation Switcher
   switchTab(tab) {
     this.currentTab = tab;
-    document.querySelectorAll('.nav-tab').forEach(el => {
+    document.querySelectorAll('.dock-tab').forEach(el => {
       if (el.dataset.tab === tab) {
-        el.classList.add('text-primary');
-        el.classList.remove('text-base-content/60');
+        el.classList.add('active');
       } else {
-        el.classList.remove('text-primary');
-        el.classList.add('text-base-content/60');
+        el.classList.remove('active');
       }
     });
 
@@ -619,10 +605,10 @@ class LegalDiaryApp {
     }
   }
 
-  // iOS Segmented Control Click
+  // Segment Filter Tab Click
   setQuickFilter(filter) {
     this.quickFilter = filter;
-    document.querySelectorAll('.ios-segmented-item').forEach(btn => {
+    document.querySelectorAll('.segment-tab').forEach(btn => {
       if (btn.dataset.filter === filter) {
         btn.classList.add('active');
       } else {
@@ -632,15 +618,15 @@ class LegalDiaryApp {
     this.render();
   }
 
-  // Search
+  // Search Filter
   handleSearch(query) {
     this.searchQuery = query.toLowerCase().trim();
     const clearBtn = document.getElementById('clearSearchBtn');
     if (clearBtn) {
       if (this.searchQuery.length > 0) {
-        clearBtn.classList.remove('hidden');
+        clearBtn.classList.add('active');
       } else {
-        clearBtn.classList.add('hidden');
+        clearBtn.classList.remove('active');
       }
     }
     this.render();
@@ -651,11 +637,20 @@ class LegalDiaryApp {
     if (input) input.value = '';
     this.searchQuery = '';
     const clearBtn = document.getElementById('clearSearchBtn');
-    if (clearBtn) clearBtn.classList.add('hidden');
+    if (clearBtn) clearBtn.classList.remove('active');
     this.render();
   }
 
-  // Filter & Sort
+  // Court Dropdown Filter
+  filterByCourt(court) {
+    this.selectedCourt = court;
+    this.render();
+    if (court !== 'all') {
+      this.showToast(`Filtered: ${court}`, 'info');
+    }
+  }
+
+  // Filter & Sort Cases
   getFilteredCases() {
     return this.cases
       .filter(item => {
@@ -679,7 +674,6 @@ class LegalDiaryApp {
         return true;
       })
       .filter(item => {
-        // Quick Court Dropdown Filter
         if (this.selectedCourt && this.selectedCourt !== 'all') {
           if (!item.court_name || !item.court_name.toLowerCase().includes(this.selectedCourt.toLowerCase())) {
             return false;
@@ -713,16 +707,7 @@ class LegalDiaryApp {
     }
   }
 
-  // Filter by Court Dropdown
-  filterByCourt(court) {
-    this.selectedCourt = court;
-    this.render();
-    if (court !== 'all') {
-      this.showToast(`Filtered: ${court}`, 'info');
-    }
-  }
-
-  // Quick preset helpers for Modal
+  // Quick Presets
   setCourtPreset(court) {
     const el = document.getElementById('caseCourt');
     if (el) el.value = court;
@@ -733,7 +718,6 @@ class LegalDiaryApp {
     if (el) el.value = stage;
   }
 
-  // Quick preset helper in NDOH modal
   setNdohPreset(days) {
     const d = new Date();
     d.setDate(d.getDate() + days);
@@ -743,7 +727,7 @@ class LegalDiaryApp {
     }
   }
 
-  // Toggle Card Expansion (Collapsible Accordion)
+  // Toggle Card Accordion
   toggleCard(id) {
     if (this.expandedCardIds.has(id)) {
       this.expandedCardIds.delete(id);
@@ -765,7 +749,7 @@ class LegalDiaryApp {
     }
   }
 
-  // Render iOS 15 Inset Grouped Table Cards (Collapsible Accordion Style)
+  // RENDER THE TIMELINE STREAM (NO PILLS, NO CARD BORDERS)
   render() {
     const container = document.getElementById('casesList');
     const emptyState = document.getElementById('emptyState');
@@ -773,156 +757,168 @@ class LegalDiaryApp {
 
     if (filtered.length === 0) {
       container.innerHTML = '';
-      emptyState.classList.remove('hidden');
+      emptyState.style.display = 'flex';
       return;
     }
 
-    emptyState.classList.add('hidden');
+    emptyState.style.display = 'none';
 
-    container.innerHTML = filtered.map(c => {
-      const badge = this.getHearingBadgeInfo(c.next_hearing_date, c.status);
+    container.innerHTML = filtered.map((c, idx) => {
+      const statusInfo = this.getHearingStatusInfo(c.next_hearing_date, c.status);
       const displayDate = this.formatDisplayDate(c.next_hearing_date);
       const isUrgent = c.priority === 'Urgent';
       const isExpanded = this.expandedCardIds.has(c.id);
 
       return `
-        <div class="card bg-base-100 rounded-2xl shadow-sm hover:shadow-md transition duration-150 overflow-hidden">
+        <article class="case-item status-${statusInfo.statusKey}" style="--item-delay: ${Math.min(idx, 12)};">
           
-          <!-- Collapsed Card Header (Always Visible - Tap to Expand/Collapse) -->
-          <div 
-            onclick="app.toggleCard('${c.id}')"
-            class="p-4 sm:p-5 cursor-pointer select-none active:bg-base-200/50 transition flex flex-col gap-2"
-          >
-            <!-- Row 1: CourtName (Left) vs [in __ days] (Right) -->
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="inline-flex items-center px-2.5 py-1 text-[11px] font-bold font-mono tracking-wide text-primary bg-primary/10 rounded-lg truncate">
-                  ${c.court_name || 'Court/Forum'}
-                </span>
-                ${c.judge_name ? `<span class="text-base-content/60 truncate text-[11px] hidden sm:inline">(${c.judge_name})</span>` : ''}
+          <!-- Clickable Header Row -->
+          <div onclick="app.toggleCard('${c.id}')" class="case-row-header">
+            
+            <!-- Line 1: Court & Room (Left) vs Relative Time (Right) -->
+            <div class="row-meta-line">
+              <div class="court-label">
+                <i data-lucide="scale" style="width: 12px; height: 12px;"></i>
+                <span>${c.court_name || 'Court/Forum'}</span>
+                ${c.judge_name ? `<span class="judge-sub">(${c.judge_name})</span>` : ''}
               </div>
 
-              <!-- Days Tag: [ in __ days ] / [ Today ] (Borderless clean tag) -->
-              <span class="${badge.badgeClass}">
-                ${badge.text}
-              </span>
+              <!-- Relative Time Badge (Clean Typography) -->
+              <div class="time-badge ${statusInfo.dateClass}">
+                ${statusInfo.text}
+              </div>
             </div>
 
-            <!-- Row 2: CaseName (Left) vs Chevron (Right) -->
-            <div class="flex items-center justify-between gap-2.5">
-              <h3 class="text-[15px] sm:text-[16px] font-bold text-base-content leading-snug truncate flex-1">
+            <!-- Line 2: Parties Title vs Chevron -->
+            <div class="row-main-line">
+              <h3 class="parties-name">
                 ${c.parties}
               </h3>
               
-              <!-- Chevron Box (Borderless soft tile) -->
-              <div id="card-chevron-${c.id}" class="w-6 h-6 rounded-lg bg-base-200/60 flex items-center justify-center text-base-content/60 shrink-0 card-chevron ${isExpanded ? 'expanded' : ''}">
-                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+              <!-- Chevron Box -->
+              <div id="card-chevron-${c.id}" class="chevron-icon ${isExpanded ? 'expanded' : ''}">
+                <i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i>
               </div>
             </div>
+
+            <!-- Line 3: Case Number & Hearing Stage -->
+            <div class="row-sub-line">
+              <span class="case-num-text">${c.case_number}</span>
+              <span class="dot-separator">•</span>
+              <span class="stage-text">${c.hearing_stage || 'General'}</span>
+              ${isUrgent ? `
+                <span class="dot-separator">•</span>
+                <span class="urgent-indicator">
+                  <i data-lucide="flame" style="width: 11px; height: 11px;"></i>
+                  <span>Urgent</span>
+                </span>
+              ` : ''}
+            </div>
+
           </div>
 
-          <!-- Expandable Details Section (Shown when expanded) -->
-          <div id="card-details-${c.id}" class="card-collapsible-content ${isExpanded ? 'expanded' : ''}">
-            
-            <div class="divider my-0 opacity-15"></div>
-
-            <!-- Detailed Information Cell -->
-            <div class="p-4 sm:p-5 bg-base-200/40 space-y-3 text-[13px]">
+          <!-- Seamless Inset Expansion Dossier -->
+          <div id="card-details-${c.id}" class="case-expansion ${isExpanded ? 'expanded' : ''}">
+            <div class="expansion-content">
               
-              <!-- Case Number + Exact Date Row -->
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-1.5">
-                  <button 
-                    onclick="event.stopPropagation(); app.copyToClipboard('${c.case_number}', 'Case No.')" 
-                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-xs font-bold bg-base-100 text-base-content hover:bg-base-200 active:scale-95 transition cursor-pointer shadow-xs"
-                    title="Tap to copy"
-                  >
+              <!-- Case Info Grid -->
+              <div class="detail-grid">
+                <div class="detail-cell">
+                  <span class="detail-title">Case Number</span>
+                  <div class="detail-value">
                     <span>${c.case_number}</span>
-                    <i data-lucide="copy" class="w-3 h-3 text-base-content/50"></i>
-                  </button>
-
-                  ${isUrgent ? `
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-error/15 text-error text-[10px] font-bold uppercase tracking-wider">
-                      Urgent
-                    </span>
-                  ` : ''}
+                    <button 
+                      onclick="event.stopPropagation(); app.copyToClipboard('${c.case_number}', 'Case No.')" 
+                      class="copy-btn-clean"
+                      title="Tap to copy"
+                    >
+                      <i data-lucide="copy" style="width: 13px; height: 13px;"></i>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="text-[12px] ${badge.dateClass} font-semibold flex items-center gap-1">
-                  <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
-                  <span>Hearing: ${displayDate}</span>
+                <div class="detail-cell">
+                  <span class="detail-title">Next Hearing Date (NDOH)</span>
+                  <div class="detail-value" style="color: ${statusInfo.statusKey === 'today' ? 'var(--accent-today)' : 'var(--text-main)'};">
+                    <span>${displayDate}</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Stage & Court Room Details -->
-              <div class="flex items-center gap-2 text-base-content text-xs">
-                <span class="font-bold uppercase tracking-wider text-base-content/60">Stage:</span>
-                <span class="font-semibold text-warning">${c.hearing_stage || 'General'}</span>
-                ${c.judge_name ? `<span class="text-base-content/60 truncate"> • ${c.judge_name}</span>` : ''}
+              <div class="detail-grid">
+                <div class="detail-cell">
+                  <span class="detail-title">Court / Bench</span>
+                  <div class="detail-value" style="font-size: 12px; font-weight: 500;">
+                    ${c.court_name || 'N/A'}${c.judge_name ? ` • ${c.judge_name}` : ''}
+                  </div>
+                </div>
+
+                <div class="detail-cell">
+                  <span class="detail-title">Current Stage</span>
+                  <div class="detail-value" style="font-size: 12px; font-weight: 500;">
+                    ${c.hearing_stage || 'General'}
+                  </div>
+                </div>
               </div>
 
-              <!-- Senior Directive / Remarks Row -->
+              <!-- Senior Directive / Instructions (Apple Notes style) -->
               ${c.senior_instructions ? `
-                <div class="mt-2 p-3 rounded-xl bg-base-100/90 text-xs text-base-content italic flex items-start gap-2 shadow-xs">
-                  <i data-lucide="message-square" class="w-3.5 h-3.5 text-warning shrink-0 mt-0.5"></i>
-                  <span class="flex-1">"${c.senior_instructions}"</span>
+                <div class="directive-card">
+                  <div class="directive-header">
+                    <i data-lucide="message-square" style="width: 12px; height: 12px;"></i>
+                    <span>Senior's Directive</span>
+                  </div>
+                  <div class="directive-quote">"${c.senior_instructions}"</div>
                 </div>
               ` : ''}
 
-            </div>
-
-            <div class="divider my-0 opacity-15"></div>
-
-            <!-- Action Footer Cell (Borderless soft controls) -->
-            <div class="p-3 bg-base-100 flex items-center justify-between gap-2" onclick="event.stopPropagation()">
-              
-              <!-- Quick NDOH Update -->
-              <button 
-                onclick="app.openNdohModal('${c.id}')"
-                class="btn btn-sm btn-primary rounded-xl flex-1 gap-1.5 font-bold shadow-xs border-none"
-              >
-                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
-                Update Date
-              </button>
-
-              <!-- WhatsApp Share -->
-              <button 
-                onclick="app.shareOnWhatsApp('${c.id}')"
-                class="btn btn-sm btn-success rounded-xl text-white gap-1.5 font-semibold shadow-xs border-none"
-                title="Share on WhatsApp"
-              >
-                <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                WhatsApp
-              </button>
-
-              <!-- Drive Dossier Link -->
-              ${c.file_drive_link ? `
-                <a 
-                  href="${c.file_drive_link}" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none"
-                  title="Open Dossier"
+              <!-- Modern Flat Action Toolbar -->
+              <div class="action-toolbar" onclick="event.stopPropagation()">
+                <!-- 1. Quick NDOH Update -->
+                <button 
+                  onclick="app.openNdohModal('${c.id}')"
+                  class="btn-action-primary"
                 >
-                  <i data-lucide="link" class="w-4 h-4 text-info"></i>
-                </a>
-              ` : ''}
-
-              <!-- Edit / Delete -->
-              <div class="flex items-center space-x-1">
-                <button onclick="app.editCase('${c.id}')" class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none text-base-content/70 hover:text-primary" title="Edit">
-                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                  <i data-lucide="calendar" style="width: 14px; height: 14px;"></i>
+                  <span>Update Date</span>
                 </button>
-                <button onclick="app.deleteCase('${c.id}')" class="btn btn-sm btn-square rounded-xl btn-ghost bg-base-200/50 hover:bg-base-200 border-none text-base-content/70 hover:text-error" title="Delete">
-                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+
+                <!-- 2. WhatsApp Share -->
+                <button 
+                  onclick="app.shareOnWhatsApp('${c.id}')"
+                  class="btn-action-whatsapp"
+                  title="Send update to Senior on WhatsApp"
+                >
+                  <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
+                  <span>WhatsApp</span>
+                </button>
+
+                <!-- 3. Drive Link -->
+                ${c.file_drive_link ? `
+                  <a 
+                    href="${c.file_drive_link}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="btn-action-icon"
+                    title="Open Dossier / Drive"
+                  >
+                    <i data-lucide="folder" style="width: 15px; height: 15px; color: var(--color-primary);"></i>
+                  </a>
+                ` : ''}
+
+                <!-- 4. Edit & Delete -->
+                <button onclick="app.editCase('${c.id}')" class="btn-action-icon" title="Edit File">
+                  <i data-lucide="edit-3" style="width: 15px; height: 15px;"></i>
+                </button>
+                <button onclick="app.deleteCase('${c.id}')" class="btn-action-icon danger" title="Delete File">
+                  <i data-lucide="trash-2" style="width: 15px; height: 15px;"></i>
                 </button>
               </div>
 
             </div>
-
           </div>
 
-        </div>
+        </article>
       `;
     }).join('');
 
@@ -931,58 +927,53 @@ class LegalDiaryApp {
     }
   }
 
-  // Open Modal to Add New Case
-  openCaseModal() {
-    document.getElementById('caseModalTitle').textContent = 'New Case File';
-    document.getElementById('caseForm').reset();
-    document.getElementById('caseId').value = '';
-    
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    document.getElementById('caseNextDate').value = d.toISOString().split('T')[0];
+  // MODAL 1: ADD / EDIT CASE
+  openCaseModal(id = null) {
+    const modal = document.getElementById('caseModal');
+    const form = document.getElementById('caseForm');
+    const title = document.getElementById('caseModalTitle');
+    form.reset();
 
-    document.getElementById('caseModal').classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
+    if (id) {
+      const item = this.cases.find(c => c.id === id);
+      if (!item) return;
+      title.textContent = 'Edit Case File';
+      document.getElementById('caseId').value = item.id;
+      document.getElementById('caseNumber').value = item.case_number;
+      document.getElementById('caseParties').value = item.parties;
+      document.getElementById('caseCourt').value = item.court_name || '';
+      document.getElementById('caseJudge').value = item.judge_name || '';
+      document.getElementById('caseNextDate').value = item.next_hearing_date;
+      document.getElementById('caseStage').value = item.hearing_stage || '';
+      document.getElementById('caseInstructions').value = item.senior_instructions || '';
+      document.getElementById('caseDriveLink').value = item.file_drive_link || '';
+      document.getElementById('casePriority').value = item.priority || 'Normal';
+      document.getElementById('caseStatus').value = item.status || 'Active';
+    } else {
+      title.textContent = 'New Case File';
+      document.getElementById('caseId').value = '';
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('caseNextDate').value = today;
+    }
+
+    modal.classList.add('active');
   }
 
   closeCaseModal() {
-    document.getElementById('caseModal').classList.add('hidden');
+    document.getElementById('caseModal').classList.remove('active');
   }
 
-  // Edit Case
-  editCase(id) {
-    const item = this.cases.find(c => c.id === id);
-    if (!item) return;
-
-    document.getElementById('caseModalTitle').textContent = 'Edit Case File';
-    document.getElementById('caseId').value = item.id;
-    document.getElementById('caseNumber').value = item.case_number || '';
-    document.getElementById('caseParties').value = item.parties || '';
-    document.getElementById('caseCourt').value = item.court_name || '';
-    document.getElementById('caseJudge').value = item.judge_name || '';
-    document.getElementById('caseNextDate').value = item.next_hearing_date || '';
-    document.getElementById('caseStage').value = item.hearing_stage || 'Final Arguments';
-    document.getElementById('caseInstructions').value = item.senior_instructions || '';
-    document.getElementById('caseDriveLink').value = item.file_drive_link || '';
-    document.getElementById('casePriority').value = item.priority || 'Normal';
-    document.getElementById('caseStatus').value = item.status || 'Active';
-
-    document.getElementById('caseModal').classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
-  }
-
-  // Save Case
-  async saveCase(event) {
-    event.preventDefault();
-
+  async handleCaseSubmit(e) {
+    e.preventDefault();
     const id = document.getElementById('caseId').value;
     const caseData = {
+      id: id || 'case-' + Date.now(),
       case_number: document.getElementById('caseNumber').value.trim(),
       parties: document.getElementById('caseParties').value.trim(),
       court_name: document.getElementById('caseCourt').value.trim(),
       judge_name: document.getElementById('caseJudge').value.trim(),
       next_hearing_date: document.getElementById('caseNextDate').value,
-      hearing_stage: document.getElementById('caseStage').value,
+      hearing_stage: document.getElementById('caseStage').value.trim(),
       senior_instructions: document.getElementById('caseInstructions').value.trim(),
       file_drive_link: document.getElementById('caseDriveLink').value.trim(),
       priority: document.getElementById('casePriority').value,
@@ -990,108 +981,72 @@ class LegalDiaryApp {
     };
 
     if (id) {
-      if (this.isSupabaseConnected && this.supabaseClient) {
-        try {
-          const { error } = await this.supabaseClient
-            .from('court_cases')
-            .update(caseData)
-            .eq('id', id);
-          if (error) throw error;
-        } catch (err) {
-          this.showToast('Supabase Error', 'error');
-        }
-      }
-      const index = this.cases.findIndex(c => c.id === id);
-      if (index !== -1) {
-        this.cases[index] = { ...this.cases[index], ...caseData };
-      }
-      this.showToast('Saved', 'success');
+      const idx = this.cases.findIndex(c => c.id === id);
+      if (idx !== -1) this.cases[idx] = caseData;
     } else {
-      const newId = (this.isSupabaseConnected) ? undefined : 'local-' + Date.now();
-      if (this.isSupabaseConnected && this.supabaseClient) {
-        try {
-          const { data, error } = await this.supabaseClient
-            .from('court_cases')
-            .insert([caseData])
-            .select();
-          if (error) throw error;
-          if (data && data[0]) {
-            this.cases.unshift(data[0]);
-          }
-        } catch (err) {
-          this.showToast('Supabase Error', 'error');
-          this.cases.unshift({ id: newId, ...caseData });
-        }
-      } else {
-        this.cases.unshift({ id: newId, ...caseData });
+      this.cases.unshift(caseData);
+    }
+
+    if (this.isSupabaseConnected && this.supabaseClient) {
+      try {
+        await this.supabaseClient.from('court_cases').upsert([caseData]);
+      } catch (err) {
+        console.warn('Supabase upsert failed:', err);
       }
-      this.showToast('Added to Diary', 'success');
     }
 
     this.saveToLocal();
     this.closeCaseModal();
     this.updateCounters();
     this.render();
+    this.showToast(id ? 'File Updated' : 'New File Created', 'success');
   }
 
-  // Open Quick NDOH Modal
+  // MODAL 2: NDOH QUICK UPDATE
   openNdohModal(id) {
     const item = this.cases.find(c => c.id === id);
     if (!item) return;
 
     document.getElementById('ndohCaseId').value = item.id;
     document.getElementById('ndohCaseTitle').textContent = `${item.case_number} • ${item.parties}`;
+    document.getElementById('ndohDate').value = item.next_hearing_date || new Date().toISOString().split('T')[0];
     document.getElementById('ndohStage').value = item.hearing_stage || '';
-    document.getElementById('ndohNotes').value = '';
+    document.getElementById('ndohNotes').value = item.senior_instructions || '';
 
-    const d = new Date();
-    d.setDate(d.getDate() + 14);
-    document.getElementById('ndohDate').value = d.toISOString().split('T')[0];
-
-    document.getElementById('ndohModal').classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
+    document.getElementById('ndohModal').classList.add('active');
   }
 
   closeNdohModal() {
-    document.getElementById('ndohModal').classList.add('hidden');
+    document.getElementById('ndohModal').classList.remove('active');
   }
 
-  // Save New NDOH
-  async saveNdoh(event) {
-    event.preventDefault();
+  async handleNdohSubmit(e) {
+    e.preventDefault();
     const id = document.getElementById('ndohCaseId').value;
-    const newDate = document.getElementById('ndohDate').value;
-    const newStage = document.getElementById('ndohStage').value.trim();
-    const proceedings = document.getElementById('ndohNotes').value.trim();
-
     const item = this.cases.find(c => c.id === id);
     if (!item) return;
 
-    let updatedInstructions = item.senior_instructions || '';
-    if (proceedings) {
-      const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      updatedInstructions = `[${today}: ${proceedings}] ` + updatedInstructions;
-    }
-
-    const updates = {
-      next_hearing_date: newDate,
-      hearing_stage: newStage || item.hearing_stage,
-      senior_instructions: updatedInstructions
-    };
+    item.next_hearing_date = document.getElementById('ndohDate').value;
+    const stage = document.getElementById('ndohStage').value.trim();
+    const notes = document.getElementById('ndohNotes').value.trim();
+    if (stage) item.hearing_stage = stage;
+    if (notes) item.senior_instructions = notes;
 
     if (this.isSupabaseConnected && this.supabaseClient) {
       try {
-        const { error } = await this.supabaseClient
+        await this.supabaseClient
           .from('court_cases')
-          .update(updates)
+          .update({
+            next_hearing_date: item.next_hearing_date,
+            hearing_stage: item.hearing_stage,
+            senior_instructions: item.senior_instructions
+          })
           .eq('id', id);
-        if (error) throw error;
       } catch (err) {
-        this.showToast('Supabase Error', 'error');
+        console.warn('Supabase date update failed:', err);
       }
     }
 
-    Object.assign(item, updates);
     this.saveToLocal();
     this.closeNdohModal();
     this.updateCounters();
@@ -1099,43 +1054,40 @@ class LegalDiaryApp {
     this.showToast('NDOH Updated', 'success');
   }
 
-  // Delete Case
+  editCase(id) {
+    this.openCaseModal(id);
+  }
+
   async deleteCase(id) {
-    const item = this.cases.find(c => c.id === id);
-    if (!confirm(`Delete case record: ${item?.case_number}?`)) {
-      return;
-    }
+    if (!confirm('Are you sure you want to delete this case file?')) return;
+
+    this.cases = this.cases.filter(c => c.id !== id);
 
     if (this.isSupabaseConnected && this.supabaseClient) {
       try {
-        const { error } = await this.supabaseClient
-          .from('court_cases')
-          .delete()
-          .eq('id', id);
-        if (error) throw error;
+        await this.supabaseClient.from('court_cases').delete().eq('id', id);
       } catch (err) {
-        this.showToast('Supabase Error', 'error');
+        console.warn('Supabase delete failed:', err);
       }
     }
 
-    this.cases = this.cases.filter(c => c.id !== id);
     this.saveToLocal();
     this.updateCounters();
     this.render();
     this.showToast('Deleted', 'info');
   }
 
-  // WhatsApp Share
+  // WhatsApp Share Formatter
   shareOnWhatsApp(id) {
     const item = this.cases.find(c => c.id === id);
     if (!item) return;
 
     const displayDate = this.formatDisplayDate(item.next_hearing_date);
     const message = 
-`🏛️ *COURT CASE UPDATE*
+`⚖️ *COURT CASE UPDATE*
 *Case No:* ${item.case_number}
 *Parties:* ${item.parties}
-*Court:* ${item.court_name || 'N/A'} (${item.judge_name || 'Room N/A'})
+*Court:* ${item.court_name || 'N/A'}${item.judge_name ? ` (${item.judge_name})` : ''}
 *Next Hearing Date (NDOH):* ${displayDate}
 *Stage:* ${item.hearing_stage || 'General'}
 ${item.senior_instructions ? `*Senior Directive:* ${item.senior_instructions}\n` : ''}${item.file_drive_link ? `*Dossier:* ${item.file_drive_link}\n` : ''}
@@ -1145,61 +1097,68 @@ _Sent via Legal Diary_`;
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
   }
 
-  // Print Daily Board
+  // Print Daily Cause List
   printDailyBoard() {
-    const todayCases = this.cases.filter(c => {
-      if (c.status === 'Disposed') return false;
-      return this.getDateDifference(c.next_hearing_date) === 0;
+    const list = this.getFilteredCases();
+    const dateStr = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
 
-    const casesToPrint = todayCases.length > 0 ? todayCases : this.getFilteredCases();
-    const title = todayCases.length > 0 ? "TODAY'S CAUSE LIST" : "COURT CASES SCHEDULE";
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert('Please allow popups to print the daily cause list.');
+      return;
+    }
 
-    const printWindow = window.open('', '_blank');
-    const rows = casesToPrint.map((c, i) => `
-      <tr style="border-bottom: 0.5px solid #d1d1d6;">
-        <td style="padding: 10px; text-align: center;">${i + 1}</td>
-        <td style="padding: 10px; font-weight: 600; font-family: -apple-system, monospace;">${c.case_number}</td>
-        <td style="padding: 10px;">${c.parties}</td>
-        <td style="padding: 10px;">${c.court_name || ''} <br><small style="color: #636366;">${c.judge_name || ''}</small></td>
-        <td style="padding: 10px;"><b>${c.hearing_stage || ''}</b></td>
-        <td style="padding: 10px; font-weight: 600;">${this.formatDisplayDate(c.next_hearing_date)}</td>
-        <td style="padding: 10px; font-size: 11px;">${c.senior_instructions || '-'}</td>
+    const rows = list.map((c, i) => `
+      <tr>
+        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${i + 1}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${c.case_number}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;"><b>${c.parties}</b></td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${c.court_name || '—'}<br><small>${c.judge_name || ''}</small></td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${this.formatDisplayDate(c.next_hearing_date)}</td>
+        <td style="padding: 8px; border: 1px solid #ddd;">${c.hearing_stage || '—'}</td>
+        <td style="padding: 8px; border: 1px solid #ddd; font-style: italic;">${c.senior_instructions || '—'}</td>
       </tr>
     `).join('');
 
-    printWindow.document.write(`
+    printWin.document.write(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${title}</title>
+        <title>Daily Cause List • ${dateStr}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; padding: 30px; color: #000; }
-          h2 { margin-bottom: 4px; text-align: center; font-size: 19px; }
-          p { text-align: center; color: #8e8e93; font-size: 12px; margin-top: 0; }
-          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-          th { background: #f2f2f7; border-bottom: 1px solid #c6c6c8; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #636366; }
+          body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; color: #111; }
+          h1 { margin: 0 0 4px 0; font-size: 20px; }
+          p { margin: 0 0 16px 0; font-size: 13px; color: #555; }
+          table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          th { background: #f0f0f0; padding: 8px; border: 1px solid #ddd; text-align: left; }
           @media print {
             button { display: none; }
           }
         </style>
       </head>
       <body>
-        <h2>${title}</h2>
-        <p>Generated on ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
-        <div style="text-align: right; margin-bottom: 12px;">
-          <button onclick="window.print()" style="padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Print</button>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+          <div>
+            <h1>Advocate Case Diary • Daily Cause List</h1>
+            <p>Generated on: ${dateStr} | Total Files: ${list.length}</p>
+          </div>
+          <button onclick="window.print()" style="padding: 8px 16px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Print List</button>
         </div>
         <table>
           <thead>
             <tr>
-              <th style="width: 30px; text-align: center;">#</th>
+              <th style="width: 35px; text-align: center;">#</th>
               <th>Case No.</th>
               <th>Parties</th>
-              <th>Court / Room</th>
+              <th>Court & Bench</th>
+              <th>NDOH Date</th>
               <th>Stage</th>
-              <th>NDOH</th>
-              <th>Senior Directive</th>
+              <th>Senior Remarks</th>
             </tr>
           </thead>
           <tbody>
@@ -1209,99 +1168,79 @@ _Sent via Legal Diary_`;
       </body>
       </html>
     `);
-    printWindow.document.close();
+    printWin.document.close();
   }
 
-  // Settings
+  // Settings & Cloud Sync
   openSettingsModal() {
-    document.getElementById('cfgUrl').value = localStorage.getItem(this.STORAGE_KEY_URL) || '';
-    document.getElementById('cfgKey').value = localStorage.getItem(this.STORAGE_KEY_KEY) || '';
-    document.getElementById('settingsModal').classList.remove('hidden');
-    if (window.lucide) lucide.createIcons();
+    document.getElementById('settingsModal').classList.add('active');
   }
 
   closeSettingsModal() {
-    document.getElementById('settingsModal').classList.add('hidden');
+    document.getElementById('settingsModal').classList.remove('active');
   }
 
-  async saveSupabaseConfig() {
+  saveSupabaseConfig() {
     const url = document.getElementById('cfgUrl').value.trim();
     const key = document.getElementById('cfgKey').value.trim();
 
-    if (!url || !key) {
-      this.showToast('Please enter both keys', 'error');
-      return;
-    }
-
-    localStorage.setItem(this.STORAGE_KEY_URL, url);
-    localStorage.setItem(this.STORAGE_KEY_KEY, key);
-
-    this.initSupabase();
-    await this.loadCases();
-    this.updateCounters();
-    this.render();
-    this.closeSettingsModal();
-
-    if (this.isSupabaseConnected) {
+    if (url && key) {
+      localStorage.setItem(this.STORAGE_KEY_URL, url);
+      localStorage.setItem(this.STORAGE_KEY_KEY, key);
+      this.initSupabase();
       this.showToast('Cloud Connected', 'success');
+      this.closeSettingsModal();
+      this.refreshData();
+    } else {
+      localStorage.removeItem(this.STORAGE_KEY_URL);
+      localStorage.removeItem(this.STORAGE_KEY_KEY);
+      this.isSupabaseConnected = false;
+      this.supabaseClient = null;
+      document.getElementById('supabaseBadge').textContent = 'Device Storage';
+      this.showToast('Reverted to Device Storage', 'info');
+      this.closeSettingsModal();
     }
   }
 
   useDemoMode() {
-    localStorage.removeItem(this.STORAGE_KEY_URL);
-    localStorage.removeItem(this.STORAGE_KEY_KEY);
-    this.supabaseClient = null;
-    this.isSupabaseConnected = false;
-    this.updateBadge(false);
-    this.cases = this.getSampleCases();
-    this.saveToLocal();
-    this.updateCounters();
-    this.render();
-    this.closeSettingsModal();
-    this.showToast('Reset to 23 Cases', 'info');
+    if (confirm('Reset to standard 23 advocate cases? Any custom edits will be replaced.')) {
+      this.cases = this.getSampleCases();
+      this.saveToLocal();
+      this.updateCounters();
+      this.render();
+      this.closeSettingsModal();
+      this.showToast('Reset to 23 Cases', 'info');
+    }
   }
 
-  // Toast Notification (Borderless clean card)
+  // Toast Notification
   showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-base-100/95 text-base-content backdrop-blur-xl`;
-    
-    let icon = 'check-circle-2';
-    let iconColor = 'text-success';
-    if (type === 'error') {
-      icon = 'alert-circle';
-      iconColor = 'text-error';
+    toast.className = 'toast-pill';
+    toast.textContent = message;
+
+    if (type === 'success') {
+      toast.style.borderColor = 'var(--color-success)';
+      toast.style.color = 'var(--color-success)';
     } else if (type === 'warning') {
-      icon = 'alert-triangle';
-      iconColor = 'text-warning';
-    } else if (type === 'info') {
-      icon = 'info';
-      iconColor = 'text-info';
+      toast.style.borderColor = 'var(--color-warning)';
+      toast.style.color = 'var(--color-warning)';
     }
 
-    toast.innerHTML = `
-      <i data-lucide="${icon}" class="w-4 h-4 ${iconColor}"></i>
-      <span>${message}</span>
-    `;
-
     container.appendChild(toast);
-    if (window.lucide) lucide.createIcons();
-
     setTimeout(() => {
-      toast.classList.remove('translate-y-[-20px]', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-    }, 10);
-
-    setTimeout(() => {
-      toast.classList.add('opacity-0', 'translate-y-[-20px]');
-      setTimeout(() => toast.remove(), 300);
-    }, 2500);
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-10px)';
+      toast.style.transition = 'all 0.25s ease';
+      setTimeout(() => toast.remove(), 250);
+    }, 2000);
   }
 }
 
-// Instantiate and expose globally
-const app = new LegalDiaryApp();
-window.app = app;
+// Instantiate on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  window.app = new LegalDiaryApp();
+});

@@ -1,698 +1,1333 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#0b0e14">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Case Diary • iOS 15 + daisyUI</title>
+  <title>Legal Diary • Court & Hearing Tracker</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- daisyUI Component Library (Official CDN) -->
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.min.css" rel="stylesheet" type="text/css" />
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons (Official UMD CDN) -->
+  <!-- Lucide Icons -->
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
-            mono: ['"SF Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
-          },
-          colors: {
-            ios: {
-              blue: '#007AFF',
-              red: '#FF3B30',
-              orange: '#FF9500',
-              yellow: '#FFCC00',
-              green: '#34C759',
-              indigo: '#5856D6',
-              purple: '#AF52DE',
-              teal: '#5AC8FA',
-              gray: '#8E8E93',
-              gray2: '#AEAEB2',
-              gray3: '#C7C7CC',
-              gray4: '#D1D1D6',
-              gray5: '#E5E5EA',
-              gray6: '#F2F2F7',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-      -webkit-tap-highlight-color: transparent;
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.25s ease, color 0.25s ease;
-    }
-    .hide-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .hide-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* DARK THEME STYLES (iOS Dark Mode - Seamless Borderless Surfaces) */
-    html.dark body {
-      background-color: #0c0c0e;
-      color: #FFFFFF;
-    }
-    html.dark .ios-card {
-      background-color: #1C1C1E;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
-    }
-    html.dark .ios-card-inner {
-      background-color: #252528;
-    }
-    html.dark .ios-blur-bar {
-      background-color: rgba(18, 18, 20, 0.90);
-    }
-    html.dark .ios-blur-tabbar {
-      background-color: rgba(24, 24, 26, 0.92);
-    }
-    html.dark .ios-modal-surface {
-      background-color: #1C1C1E;
-    }
-    html.dark .ios-modal-group {
-      background-color: #252528;
-    }
-
-    /* LIGHT THEME STYLES (iOS Light Mode - Seamless Borderless Surfaces) */
-    html:not(.dark) body {
-      background-color: #F2F2F7;
-      color: #000000;
-    }
-    html:not(.dark) .ios-card {
-      background-color: #FFFFFF;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
-    html:not(.dark) .ios-card-inner {
-      background-color: #F8F8FA;
-    }
-    html:not(.dark) .ios-blur-bar {
-      background-color: rgba(249, 249, 251, 0.92);
-    }
-    html:not(.dark) .ios-blur-tabbar {
-      background-color: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04);
-    }
-    html:not(.dark) .ios-modal-surface {
-      background-color: #FFFFFF;
-    }
-    html:not(.dark) .ios-modal-group {
-      background-color: #F2F2F7;
-    }
-
-    /* General Utilities */
-    .ios-card {
-      border-radius: 16px;
-      overflow: hidden;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .ios-blur-bar, .ios-blur-tabbar {
-      backdrop-filter: saturate(180%) blur(25px);
-      -webkit-backdrop-filter: saturate(180%) blur(25px);
-    }
-
+    /* -------------------------------------------------------------
+       MODERN MOBILE ARCHITECTURE (Things 3 & iOS 18 Inspired)
+       NO PILLS • NO HARSH CARD BORDERS • FLUID TYPOGRAPHY
+       ------------------------------------------------------------- */
     :root {
-      --rounded-badge: 0.5rem;
-      --rounded-btn: 0.75rem;
-      --rounded-box: 1rem;
+      --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, -apple-system, Roboto, sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, Consolas, monospace;
+      
+      --radius-xs: 4px;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Seamless Borderless Tab Switcher */
-    .ios-segmented-item {
-      color: var(--fallback-bc, oklch(var(--bc)/0.6));
-      transition: all 0.15s ease;
-      cursor: pointer;
-      border: none !important;
-    }
-    .ios-segmented-item:hover {
-      color: var(--fallback-bc, oklch(var(--bc)/0.9));
-      background-color: var(--fallback-b2, oklch(var(--b2)/0.5));
-    }
-    .ios-segmented-item.active {
-      color: var(--fallback-p, oklch(var(--p)/1)) !important;
-      background-color: var(--fallback-b1, oklch(var(--b1)/1)) !important;
-      font-weight: 700 !important;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
-      border: none !important;
+    /* DARK THEME (Obsidian Studio) */
+    html[data-theme="dark"] {
+      --bg-base: #0b0e14;
+      --bg-surface: #121620;
+      --bg-surface-elevated: #1a202c;
+      --bg-subtle: rgba(255, 255, 255, 0.05);
+      --bg-active: rgba(255, 255, 255, 0.09);
+      
+      --divider: rgba(255, 255, 255, 0.07);
+      --divider-strong: rgba(255, 255, 255, 0.12);
+      
+      --text-main: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-dim: #64748b;
+      
+      --header-bg: rgba(11, 14, 20, 0.85);
+      --dock-bg: rgba(18, 22, 32, 0.88);
+      
+      --accent-today: #ef4444;
+      --accent-today-subtle: rgba(239, 68, 68, 0.12);
+      --accent-tomorrow: #f59e0b;
+      --accent-tomorrow-subtle: rgba(245, 158, 11, 0.12);
+      --accent-upcoming: #3b82f6;
+      --accent-upcoming-subtle: rgba(59, 130, 246, 0.12);
+      --accent-passed: #64748b;
+      --accent-passed-subtle: rgba(100, 116, 139, 0.12);
+
+      --color-primary: #3b82f6;
+      --color-success: #10b981;
+      --color-danger: #ef4444;
+      --color-warning: #f59e0b;
     }
 
-    /* Custom Dropdown Select styling */
-    select.daisy-court-select {
-      border-radius: 8px;
-      cursor: pointer;
-      border: none !important;
-      transition: all 0.15s ease;
-    }
-    .sheet-transition {
-      transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
+    /* LIGHT THEME (Minimalist Porcelain) */
+    html[data-theme="light"] {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f1f5f9;
+      --bg-subtle: rgba(0, 0, 0, 0.04);
+      --bg-active: rgba(0, 0, 0, 0.08);
+      
+      --divider: rgba(0, 0, 0, 0.06);
+      --divider-strong: rgba(0, 0, 0, 0.12);
+      
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-dim: #94a3b8;
+      
+      --header-bg: rgba(248, 250, 252, 0.85);
+      --dock-bg: rgba(255, 255, 255, 0.90);
+      
+      --accent-today: #dc2626;
+      --accent-today-subtle: rgba(220, 38, 38, 0.08);
+      --accent-tomorrow: #d97706;
+      --accent-tomorrow-subtle: rgba(217, 119, 6, 0.08);
+      --accent-upcoming: #2563eb;
+      --accent-upcoming-subtle: rgba(37, 99, 235, 0.08);
+      --accent-passed: #64748b;
+      --accent-passed-subtle: rgba(100, 116, 139, 0.08);
+
+      --color-primary: #2563eb;
+      --color-success: #059669;
+      --color-danger: #dc2626;
+      --color-warning: #d97706;
     }
 
-    /* iOS Collapsible Header Sections on Scroll */
-    .collapsible-header-section {
-      max-height: 90px;
-      opacity: 1;
-      transform: translateY(0);
-      transition: max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, margin 0.2s ease, transform 0.2s ease, padding 0.2s ease;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 96px;
+    }
+
+    /* APP SHELL (Mobile Frame) */
+    .app-shell {
+      max-width: 580px;
+      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* -------------------------------------------------------------
+       HEADER & NAVIGATION (Fluid Collapsible)
+       ------------------------------------------------------------- */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--divider);
+      transition: all 0.25s var(--ease-spring);
+    }
+
+    /* Collapsible Sections */
+    .header-collapsible {
+      transition: max-height 0.24s ease, opacity 0.2s ease, padding 0.2s ease;
       overflow: hidden;
+      max-height: 80px;
+      opacity: 1;
     }
-    .collapsible-header-section.collapsed {
-      max-height: 0 !important;
-      opacity: 0 !important;
-      transform: translateY(-8px);
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
+    .header-collapsible.collapsed {
+      max-height: 0;
+      opacity: 0;
       padding-top: 0 !important;
       padding-bottom: 0 !important;
       pointer-events: none;
     }
 
-    /* Card Collapsible Details on Tap */
-    .card-collapsible-content {
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+    /* Top Utility Bar */
+    .top-utility-bar {
+      padding: 10px 16px 4px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-    .card-collapsible-content.expanded {
-      max-height: 600px;
-      opacity: 1;
+    .storage-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
     }
-    .card-chevron {
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-success);
+      box-shadow: 0 0 6px var(--color-success);
     }
-    .card-chevron.expanded {
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+    .icon-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+    .icon-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Main Sticky Row: [ Brand ] [ Searchbar ] [ Settings ] */
+    .main-nav-row {
+      padding: 8px 16px 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 800;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      color: var(--text-main);
+    }
+    .brand-icon {
+      color: var(--color-primary);
+    }
+
+    /* Spotlight Searchbar (No harsh borders) */
+    .search-container {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+    }
+    .search-input {
+      width: 100%;
+      height: 36px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      padding: 0 28px 0 32px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-main);
+      outline: none;
+      transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .search-input:focus {
+      background: var(--bg-surface);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+    .search-input::placeholder {
+      color: var(--text-dim);
+    }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    .search-clear {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+    }
+    .search-clear.active {
+      display: flex;
+    }
+
+    /* Segmented Date Filter Rail (NO PILLS - iOS Segment style) */
+    .filter-rail {
+      display: flex;
+      background: var(--bg-surface-elevated);
+      padding: 3px;
+      border-radius: 10px;
+      margin: 0 16px 10px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 2px;
+    }
+    .filter-rail::-webkit-scrollbar {
+      display: none;
+    }
+    .segment-tab {
+      flex: 1;
+      min-width: fit-content;
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: color 0.18s ease, transform 0.15s var(--ease-spring);
+    }
+    .segment-tab:hover {
+      color: var(--text-main);
+    }
+    .segment-tab:active {
+      transform: scale(0.94);
+    }
+    .segment-tab.active {
+      background: var(--bg-surface);
+      color: var(--text-main);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+      animation: tabPop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .tab-counter {
+      font-size: 10px;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+
+    /* -------------------------------------------------------------
+       SECTION CONTROLS & COURT SELECTOR
+       ------------------------------------------------------------- */
+    .section-bar {
+      padding: 14px 16px 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+    .court-select {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      padding-right: 4px;
+    }
+    .court-select option {
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    /* -------------------------------------------------------------
+       SEAMLESS TIMELINE / AGENDA STREAM (NO CARD BORDERS, NO PILLS)
+       ------------------------------------------------------------- */
+    .case-stream {
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-surface);
+      border-top: 1px solid var(--divider);
+      border-bottom: 1px solid var(--divider);
+    }
+
+    /* Individual Case Item */
+    .case-item {
+      position: relative;
+      border-bottom: 1px solid var(--divider);
+      transition: background 0.15s ease;
+      animation: itemEntrance 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: calc(var(--item-delay, 0) * 20ms);
+    }
+    .case-item:last-child {
+      border-bottom: none;
+    }
+    .case-item:active {
+      background: var(--bg-subtle);
+    }
+
+    /* Left Indicator Accent Bar */
+    .case-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3.5px;
+      background: transparent;
+      transition: background 0.15s ease;
+    }
+    .case-item.status-today::before {
+      background: var(--accent-today);
+    }
+    .case-item.status-tomorrow::before {
+      background: var(--accent-tomorrow);
+    }
+    .case-item.status-upcoming::before {
+      background: var(--accent-upcoming);
+    }
+    .case-item.status-passed::before {
+      background: var(--accent-passed);
+    }
+
+    /* Clickable Row Header */
+    .case-row-header {
+      padding: 14px 16px 14px 18px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.12s ease, background-color 0.15s ease;
+    }
+    .case-row-header:active {
+      transform: scale(0.992);
+      background-color: var(--bg-active);
+    }
+
+    /* Line 1: Court Metadata (Left) vs Relative Time (Right) */
+    .row-meta-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .court-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .judge-sub {
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .time-badge {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .time-today {
+      color: var(--accent-today);
+    }
+    .time-tomorrow {
+      color: var(--accent-tomorrow);
+    }
+    .time-upcoming {
+      color: var(--accent-upcoming);
+    }
+    .time-passed {
+      color: var(--accent-passed);
+    }
+
+    /* Line 2: Parties Title & Chevron */
+    .row-main-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .parties-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+    .chevron-icon {
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease;
+      flex-shrink: 0;
+    }
+    .chevron-icon.expanded {
       transform: rotate(180deg);
+      color: var(--color-primary);
+    }
+
+    /* Line 3: Case Number & Hearing Stage */
+    .row-sub-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+    .case-num-text {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-main);
+      opacity: 0.85;
+    }
+    .dot-separator {
+      color: var(--text-dim);
+    }
+    .stage-text {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .urgent-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--accent-today);
+    }
+
+    /* -------------------------------------------------------------
+       EXPANDED DOSSIER (Silky Grid Transition)
+       ------------------------------------------------------------- */
+    .case-expansion {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.32s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s ease;
+      background: transparent;
+    }
+    .case-expansion.expanded {
+      grid-template-rows: 1fr;
+      background: var(--bg-surface-elevated);
+      border-top: 1px solid var(--divider);
+    }
+
+    .expansion-content {
+      overflow: hidden;
+      padding: 0 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      opacity: 0;
+      transform: translateY(-8px);
+      transition: opacity 0.22s ease, transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), padding 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .case-expansion.expanded .expansion-content {
+      padding: 16px 18px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Full Details Rows */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .detail-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .detail-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+    }
+    .detail-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .copy-btn-clean {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      padding: 2px;
+      border-radius: 4px;
+      transition: color 0.15s ease;
+    }
+    .copy-btn-clean:hover {
+      color: var(--color-primary);
+    }
+
+    /* Senior Directive Callout (Apple Notes style) */
+    .directive-card {
+      background: rgba(245, 158, 11, 0.08);
+      border-left: 3px solid var(--accent-tomorrow);
+      padding: 10px 14px;
+      border-radius: var(--radius-xs);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .directive-header {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--accent-tomorrow);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .directive-quote {
+      font-size: 13px;
+      font-style: italic;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    /* Action Toolbar (Modern Flat Touch Targets) */
+    .action-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 4px;
+    }
+    .btn-action-primary {
+      flex: 1;
+      height: 38px;
+      background: var(--color-primary);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease;
+    }
+    .btn-action-primary:hover {
+      filter: brightness(1.08);
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+    .btn-action-primary:active {
+      transform: scale(0.94);
+    }
+
+    .btn-action-whatsapp {
+      flex: 1;
+      height: 38px;
+      background: var(--color-success);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, filter 0.15s ease;
+    }
+    .btn-action-whatsapp:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    }
+    .btn-action-whatsapp:active {
+      transform: scale(0.94);
+    }
+
+    .btn-action-icon {
+      width: 38px;
+      height: 38px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-action-icon:hover {
+      background: var(--bg-active);
+      color: var(--text-main);
+    }
+    .btn-action-icon:active {
+      transform: scale(0.92);
+    }
+    .btn-action-icon.danger:hover {
+      color: var(--color-danger);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    /* -------------------------------------------------------------
+       FLOATING ACTION BUTTON (FAB)
+       ------------------------------------------------------------- */
+    .fab-btn {
+      position: fixed;
+      right: 20px;
+      bottom: 76px;
+      z-index: 48;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      color: #ffffff;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fabFloat 3.8s ease-in-out infinite;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+    .fab-btn:hover {
+      animation: none;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.6);
+    }
+    .fab-btn:active {
+      animation: none;
+      transform: scale(0.88);
+    }
+
+    /* -------------------------------------------------------------
+       BOTTOM DOCK NAVIGATION (iOS Native Blur)
+       ------------------------------------------------------------- */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 45;
+      background: var(--dock-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--divider);
+      padding: 6px 16px 8px 16px;
+    }
+    .dock-container {
+      max-width: 540px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .dock-tab {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .dock-tab:active {
+      transform: scale(0.92);
+    }
+    .dock-tab.active {
+      color: var(--color-primary);
+    }
+    .dock-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    /* -------------------------------------------------------------
+       BOTTOM SHEETS (Native Modals with Spring Physics)
+       ------------------------------------------------------------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      transition: opacity 0.26s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .sheet-box {
+      width: 100%;
+      max-width: 580px;
+      max-height: 88vh;
+      background: var(--bg-surface);
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+      overflow-y: auto;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+      transform: translateY(100%);
+      transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .modal-overlay.active .sheet-box {
+      transform: translateY(0);
+    }
+    .sheet-handle {
+      width: 38px;
+      height: 4px;
+      background: var(--divider-strong);
+      border-radius: 999px;
+      margin: 12px auto 6px auto;
+    }
+    .sheet-header-row {
+      padding: 10px 20px 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--divider);
+    }
+    .sheet-title-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .sheet-inner-body {
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .form-group-clean {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-label-clean {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-dim);
+    }
+    .input-clean {
+      width: 100%;
+      height: 40px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--divider);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 13px;
+      color: var(--text-main);
+      outline: none;
+      font-family: inherit;
+    }
+    .input-clean:focus {
+      border-color: var(--color-primary);
+    }
+    .preset-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-top: 4px;
+    }
+    .preset-tag {
+      background: var(--bg-subtle);
+      border: 1px solid var(--divider);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .sheet-footer-clean {
+      padding: 14px 20px 20px 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    /* EMPTY STATE */
+    .empty-state-box {
+      padding: 60px 20px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* TOAST */
+    #toastContainer {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .toast-pill {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--divider-strong);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      animation: fadeIn 0.2s ease;
+    }
+
+    /* -------------------------------------------------------------
+       ANIMATION & MOTION SYSTEM (Spring Physics & Haptic Feel)
+       ------------------------------------------------------------- */
+    @keyframes itemEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes livePulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.45;
+        transform: scale(1.25);
+      }
+    }
+
+    @keyframes fabFloat {
+      0%, 100% {
+        transform: translateY(0);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.42);
+      }
+      50% {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 30px rgba(59, 130, 246, 0.58);
+      }
+    }
+
+    @keyframes tabPop {
+      0% { transform: scale(0.94); }
+      60% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes toastEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.94);
+      }
+      65% {
+        transform: translateY(2px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .pulse-bullet {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-today);
+      box-shadow: 0 0 6px var(--accent-today);
+      animation: livePulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      margin-right: 4px;
+      vertical-align: middle;
     }
   </style>
 </head>
-<body class="min-h-screen antialiased flex flex-col select-none">
 
-  <!-- Responsive Adaptive Container: Full-width on mobile, expands smoothly to max-w-4xl (900px) on laptop/desktop -->
-  <div class="w-full max-w-4xl min-h-screen flex flex-col mx-auto px-3 sm:px-6 pb-28 relative">
+<body>
+  <div class="app-shell">
 
-    <!-- Dynamic Top Navigation Bar with Scroll Collapse (Seamless Borderless Design) -->
-    <header id="mainHeader" class="sticky top-0 z-30 bg-base-100/95 backdrop-blur-md shadow-xs -mx-3 sm:-mx-6 px-4 sm:px-6 pt-2 pb-2 mb-2 transition-all duration-300">
+    <!-- FLUID STICKY APP HEADER -->
+    <header id="mainHeader" class="app-header">
       
-      <!-- Collapsible Top Bar: Device Storage badge, Date, Print, Theme & Refresh buttons (HIDES ON SCROLL) -->
-      <div id="collapsibleHeaderTop" class="collapsible-header-section flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2">
-          <!-- Status Badge: Borderless clean tag -->
-          <div id="supabaseBadge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-warning/15 text-warning text-[11px] font-semibold">
-            <span class="w-1.5 h-1.5 rounded-xs bg-warning animate-pulse"></span>
-            <span>Device Storage</span>
+      <!-- Top Utilities (HIDES ON SCROLL) -->
+      <div id="collapsibleHeaderTop" class="header-collapsible">
+        <div class="top-utility-bar">
+          <div class="storage-status">
+            <span class="status-dot"></span>
+            <span id="supabaseBadge">Device Storage</span>
+            <span>•</span>
+            <span id="todayDateStr">Loading...</span>
           </div>
-          <p id="todayDateStr" class="text-[11px] text-base-content/60 font-medium">Loading date...</p>
-        </div>
 
-        <div class="flex items-center space-x-1.5">
-          <!-- Print Daily List -->
-          <button onclick="app.printDailyBoard()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 gap-1 text-primary font-semibold border-none" title="Print Daily Cause List">
-            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">Print</span>
-          </button>
-          <!-- Theme Toggle (Dark / Light) -->
-          <button id="themeToggleBtn" onclick="app.toggleTheme()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary border-none" title="Toggle Theme">
-            <i id="themeIcon" data-lucide="sun" class="w-3.5 h-3.5"></i>
-          </button>
-          <!-- Refresh -->
-          <button id="refreshBtn" onclick="app.refreshData()" class="btn btn-xs rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary border-none" title="Refresh">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          </button>
+          <div class="top-actions">
+            <button onclick="app.printDailyBoard()" class="icon-btn" title="Print Daily Cause List">
+              <i data-lucide="printer" style="width: 15px; height: 15px;"></i>
+            </button>
+            <button id="themeToggleBtn" onclick="app.toggleTheme()" class="icon-btn" title="Toggle Theme">
+              <i id="themeIcon" data-lucide="sun" style="width: 15px; height: 15px;"></i>
+            </button>
+            <button id="refreshBtn" onclick="app.refreshData()" class="icon-btn" title="Refresh List">
+              <i data-lucide="refresh-cw" style="width: 15px; height: 15px;"></i>
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Persistent Row: EXACTLY 3 Items Inline (Title + Searchbar + Settings Icon) -->
-      <div class="flex items-center gap-2 sm:gap-3 w-full py-0.5">
-        
-        <!-- 1. Title: "Case Diary" -->
-        <div class="flex items-center gap-1.5 shrink-0">
-          <div class="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center shrink-0">
-            <i data-lucide="scale" class="w-4 h-4"></i>
-          </div>
-          <h1 class="text-[15px] sm:text-[16px] font-extrabold tracking-tight whitespace-nowrap text-base-content">Case Diary</h1>
+      <!-- Main Sticky Row: [ Brand ] [ Searchbar ] [ Settings ] -->
+      <div class="main-nav-row">
+        <div class="brand-title">
+          <span class="brand-icon"><i data-lucide="scale" style="width: 18px; height: 18px;"></i></span>
+          <span>Legal Diary</span>
         </div>
 
-        <!-- 2. Searchbar (Inline Middle) -->
-        <div class="relative flex-1 min-w-0">
-          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-            <i data-lucide="search" class="w-3.5 h-3.5 text-base-content/50"></i>
-          </div>
+        <div class="search-container">
+          <span class="search-icon"><i data-lucide="search" style="width: 14px; height: 14px;"></i></span>
           <input 
             type="text" 
             id="searchInput" 
-            oninput="app.handleSearch(this.value)"
-            placeholder="Search cases..."
-            class="input input-sm border-none bg-base-200/60 focus:bg-base-200 w-full rounded-xl text-[13px] sm:text-[14px] text-base-content placeholder:text-base-content/40 pl-8 pr-7 focus:outline-none transition"
+            oninput="app.handleSearch(this.value)" 
+            placeholder="Search party, case no, stage..." 
+            class="search-input"
           >
-          <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-2 flex items-center text-base-content/50 hover:text-base-content">
-            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+          <button id="clearSearchBtn" onclick="app.clearSearch()" class="search-clear" title="Clear">
+            <i data-lucide="x" style="width: 13px; height: 13px;"></i>
           </button>
         </div>
 
-        <!-- 3. Settings Icon (Inline Right) -->
-        <button onclick="app.openSettingsModal()" class="btn btn-sm rounded-lg btn-ghost bg-base-200/60 hover:bg-base-200 text-primary shrink-0 border-none" title="Settings">
-          <i data-lucide="settings" class="w-4 h-4"></i>
+        <button onclick="app.openSettingsModal()" class="icon-btn" title="Settings">
+          <i data-lucide="sliders-horizontal" style="width: 16px; height: 16px;"></i>
         </button>
-
       </div>
 
-      <!-- Collapsible Bottom Row: Soft Borderless Tab Switcher (HIDES ON SCROLL) -->
-      <div id="collapsibleHeaderBottom" class="collapsible-header-section mt-2">
-        <div class="flex items-center gap-1 bg-base-200/50 p-1 rounded-xl overflow-x-auto hide-scrollbar text-xs font-semibold">
-          <button onclick="app.setQuickFilter('all')" class="ios-segmented-item active py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="all">
+      <!-- Segmented Date Filter Bar (HIDES ON SCROLL) -->
+      <div id="collapsibleHeaderBottom" class="header-collapsible">
+        <div class="filter-rail">
+          <button class="segment-tab active" onclick="app.setQuickFilter('all')" data-filter="all">
             <span>All</span>
-            <span id="countAll" class="px-1.5 py-0.2 rounded-md bg-primary/15 text-primary font-mono text-[10px]">0</span>
+            <span id="countAll" class="tab-counter">0</span>
           </button>
-          <button onclick="app.setQuickFilter('today')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="today">
+          <button class="segment-tab" onclick="app.setQuickFilter('today')" data-filter="today">
             <span>Today</span>
-            <span id="countToday" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
+            <span id="countToday" class="tab-counter">0</span>
           </button>
-          <button onclick="app.setQuickFilter('tomorrow')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="tomorrow">
-            <span>Tmrw</span>
-            <span id="countTomorrow" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
+          <button class="segment-tab" onclick="app.setQuickFilter('tomorrow')" data-filter="tomorrow">
+            <span>Tomorrow</span>
+            <span id="countTomorrow" class="tab-counter">0</span>
           </button>
-          <button onclick="app.setQuickFilter('this_week')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="this_week">
-            <span>7 Days</span>
-            <span id="countWeek" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
+          <button class="segment-tab" onclick="app.setQuickFilter('this_week')" data-filter="this_week">
+            <span>Next 7 Days</span>
+            <span id="countWeek" class="tab-counter">0</span>
           </button>
-          <button onclick="app.setQuickFilter('overdue')" class="ios-segmented-item py-1.5 px-3 rounded-lg text-center whitespace-nowrap transition flex items-center gap-1.5" data-filter="overdue">
+          <button class="segment-tab" onclick="app.setQuickFilter('overdue')" data-filter="overdue">
             <span>Passed</span>
-            <span id="countOverdue" class="px-1.5 py-0.2 rounded-md bg-base-200 text-base-content/70 font-mono text-[10px]">0</span>
+            <span id="countOverdue" class="tab-counter">0</span>
           </button>
         </div>
       </div>
 
     </header>
 
-    <!-- Main Content Area: Responsive Grid (1 col on mobile, 2 cols on tablet/desktop) -->
-    <main class="flex-1 py-2">
-
-      <!-- Section Title & Quick Court Filter Dropdown -->
-      <div class="flex items-center justify-between mb-3 px-1 gap-2">
-        <h2 id="viewTitle" class="text-[13px] uppercase font-bold tracking-wider text-base-content/70 truncate">All Registered Cases</h2>
-        
-        <!-- Borderless Court Dropdown Filter -->
-        <div class="flex items-center gap-1.5 shrink-0">
-          <select id="courtFilterSelect" onchange="app.filterByCourt(this.value)" class="select select-xs sm:select-sm font-semibold text-xs bg-base-200/80 border-none text-base-content focus:bg-base-200 focus:outline-none rounded-lg cursor-pointer">
-            <option value="all">🏛️ All Courts</option>
-            <option value="ACJM-5">ACJM-5 (4)</option>
-            <option value="CJSD">CJSD (1)</option>
-            <option value="Gram Nay. Gola">Gram Nay. Gola (3)</option>
-            <option value="FTC-41">FTC-41 (1)</option>
-            <option value="CO-IInd">CO-IInd (1)</option>
-            <option value="AFC-1st">AFC-1st (2)</option>
-            <option value="ACJM-3">ACJM-3 (2)</option>
-            <option value="DJ">DJ (1)</option>
-            <option value="ADJ/FTC">ADJ/FTC (1)</option>
-            <option value="AJM-3">AJM-3 (1)</option>
-            <option value="ADJ-2nd">ADJ-2nd (1)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Responsive Grid for Case Cards -->
-      <div id="casesList" class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-        <div class="col-span-full p-12 text-center text-base-content/60 text-sm">
-          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mb-2"></div>
-          <p>Loading case files...</p>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div id="emptyState" class="hidden col-span-full py-16 px-4 text-center">
-        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-base-200 flex items-center justify-center text-base-content/60">
-          <i data-lucide="folder" class="w-8 h-8"></i>
-        </div>
-        <h3 class="text-base font-bold text-base-content">No Cases Found</h3>
-        <p class="text-xs text-base-content/60 mt-1 max-w-xs mx-auto">Iss filter me koi case nahi mila. Naya case add karne ke liye '+' button dabayein.</p>
-        <button onclick="app.openCaseModal()" class="btn btn-sm btn-primary mt-4 font-bold shadow-md">
-          + Add New Case
-        </button>
-      </div>
-
-    </main>
-
-    <!-- Floating Action Button (FAB - Clean Rounded Square, Borderless) -->
-    <div class="fixed bottom-20 right-4 sm:right-8 z-40">
-      <button 
-        onclick="app.openCaseModal()"
-        class="btn btn-primary rounded-2xl w-14 h-14 shadow-xl hover:scale-105 active:scale-95 text-white transition-all font-bold border-none"
-        title="Add Case File"
-      >
-        <i data-lucide="plus" class="w-6 h-6"></i>
-      </button>
+    <!-- SECTION TITLE & COURT FILTER BAR -->
+    <div class="section-bar">
+      <span id="viewTitle" class="section-title">All Registered Cases</span>
+      <select id="courtSelect" onchange="app.filterByCourt(this.value)" class="court-select">
+        <option value="all">All Courts ▼</option>
+        <option value="ACJM">ACJM Courts</option>
+        <option value="FTC">FTC Courts</option>
+        <option value="CJSD">CJSD</option>
+        <option value="District">District Court</option>
+        <option value="Gram">Gram Nyayalaya</option>
+      </select>
     </div>
 
-    <!-- Bottom Tab Bar (Clean Executive Bar, Borderless) -->
-    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-base-100/95 backdrop-blur-md flex justify-around items-center py-2 px-3 max-w-lg mx-auto sm:rounded-t-2xl shadow-2xl border-none">
-      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="today">
-        <i data-lucide="calendar" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Today</span>
-      </button>
+    <!-- MAIN TIMELINE AGENDA STREAM (NO BORDERS, NO PILLS) -->
+    <main>
+      <div id="casesList" class="case-stream">
+        <!-- Rendered by app.js -->
+      </div>
 
-      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-primary transition" data-tab="all">
-        <i data-lucide="folder" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">All Cases</span>
-      </button>
+      <!-- EMPTY STATE -->
+      <div id="emptyState" class="empty-state-box">
+        <i data-lucide="folder-search" style="width: 42px; height: 42px; color: var(--text-dim);"></i>
+        <h3 style="font-size: 15px; font-weight: 700;">No Hearings Found</h3>
+        <p style="font-size: 12px; color: var(--text-dim); max-width: 260px;">Try adjusting your search query or switching date filters.</p>
+        <button onclick="app.clearSearch(); app.setQuickFilter('all')" class="preset-tag" style="margin-top: 6px;">Reset Filters</button>
+      </div>
+    </main>
 
-      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="upcoming">
-        <i data-lucide="clock" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Upcoming</span>
-      </button>
+    <!-- FLOATING ACTION BUTTON (Add Case) -->
+    <button onclick="app.openCaseModal()" class="fab-btn" title="Add New Case File">
+      <i data-lucide="plus" style="width: 24px; height: 24px;"></i>
+    </button>
 
-      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 px-3 rounded-xl text-base-content/60 hover:text-primary transition" data-tab="settings">
-        <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
-        <span class="text-[10px] font-medium mt-1">Settings</span>
-      </button>
+    <!-- BOTTOM DOCK NAVIGATION -->
+    <nav class="bottom-dock">
+      <div class="dock-container">
+        <button onclick="app.switchTab('today')" class="dock-tab" data-tab="today">
+          <i data-lucide="calendar" style="width: 19px; height: 19px;"></i>
+          <span class="dock-label">Today</span>
+        </button>
+
+        <button onclick="app.switchTab('all')" class="dock-tab active" data-tab="all">
+          <i data-lucide="briefcase" style="width: 19px; height: 19px;"></i>
+          <span class="dock-label">All Files</span>
+        </button>
+
+        <button onclick="app.switchTab('upcoming')" class="dock-tab" data-tab="upcoming">
+          <i data-lucide="clock" style="width: 19px; height: 19px;"></i>
+          <span class="dock-label">Upcoming</span>
+        </button>
+
+        <button onclick="app.openSettingsModal()" class="dock-tab" data-tab="settings">
+          <i data-lucide="settings" style="width: 19px; height: 19px;"></i>
+          <span class="dock-label">Storage</span>
+        </button>
+      </div>
     </nav>
 
   </div>
 
-  <!-- Modal: Add / Edit Case (Borderless Surfaces) -->
-  <div id="caseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl p-0 overflow-hidden sheet-transition">
+  <!-- MODAL 1: ADD / EDIT CASE BOTTOM SHEET -->
+  <div id="caseModal" class="modal-overlay" onclick="if(event.target===this) app.closeCaseModal()">
+    <div class="sheet-box">
+      <div class="sheet-handle"></div>
       
-      <!-- Grabber -->
-      <div class="pt-3 pb-1 flex justify-center sm:hidden">
-        <div class="w-10 h-1 bg-base-content/20 rounded-full"></div>
+      <div class="sheet-header-row">
+        <h3 id="caseModalTitle" class="sheet-title-text">New Case File</h3>
+        <button onclick="app.closeCaseModal()" class="icon-btn"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
       </div>
 
-      <!-- Header -->
-      <div class="px-5 py-3.5 flex items-center justify-between">
-        <button type="button" onclick="app.closeCaseModal()" class="btn btn-sm rounded-xl btn-ghost border-none text-base-content/70">
-          Cancel
-        </button>
-        <h3 id="caseModalTitle" class="text-base font-bold tracking-tight">New Case File</h3>
-        <button type="button" onclick="document.getElementById('caseSubmitTrigger').click()" class="btn btn-sm rounded-xl btn-primary border-none font-bold">
-          Save
-        </button>
-      </div>
-
-      <!-- Form -->
-      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-4 space-y-4 flex-1">
+      <form id="caseForm" onsubmit="app.handleCaseSubmit(event)">
         <input type="hidden" id="caseId">
-        <button type="submit" id="caseSubmitTrigger" class="hidden"></button>
+        
+        <div class="sheet-inner-body">
+          <div class="form-group-clean">
+            <label class="form-label-clean">Case Number *</label>
+            <input type="text" id="caseNumber" required placeholder="e.g. C.C. 142/2026 or Case #24" class="input-clean">
+          </div>
 
-        <!-- Group 1: Identification -->
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Case Number</span>
-            </label>
-            <input 
-              type="text" 
-              id="caseNumber" 
-              required 
-              placeholder="e.g. Case #01 or WP 1042/2024"
-              class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
+          <div class="form-group-clean">
+            <label class="form-label-clean">Parties (Client vs Opponent) *</label>
+            <input type="text" id="caseParties" required placeholder="e.g. Ramesh Kumar v. State of U.P." class="input-clean">
           </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Parties / Case Name</span>
-            </label>
-            <input 
-              type="text" 
-              id="caseParties" 
-              required 
-              placeholder="e.g. Pawan Gupta v. Vishvanath"
-              class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-          </div>
-        </div>
 
-        <!-- Group 2: Court & Judge -->
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Court / Forum</span>
-            </label>
-            <input 
-              type="text" 
-              id="caseCourt" 
-              placeholder="ACJM-5 / CJSD / FTC-41"
-              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-          </div>
-          <!-- Quick Court Presets (Borderless soft chips) -->
-          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
-            <span class="text-[11px] font-semibold text-base-content/60 self-center">Quick:</span>
-            <button type="button" onclick="app.setCourtPreset('ACJM-5')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">ACJM-5</button>
-            <button type="button" onclick="app.setCourtPreset('CJSD')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">CJSD</button>
-            <button type="button" onclick="app.setCourtPreset('Gram Nay. Gola')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">Gram Nay. Gola</button>
-            <button type="button" onclick="app.setCourtPreset('FTC-41')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">FTC-41</button>
-            <button type="button" onclick="app.setCourtPreset('CO-IInd')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">CO-IInd</button>
-            <button type="button" onclick="app.setCourtPreset('DJ')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-primary hover:text-white transition whitespace-nowrap border-none">DJ</button>
-          </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Judge / Room</span>
-            </label>
-            <input 
-              type="text" 
-              id="caseJudge" 
-              placeholder="Room 4 / Special Judge"
-              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-          </div>
-        </div>
-
-        <!-- Group 3: NDOH & Stage -->
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div class="form-control">
-              <label class="label py-0.5">
-                <span class="label-text font-semibold text-xs text-base-content/70">Next Hearing (NDOH)</span>
-              </label>
-              <input 
-                type="date" 
-                id="caseNextDate" 
-                required
-                class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40"
-              >
+          <div class="form-group-clean">
+            <label class="form-label-clean">Court / Forum</label>
+            <input type="text" id="caseCourt" placeholder="e.g. ACJM-5, FTC-41, CJSD" class="input-clean">
+            <div class="preset-row">
+              <button type="button" onclick="app.setCourtPreset('ACJM-5')" class="preset-tag">ACJM-5</button>
+              <button type="button" onclick="app.setCourtPreset('FTC-41')" class="preset-tag">FTC-41</button>
+              <button type="button" onclick="app.setCourtPreset('CJSD')" class="preset-tag">CJSD</button>
+              <button type="button" onclick="app.setCourtPreset('District Court')" class="preset-tag">Dist. Court</button>
             </div>
-            <div class="form-control">
-              <label class="label py-0.5">
-                <span class="label-text font-semibold text-xs text-base-content/70">Hearing Stage</span>
-              </label>
-              <select id="caseStage" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
-                <option value="Final Arguments">Final Arguments</option>
-                <option value="Evidence / Cross">Evidence / Cross</option>
-                <option value="Framing of Issues">Framing of Issues</option>
-                <option value="Admission / Notice">Admission / Notice</option>
-                <option value="Filing of WS / Reply">Filing of WS / Reply</option>
-                <option value="Bail Hearing">Bail Hearing</option>
-                <option value="Order / Judgment">Order / Judgment</option>
-                <option value="Miscellaneous">Miscellaneous</option>
+          </div>
+
+          <div class="form-group-clean">
+            <label class="form-label-clean">Presiding Judge / Room</label>
+            <input type="text" id="caseJudge" placeholder="e.g. Sri R.K. Sharma, Room No 4" class="input-clean">
+          </div>
+
+          <div class="detail-grid">
+            <div class="form-group-clean">
+              <label class="form-label-clean">Next Hearing (NDOH) *</label>
+              <input type="date" id="caseNextDate" required class="input-clean">
+            </div>
+
+            <div class="form-group-clean">
+              <label class="form-label-clean">Priority</label>
+              <select id="casePriority" class="input-clean">
+                <option value="Normal">Normal</option>
+                <option value="Urgent">Urgent</option>
+                <option value="Routine">Routine</option>
               </select>
             </div>
           </div>
-          <!-- Quick Stage Presets (Borderless soft chips) -->
-          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
-            <span class="text-[11px] font-semibold text-base-content/60 self-center">Preset:</span>
-            <button type="button" onclick="app.setStagePreset('Final Arguments')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Arguments</button>
-            <button type="button" onclick="app.setStagePreset('Evidence / Cross')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Evidence</button>
-            <button type="button" onclick="app.setStagePreset('Framing of Issues')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Issues</button>
-            <button type="button" onclick="app.setStagePreset('Admission / Notice')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Notice</button>
-            <button type="button" onclick="app.setStagePreset('Bail Hearing')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Bail</button>
-          </div>
-        </div>
 
-        <!-- Group 4: Senior Instructions & Drive Link -->
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Senior's Remarks / Instructions</span>
-            </label>
-            <textarea 
-              id="caseInstructions" 
-              rows="2" 
-              placeholder="e.g. 2 files, Skeleton, FR, 144(3) BNSS, Notice..."
-              class="textarea border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"
-            ></textarea>
+          <div class="form-group-clean">
+            <label class="form-label-clean">Stage of Case</label>
+            <input type="text" id="caseStage" placeholder="e.g. Evidence, Arguments, Bail" class="input-clean">
+            <div class="preset-row">
+              <button type="button" onclick="app.setStagePreset('Admission / Notice')" class="preset-tag">Admission</button>
+              <button type="button" onclick="app.setStagePreset('Evidence / Cross')" class="preset-tag">Evidence</button>
+              <button type="button" onclick="app.setStagePreset('Final Arguments')" class="preset-tag">Arguments</button>
+              <button type="button" onclick="app.setStagePreset('Order / Judgment')" class="preset-tag">Judgment</button>
+            </div>
           </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Drive / Document Link</span>
-            </label>
-            <input 
-              type="url" 
-              id="caseDriveLink" 
-              placeholder="https://drive.google.com/..."
-              class="input input-sm border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
-          </div>
-        </div>
 
-        <!-- Group 5: Priority & Status -->
-        <div class="bg-base-200/50 p-4 rounded-2xl grid grid-cols-2 gap-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Priority</span>
-            </label>
-            <select id="casePriority" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
-              <option value="Normal">🟢 Normal</option>
-              <option value="Urgent">🔴 Urgent</option>
-              <option value="Routine">⚪ Routine</option>
-            </select>
+          <div class="form-group-clean">
+            <label class="form-label-clean">Senior Directive / Key Notes</label>
+            <textarea id="caseInstructions" rows="2" placeholder="Specific notes or instructions for court" class="input-clean" style="height: auto; padding: 8px 12px;"></textarea>
           </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Status</span>
-            </label>
-            <select id="caseStatus" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
+
+          <div class="form-group-clean">
+            <label class="form-label-clean">Google Drive / Dossier URL</label>
+            <input type="url" id="caseDriveLink" placeholder="https://drive.google.com/..." class="input-clean">
+          </div>
+
+          <div class="form-group-clean">
+            <label class="form-label-clean">File Status</label>
+            <select id="caseStatus" class="input-clean">
               <option value="Active">Active Case</option>
-              <option value="Reserved for Order">Reserved for Order</option>
               <option value="Disposed">Disposed / Closed</option>
             </select>
           </div>
         </div>
 
+        <div class="sheet-footer-clean">
+          <button type="button" onclick="app.closeCaseModal()" class="btn-action-icon" style="flex: 1; height: 42px;">Cancel</button>
+          <button type="submit" class="btn-action-primary" style="flex: 2; height: 42px;">Save File</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Quick Update NDOH (Borderless Clean Surfaces) -->
-  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
+  <!-- MODAL 2: QUICK NDOH DATE UPDATE BOTTOM SHEET -->
+  <div id="ndohModal" class="modal-overlay" onclick="if(event.target===this) app.closeNdohModal()">
+    <div class="sheet-box">
+      <div class="sheet-handle"></div>
       
-      <div class="pt-1 pb-1 flex justify-center sm:hidden">
-        <div class="w-10 h-1 bg-base-content/20 rounded-full"></div>
+      <div class="sheet-header-row">
+        <div>
+          <h3 class="sheet-title-text">Update Hearing Date</h3>
+          <p id="ndohCaseTitle" style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">Case Title</p>
+        </div>
+        <button onclick="app.closeNdohModal()" class="icon-btn"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
       </div>
 
-      <div class="flex items-center justify-between pb-3">
-        <button type="button" onclick="app.closeNdohModal()" class="btn btn-sm rounded-xl btn-ghost border-none text-base-content/70">Cancel</button>
-        <h3 class="text-base font-bold">Update Hearing Date</h3>
-        <button type="button" onclick="document.getElementById('ndohSubmitTrigger').click()" class="btn btn-sm rounded-xl btn-primary border-none font-bold">Done</button>
-      </div>
-
-      <p id="ndohCaseTitle" class="text-xs text-base-content/70 mt-1 px-1 truncate font-mono">Case No</p>
-
-      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-4 mt-3">
+      <form onsubmit="app.handleNdohSubmit(event)">
         <input type="hidden" id="ndohCaseId">
-        <button type="submit" id="ndohSubmitTrigger" class="hidden"></button>
         
-        <!-- Quick Presets (Borderless soft chips) -->
-        <div class="flex gap-1.5 overflow-x-auto hide-scrollbar">
-          <button type="button" onclick="app.setNdohPreset(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">Tomorrow</button>
-          <button type="button" onclick="app.setNdohPreset(7)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+7 Days</button>
-          <button type="button" onclick="app.setNdohPreset(14)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+14 Days</button>
-          <button type="button" onclick="app.setNdohPreset(30)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-base-200/80 hover:bg-primary hover:text-white transition border-none">+1 Month</button>
+        <div class="sheet-inner-body">
+          <div class="form-group-clean">
+            <label class="form-label-clean">Next Hearing Date (NDOH) *</label>
+            <input type="date" id="ndohDate" required class="input-clean">
+            <div class="preset-row">
+              <button type="button" onclick="app.setNdohPreset(1)" class="preset-tag">+1 Day</button>
+              <button type="button" onclick="app.setNdohPreset(7)" class="preset-tag">+7 Days</button>
+              <button type="button" onclick="app.setNdohPreset(14)" class="preset-tag">+14 Days</button>
+              <button type="button" onclick="app.setNdohPreset(30)" class="preset-tag">+1 Month</button>
+            </div>
+          </div>
+
+          <div class="form-group-clean">
+            <label class="form-label-clean">Updated Stage</label>
+            <input type="text" id="ndohStage" placeholder="e.g. Next: Cross Examination" class="input-clean">
+          </div>
+
+          <div class="form-group-clean">
+            <label class="form-label-clean">Hearing Notes / Senior Update</label>
+            <textarea id="ndohNotes" rows="2" placeholder="Summary of today's hearing or next directive" class="input-clean" style="height: auto; padding: 8px 12px;"></textarea>
+          </div>
         </div>
 
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">New NDOH Date</span>
-            </label>
-            <input type="date" id="ndohDate" required class="input input-sm border-none w-full rounded-xl bg-base-100 font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
-          </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">New Stage</span>
-            </label>
-            <select id="ndohStage" class="select select-sm border-none w-full rounded-xl bg-base-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/40">
-              <option value="Final Arguments">Final Arguments</option>
-              <option value="Evidence / Cross">Evidence / Cross</option>
-              <option value="Framing of Issues">Framing of Issues</option>
-              <option value="Admission / Notice">Admission / Notice</option>
-              <option value="Filing of WS / Reply">Filing of WS / Reply</option>
-              <option value="Bail Hearing">Bail Hearing</option>
-              <option value="Order / Judgment">Order / Judgment</option>
-              <option value="Miscellaneous">Miscellaneous</option>
-            </select>
-          </div>
-          <!-- NDOH Stage Quick Chips -->
-          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar pt-1">
-            <span class="text-[11px] font-semibold text-base-content/60 self-center">Quick:</span>
-            <button type="button" onclick="document.getElementById('ndohStage').value='Final Arguments'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Arguments</button>
-            <button type="button" onclick="document.getElementById('ndohStage').value='Evidence / Cross'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Evidence</button>
-            <button type="button" onclick="document.getElementById('ndohStage').value='Framing of Issues'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Issues</button>
-            <button type="button" onclick="document.getElementById('ndohStage').value='Order / Judgment'" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-base-100 hover:bg-secondary hover:text-white transition whitespace-nowrap border-none">Order</button>
-          </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Today's Order / Proceeding Note</span>
-            </label>
-            <textarea id="ndohNotes" rows="2" placeholder="Adjourned on request of respondent..." class="textarea border-none w-full rounded-xl bg-base-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 resize-none"></textarea>
-          </div>
+        <div class="sheet-footer-clean">
+          <button type="button" onclick="app.closeNdohModal()" class="btn-action-icon" style="flex: 1; height: 42px;">Cancel</button>
+          <button type="submit" class="btn-action-primary" style="flex: 2; height: 42px;">Update Date</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Settings Modal (Borderless Clean Surfaces) -->
-  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="modal-box bg-base-100 text-base-content border-none w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl">
-      <div class="flex items-center justify-between pb-3">
+  <!-- MODAL 3: STORAGE & SETTINGS BOTTOM SHEET -->
+  <div id="settingsModal" class="modal-overlay" onclick="if(event.target===this) app.closeSettingsModal()">
+    <div class="sheet-box">
+      <div class="sheet-handle"></div>
+      
+      <div class="sheet-header-row">
         <div>
-          <h3 class="text-base font-bold">Storage & Settings</h3>
-          <p class="text-[11px] text-base-content/60">Device storage & cloud sync</p>
+          <h3 class="sheet-title-text">Storage & Settings</h3>
+          <p style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Offline & Cloud Sync</p>
         </div>
-        <button onclick="app.closeSettingsModal()" class="btn btn-sm rounded-xl btn-primary border-none">Done</button>
+        <button onclick="app.closeSettingsModal()" class="icon-btn"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button>
       </div>
 
-      <!-- Explanation Box -->
-      <div class="alert alert-info mt-3.5 p-3 rounded-2xl text-xs space-y-1 shadow-sm border-none">
-        <div class="flex items-start gap-2">
-          <i data-lucide="info" class="w-4 h-4 shrink-0 mt-0.5"></i>
-          <div>
-            <p class="font-bold">Storage Information</p>
-            <p class="text-[11px] opacity-90 leading-relaxed mt-0.5">
-              Abhi aapke saare 23 cases <b>Device Storage</b> me safe hain (bina internet ke bhi chalega). Agar aap inhein kisi doosre phone ya computer se access karna chahte hain, toh neeche Supabase Project keys save karein.
-            </p>
-          </div>
+      <div class="sheet-inner-body">
+        <div style="background: rgba(59, 130, 246, 0.08); border-left: 3px solid var(--color-primary); padding: 12px; border-radius: var(--radius-xs); font-size: 12px; line-height: 1.45;">
+          <p style="font-weight: 700; color: var(--color-primary); margin-bottom: 2px;">Local Storage Active</p>
+          <p style="color: var(--text-secondary);">Your 23 case files are saved locally on this device. Add Supabase keys below for real-time multi-device sync.</p>
         </div>
+
+        <div class="form-group-clean">
+          <label class="form-label-clean">Supabase URL</label>
+          <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co" class="input-clean" style="font-family: var(--font-mono); font-size: 11px;">
+        </div>
+
+        <div class="form-group-clean">
+          <label class="form-label-clean">Anon Public Key</label>
+          <input type="password" id="cfgKey" placeholder="eyJhbGciOi..." class="input-clean" style="font-family: var(--font-mono); font-size: 11px;">
+        </div>
+
+        <button onclick="app.saveSupabaseConfig()" class="btn-action-primary" style="height: 40px; margin-top: 4px;">Save & Connect Cloud</button>
+        <button onclick="app.useDemoMode()" class="btn-action-icon" style="width: 100%; height: 38px; color: var(--color-danger);">Reset to Default 23 Cases</button>
       </div>
 
-      <div class="space-y-3.5 text-xs mt-3.5">
-        <div class="bg-base-200/50 p-4 rounded-2xl space-y-3">
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Supabase Project URL</span>
-            </label>
-            <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co" class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/40">
-          </div>
-          <div class="form-control">
-            <label class="label py-0.5">
-              <span class="label-text font-semibold text-xs text-base-content/70">Anon Public Key</span>
-            </label>
-            <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5..." class="input input-sm border-none w-full rounded-xl bg-base-100 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary/40">
-          </div>
-        </div>
-
-        <button onclick="app.saveSupabaseConfig()" class="btn btn-primary rounded-xl w-full shadow-sm font-bold border-none">
-          Save & Enable Cloud Sync
-        </button>
-        <button onclick="app.useDemoMode()" class="btn btn-ghost bg-error/10 hover:bg-error/20 text-error rounded-xl w-full text-xs font-semibold border-none">
-          Reset to Default 23 Cases
-        </button>
+      <div class="sheet-footer-clean">
+        <button type="button" onclick="app.closeSettingsModal()" class="btn-action-icon" style="width: 100%; height: 40px;">Close</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
-  <div id="toastContainer" class="toast toast-top toast-center z-50 pointer-events-none"></div>
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer"></div>
 
-  <!-- App Script -->
+  <!-- CORE SCRIPT -->
   <script src="app.js"></script>
 </body>
 </html>

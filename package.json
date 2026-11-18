@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/mishragraphics161-creator/legal-diary#readme",
   "dependencies": {
+    "bootstrap": "^5.3.9",
     "daisyui": "^5.8.1"
   }
 }

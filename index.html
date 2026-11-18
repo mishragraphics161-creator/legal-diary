@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Legal Diary - Court Case & Hearing Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0284c7',
+              600: '#0369a1',
+              700: '#075985',
+              800: '#0c4a6e',
+              900: '#082f49'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Safe-area insets for notched phones */
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Smooth transitions for bottom sheet */
+    .sheet-transition {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen antialiased flex flex-col items-center">
+
+  <!-- Mobile Container (Centered on desktop, full-width on mobile) -->
+  <div class="w-full max-w-lg min-h-screen flex flex-col bg-slate-900 pb-24 relative shadow-2xl">
+
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20">
+            <i data-lucide="scale" class="w-5 h-5 text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+              Legal Diary
+              <span id="supabaseBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Demo Mode</span>
+            </h1>
+            <p id="todayDateStr" class="text-xs text-slate-400">Loading today's date...</p>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+          <!-- Refresh Button -->
+          <button id="refreshBtn" onclick="app.refreshData()" class="p-2 text-slate-400 hover:text-white bg-slate-800/80 rounded-lg active:scale-95 transition" title="Refresh">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </button>
+          <!-- Settings Icon -->
+          <button onclick="app.openSettingsModal()" class="p-2 text-slate-400 hover:text-white bg-slate-800/80 rounded-lg active:scale-95 transition" title="Database Settings">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="mt-3 relative">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          oninput="app.handleSearch(this.value)"
+          placeholder="Search case no, party, court, stage..."
+          class="w-full bg-slate-800/90 text-sm text-white placeholder-slate-400 pl-10 pr-4 py-2.5 rounded-xl border border-slate-700/80 focus:outline-none focus:border-sky-500 transition shadow-inner"
+        >
+        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Quick Filter Chips (Horizontal Scrollable) -->
+      <div class="flex space-x-2 mt-3 overflow-x-auto hide-scrollbar pb-1 text-xs">
+        <button onclick="app.setQuickFilter('all')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-sky-600 text-white" data-filter="all">
+          All Cases (<span id="countAll">0</span>)
+        </button>
+        <button onclick="app.setQuickFilter('today')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="today">
+          🔴 Today (<span id="countToday">0</span>)
+        </button>
+        <button onclick="app.setQuickFilter('tomorrow')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="tomorrow">
+          🟡 Tomorrow (<span id="countTomorrow">0</span>)
+        </button>
+        <button onclick="app.setQuickFilter('this_week')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="this_week">
+          📅 This Week (<span id="countWeek">0</span>)
+        </button>
+        <button onclick="app.setQuickFilter('overdue')" class="filter-chip px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap bg-slate-800 text-slate-300 hover:bg-slate-700" data-filter="overdue">
+          ⚠️ Passed Dates (<span id="countOverdue">0</span>)
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-4 py-3">
+
+      <!-- View Header Summary -->
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h2 id="viewTitle" class="text-xs font-semibold uppercase tracking-wider text-slate-400">All Registered Cases</h2>
+        <button onclick="app.printDailyBoard()" class="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1 font-medium bg-sky-500/10 px-2 py-1 rounded-md border border-sky-500/20 active:scale-95 transition">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          Print Daily Board
+        </button>
+      </div>
+
+      <!-- Cases List Container -->
+      <div id="casesList" class="space-y-3">
+        <!-- Rendered dynamically by app.js -->
+        <div class="p-8 text-center text-slate-400 text-sm">
+          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-sky-500 border-t-transparent mb-2"></div>
+          <p>Loading case files...</p>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden py-16 px-4 text-center">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-slate-800/80 flex items-center justify-center text-slate-500 border border-slate-700/50">
+          <i data-lucide="folder-search" class="w-8 h-8"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-200">No cases found</h3>
+        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Iss filter me koi case file nahi mili. Nayi court case file add karne ke liye '+' button dabayein.</p>
+        <button onclick="app.openCaseModal()" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium rounded-xl shadow-lg shadow-sky-600/30 transition">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add New Case
+        </button>
+      </div>
+
+    </main>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fixed bottom-20 right-4 z-40 max-w-lg mx-auto">
+      <button 
+        onclick="app.openCaseModal()"
+        class="w-14 h-14 rounded-full bg-gradient-to-r from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-xl shadow-sky-500/40 active:scale-90 hover:scale-105 transition-transform"
+        title="Add Case File"
+      >
+        <i data-lucide="plus" class="w-7 h-7"></i>
+      </button>
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 flex justify-around items-center py-2 px-4 max-w-lg mx-auto">
+      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="today">
+        <i data-lucide="calendar-check" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Today</span>
+      </button>
+
+      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-sky-400 transition" data-tab="all">
+        <i data-lucide="briefcase" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">All Cases</span>
+      </button>
+
+      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="upcoming">
+        <i data-lucide="calendar-days" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Upcoming</span>
+      </button>
+
+      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-sky-400 transition" data-tab="settings">
+        <i data-lucide="database" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Database</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- MODAL: Add / Edit Case (Mobile Bottom Sheet Style) -->
+  <div id="caseModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-700/80 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <h3 id="caseModalTitle" class="text-sm font-bold text-white">Add Court Case File</h3>
+        </div>
+        <button onclick="app.closeCaseModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg bg-slate-700/50">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable Form) -->
+      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-5 space-y-4 flex-1">
+        <input type="hidden" id="caseId">
+
+        <!-- Case Number -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Case Number / CNR <span class="text-red-400">*</span></label>
+          <input 
+            type="text" 
+            id="caseNumber" 
+            required 
+            placeholder="e.g. WP(C) 1042/2024 or CS 45/2023"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <!-- Parties Name -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Parties Name (Petitioner vs Respondent) <span class="text-red-400">*</span></label>
+          <input 
+            type="text" 
+            id="caseParties" 
+            required 
+            placeholder="e.g. Ramesh Kumar vs State of UP & Ors."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <!-- Court Name & Courtroom / Judge -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Court / Forum</label>
+            <input 
+              type="text" 
+              id="caseCourt" 
+              placeholder="e.g. High Court / District Court Saket"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Court Room / Judge Name</label>
+            <input 
+              type="text" 
+              id="caseJudge" 
+              placeholder="e.g. Courtroom 4 / Justice Sharma"
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            >
+          </div>
+        </div>
+
+        <!-- Next Hearing Date (NDOH) & Stage -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Next Date of Hearing (NDOH) <span class="text-red-400">*</span></label>
+            <input 
+              type="date" 
+              id="caseNextDate" 
+              required
+              class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+            >
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Hearing Stage / Purpose</label>
+            <select id="caseStage" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+              <option value="Final Arguments">Final Arguments</option>
+              <option value="Evidence / Cross">Evidence / Cross Examination</option>
+              <option value="Framing of Issues">Framing of Issues</option>
+              <option value="Admission / Notice">Admission / Notice</option>
+              <option value="Filing of Written Statement">Filing of WS / Reply</option>
+              <option value="Bail Hearing">Bail Hearing</option>
+              <option value="Order / Judgment">Order / Judgment</option>
+              <option value="Miscellaneous">Miscellaneous</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Senior's Instructions / Notes -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Senior's Instructions / Action Items</label>
+          <textarea 
+            id="caseInstructions" 
+            rows="2" 
+            placeholder="e.g. Rejoinder draft karke file karni hai, Vakalatnama verify karna hai..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- File / Google Drive Link -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">File Dossier / Google Drive Link</label>
+          <input 
+            type="url" 
+            id="caseDriveLink" 
+            placeholder="https://drive.google.com/..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <!-- Priority & Status -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
+            <select id="casePriority" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+              <option value="Normal">Normal</option>
+              <option value="Urgent">🔴 Urgent</option>
+              <option value="Routine">Routine</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Case Status</label>
+            <select id="caseStatus" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500">
+              <option value="Active">Active</option>
+              <option value="Reserved for Order">Reserved for Order</option>
+              <option value="Disposed">Disposed / Closed</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Modal Submit Button -->
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-sky-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
+          >
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span id="saveBtnText">Save Court Case</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Quick Update NDOH (Courtroom Fast-Action) -->
+  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-end sm:items-center justify-center">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+        <div>
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="calendar-plus" class="w-4 h-4 text-sky-400"></i> Update Hearing Date (NDOH)
+          </h3>
+          <p id="ndohCaseTitle" class="text-xs text-slate-400 mt-0.5 truncate">Case No</p>
+        </div>
+        <button onclick="app.closeNdohModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-3.5">
+        <input type="hidden" id="ndohCaseId">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">New Hearing Date (NDOH) <span class="text-red-400">*</span></label>
+          <input 
+            type="date" 
+            id="ndohDate" 
+            required 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">New Stage / Next Purpose</label>
+          <input 
+            type="text" 
+            id="ndohStage" 
+            placeholder="e.g. For Orders, For Cross of PW-1"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Today's Court Proceedings / Order Summary</label>
+          <textarea 
+            id="ndohNotes" 
+            rows="2" 
+            placeholder="e.g. Adjourned on request of respondent counsel, next date fixed..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-sky-500 resize-none"
+          ></textarea>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 rounded-xl shadow-md text-sm active:scale-95 transition"
+        >
+          Confirm New Date
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Settings & Supabase Configuration -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 w-full max-w-md rounded-2xl p-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <i data-lucide="database" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Supabase Cloud Settings</h3>
+            <p class="text-[11px] text-slate-400">Sync data across all devices</p>
+          </div>
+        </div>
+        <button onclick="app.closeSettingsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Supabase Project URL</label>
+          <input 
+            type="text" 
+            id="cfgUrl" 
+            placeholder="https://xyzcompany.supabase.co"
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-500"
+          >
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Supabase Anon Key</label>
+          <input 
+            type="password" 
+            id="cfgKey" 
+            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sky-500"
+          >
+          <p class="text-[10px] text-slate-500 mt-1">Keys browser ke local storage me safe rehti hain aur public repository me share nahi hongi.</p>
+        </div>
+
+        <div class="pt-2 flex flex-col gap-2">
+          <button onclick="app.saveSupabaseConfig()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs active:scale-95 transition">
+            Save & Connect to Supabase
+          </button>
+          <button onclick="app.useDemoMode()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium py-2 rounded-xl text-xs transition">
+            Reset to Local Demo Mode
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none"></div>
+
+  <!-- App Logic Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

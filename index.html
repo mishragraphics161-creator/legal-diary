@@ -3,16 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#090d16">
+  <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Legal Diary • Modern Court Case & Hearing Tracker</title>
+  <title>Legal Diary • iOS 15</title>
   <link rel="manifest" href="manifest.json">
-
-  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,32 +22,27 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+            mono: ['"SF Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-            },
-            dark: {
-              bg: '#090d16',
-              surface: '#0f172a',
-              card: '#131d31',
-              border: 'rgba(255, 255, 255, 0.08)',
-            }
-          },
-          animation: {
-            'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 3s ease-in-out infinite',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-4px)' },
+            ios: {
+              bg: '#000000',
+              card: '#1C1C1E',
+              cardElevated: '#2C2C2E',
+              fill: '#3A3A3C',
+              separator: 'rgba(84, 84, 88, 0.45)',
+              blue: '#0A84FF',
+              red: '#FF453A',
+              orange: '#FF9F0A',
+              yellow: '#FFD60A',
+              green: '#30D158',
+              indigo: '#5E5CE6',
+              purple: '#BF5AF2',
+              teal: '#64D2FF',
+              gray: '#8E8E93',
+              gray2: '#636366',
+              gray3: '#48484A',
             }
           }
         }
@@ -61,16 +51,15 @@
   </script>
 
   <style>
+    /* iOS 15 System Typography & Physics */
     body {
-      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+      background-color: #000000;
+      color: #FFFFFF;
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
       -webkit-tap-highlight-color: transparent;
-      background-color: #090d16;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 50%);
-      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
     }
     .hide-scrollbar::-webkit-scrollbar {
       display: none;
@@ -79,302 +68,279 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
-    /* Modern Glassmorphic card styling */
-    .glass-card {
-      background: linear-gradient(135deg, rgba(20, 29, 47, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.07);
+    /* iOS 15 Inset Grouped Table Card */
+    .ios-card {
+      background-color: #1C1C1E;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 0.5px solid rgba(84, 84, 88, 0.35);
     }
-    .glass-card:hover {
-      border-color: rgba(99, 102, 241, 0.3);
+    /* iOS 15 Translucent Blur Bar */
+    .ios-blur-bar {
+      background-color: rgba(22, 22, 24, 0.82);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 0.5px solid rgba(84, 84, 88, 0.45);
     }
-    .glass-header {
-      background: rgba(9, 13, 22, 0.85);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    .ios-blur-tabbar {
+      background-color: rgba(28, 28, 30, 0.88);
+      backdrop-filter: saturate(180%) blur(25px);
+      -webkit-backdrop-filter: saturate(180%) blur(25px);
+      border-top: 0.5px solid rgba(84, 84, 88, 0.45);
     }
-    .glass-nav {
-      background: rgba(13, 20, 36, 0.92);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    /* iOS 15 Segmented Control */
+    .ios-segmented {
+      background-color: #1C1C1E;
+      padding: 2.5px;
+      border-radius: 9px;
+      border: 0.5px solid rgba(84, 84, 88, 0.3);
     }
+    .ios-segmented-item.active {
+      background-color: #3A3A3C;
+      color: #FFFFFF;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+    /* iOS 15 Bottom Sheet Animation */
     .sheet-transition {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+      transition: transform 0.32s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.25s ease;
+    }
+    /* Hairline Divider */
+    .ios-divider {
+      height: 0.5px;
+      background-color: rgba(84, 84, 88, 0.45);
     }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen antialiased flex flex-col items-center select-none">
+<body class="min-h-screen antialiased flex flex-col items-center select-none bg-black">
 
-  <!-- Mobile Container (Max 520px centered, full width on phone) -->
-  <div class="w-full max-w-lg min-h-screen flex flex-col pb-28 relative shadow-2xl">
+  <!-- Mobile Container (Max 500px, 100% on phone) -->
+  <div class="w-full max-w-md min-h-screen flex flex-col pb-28 relative">
 
-    <!-- Top Sticky Header -->
-    <header class="sticky top-0 z-30 glass-header px-4 py-3">
-      <div class="flex items-center justify-between">
-        
-        <!-- Brand Title & Date -->
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-sky-500 flex items-center justify-center shadow-lg shadow-indigo-500/25 ring-1 ring-white/20">
-            <i data-lucide="scale" class="w-5 h-5 text-white"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-base font-extrabold text-white tracking-tight">Legal Diary</h1>
-              <span id="supabaseBadge" class="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                Demo Mode
-              </span>
-            </div>
-            <p id="todayDateStr" class="text-[11px] font-medium text-slate-400 flex items-center gap-1">
-              <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Loading date...
-            </p>
-          </div>
+    <!-- iOS 15 Navigation Bar -->
+    <header class="sticky top-0 z-30 ios-blur-bar px-4 pt-3 pb-3">
+      
+      <!-- Top Action Row -->
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <span id="supabaseBadge" class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30">
+            Demo Mode
+          </span>
         </div>
-        
-        <!-- Header Controls -->
+
         <div class="flex items-center space-x-2">
           <!-- Refresh -->
-          <button id="refreshBtn" onclick="app.refreshData()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-white/5 active:scale-95 transition shadow-sm" title="Refresh Database">
+          <button id="refreshBtn" onclick="app.refreshData()" class="w-8 h-8 rounded-full bg-ios-card flex items-center justify-center text-ios-blue active:opacity-60 transition" title="Refresh">
             <i data-lucide="refresh-cw" class="w-4 h-4"></i>
           </button>
-          <!-- Supabase Config -->
-          <button onclick="app.openSettingsModal()" class="p-2.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-xl border border-white/5 active:scale-95 transition shadow-sm" title="Database Configuration">
-            <i data-lucide="database" class="w-4 h-4"></i>
+          <!-- Settings -->
+          <button onclick="app.openSettingsModal()" class="w-8 h-8 rounded-full bg-ios-card flex items-center justify-center text-ios-blue active:opacity-60 transition" title="Settings">
+            <i data-lucide="gear" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <!-- Quick Metrics Bar (Touch Cards) -->
-      <div class="grid grid-cols-4 gap-2 mt-3 pt-1">
-        
-        <!-- Metric: Today -->
-        <button onclick="app.setQuickFilter('today')" class="group relative overflow-hidden bg-slate-800/60 hover:bg-red-950/30 border border-white/5 hover:border-red-500/30 p-2 rounded-xl text-left transition active:scale-95">
-          <div class="flex items-center justify-between">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today</span>
-            <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-          </div>
-          <div class="text-lg font-black text-white mt-0.5" id="metricToday">0</div>
-        </button>
-
-        <!-- Metric: Tomorrow -->
-        <button onclick="app.setQuickFilter('tomorrow')" class="group bg-slate-800/60 hover:bg-amber-950/30 border border-white/5 hover:border-amber-500/30 p-2 rounded-xl text-left transition active:scale-95">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tomorrow</span>
-          <div class="text-lg font-black text-amber-400 mt-0.5" id="metricTomorrow">0</div>
-        </button>
-
-        <!-- Metric: Week -->
-        <button onclick="app.setQuickFilter('this_week')" class="group bg-slate-800/60 hover:bg-sky-950/30 border border-white/5 hover:border-sky-500/30 p-2 rounded-xl text-left transition active:scale-95">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">7 Days</span>
-          <div class="text-lg font-black text-sky-400 mt-0.5" id="metricWeek">0</div>
-        </button>
-
-        <!-- Metric: All -->
-        <button onclick="app.setQuickFilter('all')" class="group bg-slate-800/60 hover:bg-indigo-950/30 border border-white/5 hover:border-indigo-500/30 p-2 rounded-xl text-left transition active:scale-95">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total</span>
-          <div class="text-lg font-black text-indigo-400 mt-0.5" id="metricAll">0</div>
-        </button>
-
+      <!-- iOS Large Title Header -->
+      <div class="mb-3">
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Court Diary</h1>
+        <p id="todayDateStr" class="text-xs text-ios-gray font-medium mt-0.5">Loading date...</p>
       </div>
 
-      <!-- Search Input with Glass Styling -->
-      <div class="mt-3 relative">
-        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <!-- iOS 15 Search Bar -->
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i data-lucide="search" class="w-4 h-4 text-ios-gray"></i>
+        </div>
         <input 
           type="text" 
           id="searchInput" 
           oninput="app.handleSearch(this.value)"
-          placeholder="Search by case no, party, court, stage..."
-          class="w-full bg-slate-800/70 text-sm text-white placeholder-slate-400 pl-10 pr-9 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-indigo-500/80 focus:ring-2 focus:ring-indigo-500/20 transition shadow-inner"
+          placeholder="Search by case, party, court, stage"
+          class="w-full bg-[#1C1C1E] text-white text-[15px] placeholder-ios-gray pl-9 pr-8 py-2 rounded-xl focus:outline-none focus:ring-1 focus:ring-ios-blue transition"
         >
-        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
-          <i data-lucide="x" class="w-4 h-4"></i>
+        <button id="clearSearchBtn" onclick="app.clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-ios-gray">
+          <i data-lucide="x-circle" class="w-4 h-4 fill-ios-gray text-black"></i>
         </button>
       </div>
 
-      <!-- Quick Filter Chips -->
-      <div class="flex space-x-2 mt-3 overflow-x-auto hide-scrollbar pb-0.5 text-xs font-semibold">
-        <button onclick="app.setQuickFilter('all')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/30" data-filter="all">
-          All Cases (<span id="countAll">0</span>)
+      <!-- iOS 15 Segmented Control Filter -->
+      <div class="ios-segmented flex mt-3 text-[12px] font-semibold text-ios-gray">
+        <button onclick="app.setQuickFilter('all')" class="ios-segmented-item active flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="all">
+          All (<span id="countAll">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('today')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="today">
-          🔴 Today (<span id="countToday">0</span>)
+        <button onclick="app.setQuickFilter('today')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="today">
+          Today (<span id="countToday">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('tomorrow')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="tomorrow">
-          🟡 Tomorrow (<span id="countTomorrow">0</span>)
+        <button onclick="app.setQuickFilter('tomorrow')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="tomorrow">
+          Tmrw (<span id="countTomorrow">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('this_week')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="this_week">
-          📅 This Week (<span id="countWeek">0</span>)
+        <button onclick="app.setQuickFilter('this_week')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="this_week">
+          7 Days (<span id="countWeek">0</span>)
         </button>
-        <button onclick="app.setQuickFilter('overdue')" class="filter-chip px-3 py-1.5 rounded-xl transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5" data-filter="overdue">
-          ⚠️ Passed (<span id="countOverdue">0</span>)
+        <button onclick="app.setQuickFilter('overdue')" class="ios-segmented-item flex-1 py-1.5 rounded-[7px] text-center transition" data-filter="overdue">
+          Passed (<span id="countOverdue">0</span>)
         </button>
       </div>
+
     </header>
 
-    <!-- Main Content Feed -->
-    <main class="flex-1 px-4 py-4">
+    <!-- Main Content Area: Inset Grouped Table View -->
+    <main class="flex-1 px-4 py-3">
 
-      <!-- View Title & Action Bar -->
-      <div class="flex items-center justify-between mb-3 px-1">
-        <div class="flex items-center gap-2">
-          <div class="w-2 h-2 rounded-full bg-indigo-400"></div>
-          <h2 id="viewTitle" class="text-xs font-bold uppercase tracking-wider text-slate-400">All Registered Cases</h2>
-        </div>
-        <button onclick="app.printDailyBoard()" class="text-xs text-sky-400 hover:text-white flex items-center gap-1.5 font-semibold bg-sky-500/10 hover:bg-sky-500/20 px-3 py-1.5 rounded-xl border border-sky-500/30 active:scale-95 transition shadow-sm">
+      <!-- Section Header -->
+      <div class="flex items-center justify-between mb-2 px-1">
+        <h2 id="viewTitle" class="text-[13px] uppercase font-semibold tracking-wider text-ios-gray">All Registered Cases</h2>
+        <button onclick="app.printDailyBoard()" class="text-xs text-ios-blue font-medium flex items-center gap-1 active:opacity-60 transition">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-          Print Cause List
+          Print List
         </button>
       </div>
 
-      <!-- Dynamic Cases Container -->
-      <div id="casesList" class="space-y-3.5">
-        <div class="p-12 text-center text-slate-400 text-sm">
-          <div class="inline-block animate-spin rounded-full h-7 w-7 border-2 border-indigo-500 border-t-transparent mb-3"></div>
-          <p class="font-medium">Loading court case files...</p>
+      <!-- Cases List Container -->
+      <div id="casesList" class="space-y-3">
+        <!-- Dynamic Cards -->
+        <div class="p-12 text-center text-ios-gray text-sm">
+          <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-ios-blue border-t-transparent mb-2"></div>
+          <p>Loading files...</p>
         </div>
       </div>
 
-      <!-- Empty State View -->
+      <!-- Empty State -->
       <div id="emptyState" class="hidden py-16 px-4 text-center">
-        <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-slate-800/50 flex items-center justify-center text-slate-500 border border-white/5 shadow-inner">
-          <i data-lucide="folder-search" class="w-9 h-9 text-slate-400"></i>
+        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-ios-card flex items-center justify-center text-ios-gray">
+          <i data-lucide="folder" class="w-8 h-8"></i>
         </div>
-        <h3 class="text-base font-bold text-slate-200">No Cases Found</h3>
-        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto leading-relaxed">Iss category me filhaal koi case nahi hai. Naya case add karne ke liye neeche '+' button dabayein.</p>
-        <button onclick="app.openCaseModal()" class="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition active:scale-95">
-          <i data-lucide="plus" class="w-4 h-4"></i> Add New Case
+        <h3 class="text-base font-bold text-white">No Cases Found</h3>
+        <p class="text-xs text-ios-gray mt-1 max-w-xs mx-auto">Iss filter me koi case nahi mila. Naya case add karne ke liye '+' button dabayein.</p>
+        <button onclick="app.openCaseModal()" class="mt-4 px-4 py-2 bg-ios-blue text-white text-xs font-semibold rounded-full active:opacity-75 transition">
+          + Add New Case
         </button>
       </div>
 
     </main>
 
-    <!-- Floating Action Button (FAB) -->
-    <div class="fixed bottom-20 right-4 z-40 max-w-lg mx-auto">
+    <!-- iOS Floating Action Button (FAB) -->
+    <div class="fixed bottom-20 right-4 z-40 max-w-md mx-auto">
       <button 
         onclick="app.openCaseModal()"
-        class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-500 text-white flex items-center justify-center shadow-xl shadow-indigo-600/40 border border-white/20 active:scale-90 hover:scale-105 transition-all group"
+        class="w-14 h-14 rounded-full bg-ios-blue text-white flex items-center justify-center shadow-lg shadow-ios-blue/40 active:scale-95 transition-transform"
         title="Add Case File"
       >
-        <i data-lucide="plus" class="w-7 h-7 group-hover:rotate-90 transition-transform duration-300"></i>
+        <i data-lucide="plus" class="w-7 h-7"></i>
       </button>
     </div>
 
-    <!-- Bottom Mobile Dock Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 z-40 glass-nav flex justify-around items-center py-2.5 px-4 max-w-lg mx-auto">
-      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="today">
-        <i data-lucide="calendar-check-2" class="w-5 h-5"></i>
-        <span class="text-[10px] font-semibold mt-1">Today</span>
+    <!-- iOS 15 Tab Bar (Translucent Blur) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 ios-blur-tabbar flex justify-around items-center pt-2 pb-5 px-4 max-w-md mx-auto">
+      <button onclick="app.switchTab('today')" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="today">
+        <i data-lucide="calendar" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Today</span>
       </button>
 
-      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-indigo-400 transition" data-tab="all">
-        <i data-lucide="briefcase" class="w-5 h-5"></i>
-        <span class="text-[10px] font-semibold mt-1">All Cases</span>
+      <button onclick="app.switchTab('all')" class="nav-tab flex flex-col items-center py-1 text-ios-blue transition" data-tab="all">
+        <i data-lucide="folder" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">All Cases</span>
       </button>
 
-      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="upcoming">
-        <i data-lucide="calendar-days" class="w-5 h-5"></i>
-        <span class="text-[10px] font-semibold mt-1">Upcoming</span>
+      <button onclick="app.switchTab('upcoming')" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="upcoming">
+        <i data-lucide="clock" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Upcoming</span>
       </button>
 
-      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition" data-tab="settings">
-        <i data-lucide="database" class="w-5 h-5"></i>
-        <span class="text-[10px] font-semibold mt-1">Database</span>
+      <button onclick="app.openSettingsModal()" class="nav-tab flex flex-col items-center py-1 text-ios-gray hover:text-ios-blue transition" data-tab="settings">
+        <i data-lucide="slider" class="w-5 h-5"></i>
+        <span class="text-[10px] font-medium mt-1">Settings</span>
       </button>
     </nav>
 
   </div>
 
-  <!-- MODAL: Add / Edit Case (Mobile Bottom Sheet) -->
-  <div id="caseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-slate-900 border border-white/10 w-full max-w-lg rounded-t-3xl sm:rounded-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
+  <!-- iOS 15 Bottom Sheet Modal: Add / Edit Case -->
+  <div id="caseModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end justify-center">
+    <div class="bg-[#1C1C1E] border-t border-[#38383A] w-full max-w-md rounded-t-[24px] max-h-[92vh] flex flex-col shadow-2xl overflow-hidden sheet-transition">
       
-      <!-- Pull handle for mobile touch -->
-      <div class="pt-3 pb-1 flex justify-center sm:hidden">
-        <div class="w-12 h-1 bg-slate-700 rounded-full"></div>
+      <!-- iOS Grabber Capsule -->
+      <div class="pt-3 pb-1 flex justify-center">
+        <div class="w-9 h-1 bg-ios-gray3 rounded-full"></div>
       </div>
 
-      <!-- Modal Header -->
-      <div class="px-5 py-3 border-b border-white/10 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
-            <i data-lucide="file-plus-2" class="w-4 h-4"></i>
-          </div>
-          <h3 id="caseModalTitle" class="text-sm font-bold text-white tracking-tight">Add Court Case File</h3>
-        </div>
-        <button onclick="app.closeCaseModal()" class="text-slate-400 hover:text-white p-1.5 rounded-xl bg-slate-800/80 border border-white/5">
-          <i data-lucide="x" class="w-4 h-4"></i>
+      <!-- iOS Navigation Bar Header in Modal -->
+      <div class="px-4 py-2 flex items-center justify-between border-b border-ios-separator">
+        <button type="button" onclick="app.closeCaseModal()" class="text-ios-blue text-[15px] font-normal active:opacity-60">
+          Cancel
+        </button>
+        <h3 id="caseModalTitle" class="text-[16px] font-semibold text-white tracking-tight">New Case File</h3>
+        <button type="button" onclick="document.getElementById('caseSubmitTrigger').click()" class="text-ios-blue text-[15px] font-semibold active:opacity-60">
+          Save
         </button>
       </div>
 
-      <!-- Modal Body (Scrollable Form) -->
-      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-5 space-y-4 flex-1">
+      <!-- Form (Inset Grouped Style) -->
+      <form id="caseForm" onsubmit="app.saveCase(event)" class="overflow-y-auto p-4 space-y-4 flex-1">
         <input type="hidden" id="caseId">
+        <button type="submit" id="caseSubmitTrigger" class="hidden"></button>
 
-        <!-- Case Number -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Case Number / CNR <span class="text-rose-400">*</span></label>
-          <input 
-            type="text" 
-            id="caseNumber" 
-            required 
-            placeholder="e.g. WP(C) 1042/2024 or CS 45/2023"
-            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white font-mono placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-          >
+        <!-- Group 1: Case Identification -->
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">Case No.</span>
+            <input 
+              type="text" 
+              id="caseNumber" 
+              required 
+              placeholder="WP(C) 1042/2024"
+              class="w-full bg-transparent text-[15px] text-white font-mono placeholder-[#636366] focus:outline-none"
+            >
+          </div>
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">Parties</span>
+            <input 
+              type="text" 
+              id="caseParties" 
+              required 
+              placeholder="Ramesh Kumar vs State"
+              class="w-full bg-transparent text-[15px] text-white placeholder-[#636366] focus:outline-none"
+            >
+          </div>
         </div>
 
-        <!-- Parties Name -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Parties Name (Petitioner vs Respondent) <span class="text-rose-400">*</span></label>
-          <input 
-            type="text" 
-            id="caseParties" 
-            required 
-            placeholder="e.g. Ramesh Kumar vs State of UP & Ors."
-            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-          >
-        </div>
-
-        <!-- Court Name & Courtroom / Judge -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Court / Forum</label>
+        <!-- Group 2: Court Venue -->
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">Court</span>
             <input 
               type="text" 
               id="caseCourt" 
-              placeholder="e.g. High Court / Saket Court"
-              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              placeholder="High Court / District Court"
+              class="w-full bg-transparent text-[15px] text-white placeholder-[#636366] focus:outline-none"
             >
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Court Room / Judge</label>
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">Room / Judge</span>
             <input 
               type="text" 
               id="caseJudge" 
-              placeholder="e.g. Room 4 / Justice Sharma"
-              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              placeholder="Court 4 / Justice Sharma"
+              class="w-full bg-transparent text-[15px] text-white placeholder-[#636366] focus:outline-none"
             >
           </div>
         </div>
 
-        <!-- Next Hearing Date (NDOH) & Stage -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Next Date of Hearing (NDOH) <span class="text-rose-400">*</span></label>
+        <!-- Group 3: Dates & Stage -->
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="px-3.5 py-2.5 flex items-center justify-between">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">NDOH Date</span>
             <input 
               type="date" 
               id="caseNextDate" 
               required
-              class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
+              class="bg-transparent text-[15px] text-white focus:outline-none text-right"
             >
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Hearing Stage / Purpose</label>
-            <select id="caseStage" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <div class="px-3.5 py-2.5 flex items-center justify-between">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">Stage</span>
+            <select id="caseStage" class="bg-transparent text-[15px] text-ios-blue focus:outline-none text-right font-medium">
               <option value="Final Arguments">Final Arguments</option>
-              <option value="Evidence / Cross">Evidence / Cross Examination</option>
+              <option value="Evidence / Cross">Evidence / Cross</option>
               <option value="Framing of Issues">Framing of Issues</option>
               <option value="Admission / Notice">Admission / Notice</option>
               <option value="Filing of WS / Reply">Filing of WS / Reply</option>
@@ -385,41 +351,41 @@
           </div>
         </div>
 
-        <!-- Senior's Instructions -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Senior's Instructions / Action Directive</label>
-          <textarea 
-            id="caseInstructions" 
-            rows="2" 
-            placeholder="e.g. Rejoinder draft karke file karni hai, Citation 2021 ready rakhna..."
-            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
-          ></textarea>
+        <!-- Group 4: Senior Instructions & Drive Link -->
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="p-3.5">
+            <span class="text-[13px] text-ios-gray block mb-1">Senior's Instructions</span>
+            <textarea 
+              id="caseInstructions" 
+              rows="2" 
+              placeholder="Rejoinder draft karni hai, Citation ready rakhna..."
+              class="w-full bg-transparent text-[14px] text-white placeholder-[#636366] focus:outline-none resize-none"
+            ></textarea>
+          </div>
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-28 shrink-0">File / Drive</span>
+            <input 
+              type="url" 
+              id="caseDriveLink" 
+              placeholder="https://drive.google.com/..."
+              class="w-full bg-transparent text-[14px] text-white placeholder-[#636366] focus:outline-none"
+            >
+          </div>
         </div>
 
-        <!-- File / Google Drive Link -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">File Dossier / Drive Link</label>
-          <input 
-            type="url" 
-            id="caseDriveLink" 
-            placeholder="https://drive.google.com/..."
-            class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-          >
-        </div>
-
-        <!-- Priority & Status -->
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Priority</label>
-            <select id="casePriority" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        <!-- Group 5: Priority & Status -->
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="px-3.5 py-2.5 flex items-center justify-between">
+            <span class="text-[14px] text-ios-gray">Priority</span>
+            <select id="casePriority" class="bg-transparent text-[14px] text-ios-blue font-medium focus:outline-none">
               <option value="Normal">Normal</option>
-              <option value="Urgent">🔴 Urgent</option>
+              <option value="Urgent">Urgent</option>
               <option value="Routine">Routine</option>
             </select>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-300 mb-1">Case Status</label>
-            <select id="caseStatus" class="w-full bg-slate-800/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+          <div class="px-3.5 py-2.5 flex items-center justify-between">
+            <span class="text-[14px] text-ios-gray">Status</span>
+            <select id="caseStatus" class="bg-transparent text-[14px] text-ios-blue font-medium focus:outline-none">
               <option value="Active">Active</option>
               <option value="Reserved for Order">Reserved for Order</option>
               <option value="Disposed">Disposed / Closed</option>
@@ -427,144 +393,88 @@
           </div>
         </div>
 
-        <!-- Submit Button -->
-        <div class="pt-2">
-          <button 
-            type="submit" 
-            class="w-full bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-xl shadow-indigo-600/30 active:scale-[0.98] transition flex items-center justify-center gap-2 text-sm"
-          >
-            <i data-lucide="check-circle" class="w-4 h-4"></i>
-            <span id="saveBtnText">Save Court Case</span>
-          </button>
-        </div>
-
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Quick Update NDOH (Courtroom Fast-Action) -->
-  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl sheet-transition">
-      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-        <div>
-          <h3 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="calendar-plus" class="w-4 h-4 text-indigo-400"></i> Update Next Hearing Date
-          </h3>
-          <p id="ndohCaseTitle" class="text-xs text-slate-400 mt-0.5 truncate font-mono">Case No</p>
-        </div>
-        <button onclick="app.closeNdohModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+  <!-- iOS 15 Modal: Quick Update NDOH -->
+  <div id="ndohModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end justify-center">
+    <div class="bg-[#1C1C1E] border-t border-[#38383A] w-full max-w-md rounded-t-[24px] p-4 shadow-2xl sheet-transition">
+      
+      <div class="pt-1 pb-1 flex justify-center">
+        <div class="w-9 h-1 bg-ios-gray3 rounded-full"></div>
       </div>
 
-      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-3.5">
+      <div class="flex items-center justify-between pb-3 border-b border-ios-separator">
+        <button type="button" onclick="app.closeNdohModal()" class="text-ios-blue text-[15px]">Cancel</button>
+        <h3 class="text-[15px] font-semibold text-white">Update Hearing Date</h3>
+        <button type="button" onclick="document.getElementById('ndohSubmitTrigger').click()" class="text-ios-blue font-semibold text-[15px]">Done</button>
+      </div>
+
+      <p id="ndohCaseTitle" class="text-xs text-ios-gray mt-2 px-1 truncate font-mono">Case No</p>
+
+      <form id="ndohForm" onsubmit="app.saveNdoh(event)" class="space-y-3.5 mt-3">
         <input type="hidden" id="ndohCaseId">
+        <button type="submit" id="ndohSubmitTrigger" class="hidden"></button>
         
-        <!-- Preset Date Quick Chips -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Quick Date Presets</label>
-          <div class="flex gap-1.5 overflow-x-auto hide-scrollbar text-[11px] font-semibold">
-            <button type="button" onclick="app.setNdohPreset(1)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">Tomorrow</button>
-            <button type="button" onclick="app.setNdohPreset(7)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+7 Days</button>
-            <button type="button" onclick="app.setNdohPreset(14)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+14 Days</button>
-            <button type="button" onclick="app.setNdohPreset(30)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-white/5">+1 Month</button>
+        <!-- Presets -->
+        <div class="flex gap-1.5 overflow-x-auto hide-scrollbar text-[12px] font-medium">
+          <button type="button" onclick="app.setNdohPreset(1)" class="px-3 py-1.5 rounded-full bg-[#2C2C2E] text-ios-blue active:opacity-60">Tomorrow</button>
+          <button type="button" onclick="app.setNdohPreset(7)" class="px-3 py-1.5 rounded-full bg-[#2C2C2E] text-ios-blue active:opacity-60">+7 Days</button>
+          <button type="button" onclick="app.setNdohPreset(14)" class="px-3 py-1.5 rounded-full bg-[#2C2C2E] text-ios-blue active:opacity-60">+14 Days</button>
+          <button type="button" onclick="app.setNdohPreset(30)" class="px-3 py-1.5 rounded-full bg-[#2C2C2E] text-ios-blue active:opacity-60">+1 Month</button>
+        </div>
+
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="px-3.5 py-2.5 flex items-center justify-between">
+            <span class="text-[14px] text-ios-gray">New NDOH Date</span>
+            <input type="date" id="ndohDate" required class="bg-transparent text-[15px] text-white focus:outline-none">
+          </div>
+          <div class="px-3.5 py-2.5 flex items-center">
+            <span class="text-[14px] text-ios-gray w-24 shrink-0">New Stage</span>
+            <input type="text" id="ndohStage" placeholder="For Orders / Evidence" class="w-full bg-transparent text-[15px] text-white focus:outline-none">
+          </div>
+          <div class="p-3.5">
+            <span class="text-[13px] text-ios-gray block mb-1">Today's Court Proceedings</span>
+            <textarea id="ndohNotes" rows="2" placeholder="Adjourned on request of respondent..." class="w-full bg-transparent text-[14px] text-white focus:outline-none resize-none"></textarea>
           </div>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">New Hearing Date (NDOH) <span class="text-rose-400">*</span></label>
-          <input 
-            type="date" 
-            id="ndohDate" 
-            required 
-            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
-          >
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">New Stage / Next Purpose</label>
-          <input 
-            type="text" 
-            id="ndohStage" 
-            placeholder="e.g. For Orders, For Cross of PW-1"
-            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500"
-          >
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-300 mb-1">Today's Court Proceedings / Summary</label>
-          <textarea 
-            id="ndohNotes" 
-            rows="2" 
-            placeholder="e.g. Adjourned on request of respondent counsel, next date fixed..."
-            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 resize-none"
-          ></textarea>
-        </div>
-
-        <button 
-          type="submit" 
-          class="w-full bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-600/30 text-sm active:scale-95 transition"
-        >
-          Confirm New Date
-        </button>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: Settings & Supabase Configuration -->
-  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-white/10 w-full max-w-md rounded-2xl p-5 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-            <i data-lucide="database" class="w-4 h-4"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-white">Supabase Cloud Settings</h3>
-            <p class="text-[11px] text-slate-400">Sync data across devices</p>
-          </div>
-        </div>
-        <button onclick="app.closeSettingsModal()" class="text-slate-400 hover:text-white p-1 rounded-lg">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+  <!-- iOS 15 Settings Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-[#1C1C1E] border-t sm:border border-[#38383A] w-full max-w-md rounded-t-[24px] sm:rounded-[20px] p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-ios-separator">
+        <h3 class="text-[16px] font-semibold text-white">Supabase Cloud Sync</h3>
+        <button onclick="app.closeSettingsModal()" class="text-ios-blue text-[15px]">Done</button>
       </div>
 
-      <div class="space-y-3.5 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Supabase Project URL</label>
-          <input 
-            type="text" 
-            id="cfgUrl" 
-            placeholder="https://xyzcompany.supabase.co"
-            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
-          >
+      <div class="space-y-4 text-xs mt-4">
+        <div class="bg-[#2C2C2E] rounded-[12px] overflow-hidden divide-y divide-ios-separator">
+          <div class="p-3">
+            <label class="block font-medium text-ios-gray mb-1">Project URL</label>
+            <input type="text" id="cfgUrl" placeholder="https://xyz.supabase.co" class="w-full bg-transparent text-white font-mono text-[13px] focus:outline-none">
+          </div>
+          <div class="p-3">
+            <label class="block font-medium text-ios-gray mb-1">Anon Public Key</label>
+            <input type="password" id="cfgKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5..." class="w-full bg-transparent text-white font-mono text-[13px] focus:outline-none">
+          </div>
         </div>
 
-        <div>
-          <label class="block font-semibold text-slate-300 mb-1">Supabase Anon Key</label>
-          <input 
-            type="password" 
-            id="cfgKey" 
-            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-            class="w-full bg-slate-800 border border-white/10 rounded-xl px-3 py-2.5 text-white font-mono focus:outline-none focus:border-indigo-500"
-          >
-          <p class="text-[10px] text-slate-500 mt-1">Keys browser storage me save hongi, public repo me nahi jayengi.</p>
-        </div>
-
-        <div class="pt-2 flex flex-col gap-2">
-          <button onclick="app.saveSupabaseConfig()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 rounded-xl text-xs active:scale-95 transition shadow-lg shadow-emerald-600/30">
-            Save & Connect to Supabase
-          </button>
-          <button onclick="app.useDemoMode()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-2.5 rounded-xl text-xs transition border border-white/5">
-            Reset to Demo Mode
-          </button>
-        </div>
+        <button onclick="app.saveSupabaseConfig()" class="w-full bg-ios-blue text-white font-semibold py-3 rounded-[12px] text-[14px] active:opacity-75 transition">
+          Save & Connect Cloud
+        </button>
+        <button onclick="app.useDemoMode()" class="w-full bg-[#2C2C2E] text-ios-red font-semibold py-2.5 rounded-[12px] text-[13px] active:opacity-75 transition">
+          Reset to Demo Mode
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
-  <div id="toastContainer" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-11/12 max-w-sm pointer-events-none"></div>
+  <!-- iOS Pill HUD Notification -->
+  <div id="toastContainer" class="fixed top-3 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2 w-auto pointer-events-none"></div>
 
   <!-- App Script -->
   <script src="app.js"></script>

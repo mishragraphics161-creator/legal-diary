@@ -1,5 +1,5 @@
-// Legal Diary - Modern Court Case & Hearing Date Tracker
-// Supports Supabase Realtime & Offline/Demo Mode
+// Legal Diary - iOS 15 Design Pattern
+// Authentic Apple Human Interface Guidelines for Web
 
 class LegalDiaryApp {
   constructor() {
@@ -29,14 +29,14 @@ class LegalDiaryApp {
     }
   }
 
-  // Format today's date for header
+  // Format today's date for iOS Navigation title
   renderTodayDate() {
     const today = new Date();
-    const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
-    const dateStr = today.toLocaleDateString('en-IN', options);
+    const options = { weekday: 'long', month: 'long', day: 'numeric' };
+    const dateStr = today.toLocaleDateString('en-US', options);
     const dateEl = document.getElementById('todayDateStr');
     if (dateEl) {
-      dateEl.innerHTML = `<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> ${dateStr}`;
+      dateEl.textContent = dateStr;
     }
   }
 
@@ -65,15 +65,15 @@ class LegalDiaryApp {
     const badge = document.getElementById('supabaseBadge');
     if (!badge) return;
     if (connected) {
-      badge.textContent = 'Cloud Synced';
-      badge.className = 'text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+      badge.textContent = 'iCloud Synced';
+      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-green/15 text-ios-green border border-ios-green/30';
     } else {
       badge.textContent = 'Demo Mode';
-      badge.className = 'text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20';
+      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30';
     }
   }
 
-  // Realistic sample cases for initial demo
+  // Sample Cases
   getSampleCases() {
     const today = new Date();
     const formatDate = (offsetDays) => {
@@ -89,9 +89,9 @@ class LegalDiaryApp {
         parties: 'Ramesh Kumar vs State of UP & Ors.',
         court_name: 'High Court of Judicature',
         judge_name: 'Courtroom 4 • Justice Sharma',
-        next_hearing_date: formatDate(0), // Today!
+        next_hearing_date: formatDate(0), // Today
         hearing_stage: 'Final Arguments',
-        senior_instructions: 'Senior will argue item #12 post-lunch. Keep citation (2021) 4 SCC 12 flagged.',
+        senior_instructions: 'Senior will argue post-lunch. Keep previous citation of (2021) 4 SCC 12 flagged.',
         file_drive_link: 'https://drive.google.com',
         status: 'Active',
         priority: 'Urgent'
@@ -102,9 +102,9 @@ class LegalDiaryApp {
         parties: 'Apex Builders Ltd vs Verma Enterprises',
         court_name: 'District Court Saket',
         judge_name: 'Commercial Court 2',
-        next_hearing_date: formatDate(1), // Tomorrow!
+        next_hearing_date: formatDate(1), // Tomorrow
         hearing_stage: 'Evidence / Cross',
-        senior_instructions: 'Cross-examination of PW-1. Prepare question checklist on bank statements.',
+        senior_instructions: 'Cross-examination of Defendant witness PW-1. Questionnaire ready.',
         file_drive_link: '',
         status: 'Active',
         priority: 'Urgent'
@@ -114,10 +114,10 @@ class LegalDiaryApp {
         case_number: 'Bail Appln 412/2024',
         parties: 'Mohit Sharma vs State (NCT of Delhi)',
         court_name: 'Patiala House Court',
-        judge_name: 'Special Court 3',
+        judge_name: 'Special ASJ Court 3',
         next_hearing_date: formatDate(4), // This week
         hearing_stage: 'Bail Hearing',
-        senior_instructions: 'File rejoinder to IO status report before 10:30 AM.',
+        senior_instructions: 'File reply to IO status report before 10:30 AM.',
         file_drive_link: '',
         status: 'Active',
         priority: 'Urgent'
@@ -130,7 +130,7 @@ class LegalDiaryApp {
         judge_name: 'Civil Judge Sr. Div.',
         next_hearing_date: formatDate(18), // Future
         hearing_stage: 'Framing of Issues',
-        senior_instructions: 'Draft proposed issues already served. Awaiting court order.',
+        senior_instructions: 'Proposed draft issues served. Awaiting court order.',
         file_drive_link: '',
         status: 'Active',
         priority: 'Normal'
@@ -143,7 +143,7 @@ class LegalDiaryApp {
         judge_name: 'Courtroom 14',
         next_hearing_date: formatDate(-2), // Passed
         hearing_stage: 'Admission / Notice',
-        senior_instructions: 'Hearing concluded, update new NDOH from master order sheet.',
+        senior_instructions: 'Hearing concluded, update new NDOH from court master order sheet.',
         file_drive_link: '',
         status: 'Active',
         priority: 'Normal'
@@ -151,7 +151,7 @@ class LegalDiaryApp {
     ];
   }
 
-  // Load cases from Supabase or Cache
+  // Load cases
   async loadCases() {
     if (this.isSupabaseConnected && this.supabaseClient) {
       try {
@@ -166,7 +166,7 @@ class LegalDiaryApp {
         return;
       } catch (err) {
         console.warn('Supabase fetch failed:', err);
-        this.showToast('Supabase offline, using local cache', 'warning');
+        this.showToast('Offline • Local Cache', 'warning');
       }
     }
 
@@ -196,10 +196,10 @@ class LegalDiaryApp {
     this.updateCounters();
     this.render();
     if (btn) btn.classList.remove('animate-spin');
-    this.showToast('Cases refreshed', 'success');
+    this.showToast('Updated', 'success');
   }
 
-  // Date difference relative to today
+  // Date difference
   getDateDifference(targetDateStr) {
     if (!targetDateStr) return 999;
     const today = new Date();
@@ -213,13 +213,13 @@ class LegalDiaryApp {
     return Math.round(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  // Visual Badges
+  // iOS 15 Status Pill Info
   getHearingBadgeInfo(targetDateStr, status) {
     if (status === 'Disposed') {
       return {
-        text: 'DISPOSED',
-        badgeClass: 'bg-slate-800 text-slate-400 border-white/5',
-        cardBorder: 'border-white/5'
+        text: 'Disposed',
+        badgeClass: 'bg-[#2C2C2E] text-ios-gray',
+        dateClass: 'text-ios-gray'
       };
     }
 
@@ -227,33 +227,33 @@ class LegalDiaryApp {
 
     if (diff < 0) {
       return {
-        text: `⚠️ PASSED (${Math.abs(diff)}d ago)`,
-        badgeClass: 'bg-rose-500/15 text-rose-300 border-rose-500/30',
-        cardBorder: 'border-rose-500/40 bg-gradient-to-br from-rose-950/20 via-slate-900/90 to-slate-900'
+        text: `Passed (${Math.abs(diff)}d ago)`,
+        badgeClass: 'bg-ios-red/15 text-ios-red font-semibold',
+        dateClass: 'text-ios-red'
       };
     } else if (diff === 0) {
       return {
-        text: '🔴 TODAY\'S BOARD',
-        badgeClass: 'bg-rose-600 text-white font-extrabold border-rose-500 shadow-md shadow-rose-600/40',
-        cardBorder: 'border-rose-500/60 bg-gradient-to-br from-rose-950/30 via-slate-900/90 to-slate-900 ring-1 ring-rose-500/20'
+        text: 'Today',
+        badgeClass: 'bg-ios-red text-white font-bold',
+        dateClass: 'text-ios-red font-bold'
       };
     } else if (diff === 1) {
       return {
-        text: '🟡 TOMORROW',
-        badgeClass: 'bg-amber-500/15 text-amber-300 border-amber-500/30 font-bold',
-        cardBorder: 'border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-slate-900/90 to-slate-900'
+        text: 'Tomorrow',
+        badgeClass: 'bg-ios-orange/20 text-ios-orange font-semibold',
+        dateClass: 'text-ios-orange font-semibold'
       };
     } else if (diff <= 7) {
       return {
-        text: `IN ${diff} DAYS`,
-        badgeClass: 'bg-sky-500/15 text-sky-300 border-sky-500/30 font-semibold',
-        cardBorder: 'border-sky-500/30'
+        text: `In ${diff} Days`,
+        badgeClass: 'bg-ios-blue/15 text-ios-blue font-medium',
+        dateClass: 'text-ios-blue font-medium'
       };
     } else {
       return {
-        text: `IN ${diff} DAYS`,
-        badgeClass: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20 font-medium',
-        cardBorder: 'border-white/5'
+        text: `In ${diff} Days`,
+        badgeClass: 'bg-[#2C2C2E] text-ios-gray font-medium',
+        dateClass: 'text-white'
       };
     }
   }
@@ -263,10 +263,10 @@ class LegalDiaryApp {
     if (!dateStr) return 'No Date';
     const [y, m, d] = dateStr.split('-').map(Number);
     const date = new Date(y, m - 1, d);
-    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   }
 
-  // Update counters and hero metrics
+  // Counters
   updateCounters() {
     let todayCount = 0;
     let tomorrowCount = 0;
@@ -293,46 +293,42 @@ class LegalDiaryApp {
     setSafe('countTomorrow', tomorrowCount);
     setSafe('countWeek', weekCount);
     setSafe('countOverdue', overdueCount);
-
-    // Hero metrics
-    setSafe('metricToday', todayCount);
-    setSafe('metricTomorrow', tomorrowCount);
-    setSafe('metricWeek', weekCount);
-    setSafe('metricAll', this.cases.length);
   }
 
-  // Switch Bottom Tab
+  // iOS Tab Switcher
   switchTab(tab) {
     this.currentTab = tab;
     document.querySelectorAll('.nav-tab').forEach(el => {
       if (el.dataset.tab === tab) {
-        el.className = 'nav-tab flex flex-col items-center py-1 text-indigo-400 transition';
+        el.classList.add('text-ios-blue');
+        el.classList.remove('text-ios-gray');
       } else {
-        el.className = 'nav-tab flex flex-col items-center py-1 text-slate-400 hover:text-indigo-400 transition';
+        el.classList.remove('text-ios-blue');
+        el.classList.add('text-ios-gray');
       }
     });
 
     const titleEl = document.getElementById('viewTitle');
     if (tab === 'today') {
       this.setQuickFilter('today');
-      if (titleEl) titleEl.textContent = "Today's Cause List Board";
+      if (titleEl) titleEl.textContent = "Today's Cause List";
     } else if (tab === 'upcoming') {
       this.setQuickFilter('this_week');
-      if (titleEl) titleEl.textContent = "Upcoming Hearings (Next 7 Days)";
+      if (titleEl) titleEl.textContent = "Upcoming (Next 7 Days)";
     } else {
       this.setQuickFilter('all');
       if (titleEl) titleEl.textContent = "All Registered Cases";
     }
   }
 
-  // Set Quick Filter Chip
+  // iOS Segmented Control Click
   setQuickFilter(filter) {
     this.quickFilter = filter;
-    document.querySelectorAll('.filter-chip').forEach(btn => {
+    document.querySelectorAll('.ios-segmented-item').forEach(btn => {
       if (btn.dataset.filter === filter) {
-        btn.className = 'filter-chip px-3 py-1.5 rounded-xl font-semibold transition whitespace-nowrap bg-indigo-600 text-white shadow-md shadow-indigo-600/30';
+        btn.classList.add('active');
       } else {
-        btn.className = 'filter-chip px-3 py-1.5 rounded-xl font-semibold transition whitespace-nowrap bg-slate-800/90 text-slate-300 hover:bg-slate-700/80 border border-white/5';
+        btn.classList.remove('active');
       }
     });
     this.render();
@@ -406,7 +402,7 @@ class LegalDiaryApp {
   copyToClipboard(text, label = 'Copied') {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text);
-      this.showToast(`${label} copied to clipboard`, 'success');
+      this.showToast(`${label} Copied`, 'success');
     }
   }
 
@@ -420,7 +416,7 @@ class LegalDiaryApp {
     }
   }
 
-  // Render Case Cards
+  // Render iOS 15 Inset Grouped Table Cards
   render() {
     const container = document.getElementById('casesList');
     const emptyState = document.getElementById('emptyState');
@@ -440,118 +436,129 @@ class LegalDiaryApp {
       const isUrgent = c.priority === 'Urgent';
 
       return `
-        <div class="glass-card ${badge.cardBorder} rounded-2xl p-4 shadow-xl transition-all relative overflow-hidden group">
+        <div class="ios-card shadow-sm">
           
-          <!-- Top Row: Case Number with Copy Button & Hearing Date Status -->
-          <div class="flex items-start justify-between gap-2 mb-2">
-            <div class="flex-1">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <!-- Case No Tag -->
-                <button 
-                  onclick="app.copyToClipboard('${c.case_number}', 'Case No.')" 
-                  class="inline-flex items-center gap-1 text-xs font-mono font-bold text-indigo-300 bg-indigo-950/60 hover:bg-indigo-900/80 px-2.5 py-0.5 rounded-lg border border-indigo-700/50 active:scale-95 transition"
-                  title="Click to copy case number"
-                >
-                  <span>${c.case_number}</span>
-                  <i data-lucide="copy" class="w-3 h-3 text-indigo-400"></i>
-                </button>
+          <!-- Card Header Cell -->
+          <div class="p-3.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <!-- iOS Case Number Pill -->
+                  <button 
+                    onclick="app.copyToClipboard('${c.case_number}', 'Case No.')" 
+                    class="inline-flex items-center gap-1 text-[12px] font-mono font-semibold text-ios-blue bg-ios-blue/10 px-2 py-0.5 rounded-[6px] active:opacity-60 transition"
+                    title="Tap to copy"
+                  >
+                    <span>${c.case_number}</span>
+                    <i data-lucide="copy" class="w-3 h-3 text-ios-blue"></i>
+                  </button>
 
-                ${isUrgent ? `
-                  <span class="text-[9px] font-black tracking-wider uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30 px-2 py-0.5 rounded-md">
-                    URGENT
-                  </span>
-                ` : ''}
+                  ${isUrgent ? `
+                    <span class="text-[10px] font-bold tracking-wide uppercase bg-ios-red/15 text-ios-red px-1.5 py-0.5 rounded-[5px]">
+                      Urgent
+                    </span>
+                  ` : ''}
+                </div>
+
+                <!-- Case Title -->
+                <h3 class="text-[15px] font-bold text-white mt-1.5 leading-snug">
+                  ${c.parties}
+                </h3>
               </div>
-
-              <!-- Parties Title -->
-              <h3 class="text-sm font-bold text-white mt-2 leading-snug tracking-tight">
-                ${c.parties}
-              </h3>
-            </div>
-            
-            <!-- Date Pill Badge -->
-            <div class="flex flex-col items-end shrink-0">
-              <span class="text-[10px] uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${badge.badgeClass}">
-                ${badge.text}
-              </span>
-              <span class="text-xs font-extrabold text-slate-200 mt-1.5 flex items-center gap-1">
-                <i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-400"></i>
-                ${displayDate}
-              </span>
+              
+              <!-- iOS Status Badge -->
+              <div class="flex flex-col items-end shrink-0">
+                <span class="text-[11px] px-2 py-0.5 rounded-full ${badge.badgeClass}">
+                  ${badge.text}
+                </span>
+                <span class="text-[12px] ${badge.dateClass} mt-1 font-semibold flex items-center gap-1">
+                  <i data-lucide="calendar" class="w-3 h-3"></i>
+                  ${displayDate}
+                </span>
+              </div>
             </div>
           </div>
 
-          <!-- Court, Judge & Stage Details -->
-          <div class="bg-slate-900/70 rounded-xl p-3 my-3 space-y-2 text-xs border border-white/5">
+          <!-- Divider -->
+          <div class="ios-divider"></div>
+
+          <!-- Information Cell (Court & Stage) -->
+          <div class="p-3.5 bg-[#252528] space-y-2 text-[13px]">
             ${c.court_name ? `
-              <div class="flex items-center gap-1.5 text-slate-200">
-                <i data-lucide="landmark" class="w-3.5 h-3.5 text-indigo-400 shrink-0"></i>
-                <span class="font-semibold truncate">${c.court_name}</span>
-                ${c.judge_name ? `<span class="text-slate-500">•</span><span class="text-slate-400 truncate text-[11px]">${c.judge_name}</span>` : ''}
+              <div class="flex items-center gap-2 text-white">
+                <div class="w-5 h-5 rounded-[5px] bg-ios-blue flex items-center justify-center shrink-0">
+                  <i data-lucide="landmark" class="w-3 h-3 text-white"></i>
+                </div>
+                <span class="font-medium truncate">${c.court_name}</span>
+                ${c.judge_name ? `<span class="text-ios-gray truncate text-[12px]">(${c.judge_name})</span>` : ''}
               </div>
             ` : ''}
 
-            <div class="flex items-center gap-1.5 text-amber-300">
-              <i data-lucide="target" class="w-3.5 h-3.5 text-amber-400 shrink-0"></i>
-              <span class="font-semibold">Stage: ${c.hearing_stage || 'General'}</span>
+            <div class="flex items-center gap-2 text-white">
+              <div class="w-5 h-5 rounded-[5px] bg-ios-purple flex items-center justify-center shrink-0">
+                <i data-lucide="gavel" class="w-3 h-3 text-white"></i>
+              </div>
+              <span class="font-medium">Stage: <span class="text-ios-orange font-semibold">${c.hearing_stage || 'General'}</span></span>
             </div>
 
-            <!-- Senior Instructions Directive Box -->
+            <!-- Senior Directive Row -->
             ${c.senior_instructions ? `
-              <div class="mt-2.5 pt-2 border-t border-white/5">
-                <div class="flex items-center gap-1 mb-1">
-                  <i data-lucide="message-square" class="w-3 h-3 text-amber-400"></i>
-                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Senior Directive:</span>
+              <div class="flex items-start gap-2 pt-1">
+                <div class="w-5 h-5 rounded-[5px] bg-ios-orange flex items-center justify-center shrink-0 mt-0.5">
+                  <i data-lucide="message-square" class="w-3 h-3 text-white"></i>
                 </div>
-                <div class="relative bg-slate-800/60 p-2.5 rounded-lg border-l-2 border-amber-400 text-xs italic text-amber-100/90 leading-relaxed font-sans">
+                <div class="flex-1 text-[13px] text-[#D1D1D6] leading-relaxed italic">
                   "${c.senior_instructions}"
                 </div>
               </div>
             ` : ''}
           </div>
 
-          <!-- Bottom Action Buttons (Touch-Optimized) -->
-          <div class="flex items-center justify-between pt-2 border-t border-white/10 gap-2 flex-wrap">
+          <!-- Divider -->
+          <div class="ios-divider"></div>
+
+          <!-- Action Footer Cell -->
+          <div class="p-2.5 bg-[#1C1C1E] flex items-center justify-between gap-2">
             
-            <!-- Quick NDOH Update Button -->
+            <!-- Quick NDOH Update -->
             <button 
               onclick="app.openNdohModal('${c.id}')"
-              class="flex-1 bg-gradient-to-r from-indigo-600/20 to-sky-600/20 hover:from-indigo-600/30 hover:to-sky-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 active:scale-95 transition"
+              class="flex-1 bg-ios-blue/15 text-ios-blue font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center justify-center gap-1.5 active:opacity-60 transition"
             >
-              <i data-lucide="calendar-plus" class="w-3.5 h-3.5 text-indigo-400"></i>
-              Update NDOH
+              <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+              Update Date
             </button>
 
-            <!-- WhatsApp Share with Senior -->
+            <!-- WhatsApp Share -->
             <button 
               onclick="app.shareOnWhatsApp('${c.id}')"
-              class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-bold py-2.5 px-3 rounded-xl flex items-center gap-1.5 active:scale-95 transition"
-              title="Share brief with Senior on WhatsApp"
+              class="bg-ios-green/15 text-ios-green font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center gap-1.5 active:opacity-60 transition"
+              title="Share on WhatsApp"
             >
-              <i data-lucide="share-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+              <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
               WhatsApp
             </button>
 
-            <!-- Drive File Link -->
+            <!-- Drive Dossier Link -->
             ${c.file_drive_link ? `
               <a 
                 href="${c.file_drive_link}" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="bg-slate-800 hover:bg-slate-700 text-slate-300 p-2.5 rounded-xl border border-white/5 active:scale-95 transition"
-                title="Open Dossier / Drive"
+                class="bg-[#2C2C2E] text-ios-blue p-2 rounded-[10px] active:opacity-60 transition"
+                title="Open Dossier"
               >
-                <i data-lucide="external-link" class="w-4 h-4 text-sky-400"></i>
+                <i data-lucide="link" class="w-4 h-4"></i>
               </a>
             ` : ''}
 
-            <!-- Edit & Delete -->
-            <div class="flex items-center space-x-0.5">
-              <button onclick="app.editCase('${c.id}')" class="p-2 text-slate-400 hover:text-white rounded-lg active:scale-90 transition" title="Edit Case">
-                <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+            <!-- More / Edit / Delete -->
+            <div class="flex items-center space-x-1">
+              <button onclick="app.editCase('${c.id}')" class="p-2 text-ios-gray hover:text-white rounded-lg active:opacity-60 transition">
+                <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="app.deleteCase('${c.id}')" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg active:scale-90 transition" title="Delete Case">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <button onclick="app.deleteCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-red rounded-lg active:opacity-60 transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </div>
 
@@ -568,8 +575,7 @@ class LegalDiaryApp {
 
   // Open Modal to Add New Case
   openCaseModal() {
-    document.getElementById('caseModalTitle').textContent = 'Add Court Case File';
-    document.getElementById('saveBtnText').textContent = 'Save Court Case';
+    document.getElementById('caseModalTitle').textContent = 'New Case File';
     document.getElementById('caseForm').reset();
     document.getElementById('caseId').value = '';
     
@@ -590,8 +596,7 @@ class LegalDiaryApp {
     const item = this.cases.find(c => c.id === id);
     if (!item) return;
 
-    document.getElementById('caseModalTitle').textContent = 'Edit Court Case';
-    document.getElementById('saveBtnText').textContent = 'Update Case';
+    document.getElementById('caseModalTitle').textContent = 'Edit Case File';
     document.getElementById('caseId').value = item.id;
     document.getElementById('caseNumber').value = item.case_number || '';
     document.getElementById('caseParties').value = item.parties || '';
@@ -635,14 +640,14 @@ class LegalDiaryApp {
             .eq('id', id);
           if (error) throw error;
         } catch (err) {
-          this.showToast('Supabase update error: ' + err.message, 'error');
+          this.showToast('Supabase Error', 'error');
         }
       }
       const index = this.cases.findIndex(c => c.id === id);
       if (index !== -1) {
         this.cases[index] = { ...this.cases[index], ...caseData };
       }
-      this.showToast('Case updated', 'success');
+      this.showToast('Saved', 'success');
     } else {
       const newId = (this.isSupabaseConnected) ? undefined : 'local-' + Date.now();
       if (this.isSupabaseConnected && this.supabaseClient) {
@@ -656,13 +661,13 @@ class LegalDiaryApp {
             this.cases.unshift(data[0]);
           }
         } catch (err) {
-          this.showToast('Supabase insert error: ' + err.message, 'error');
+          this.showToast('Supabase Error', 'error');
           this.cases.unshift({ id: newId, ...caseData });
         }
       } else {
         this.cases.unshift({ id: newId, ...caseData });
       }
-      this.showToast('New case file added', 'success');
+      this.showToast('Added to Diary', 'success');
     }
 
     this.saveToLocal();
@@ -706,8 +711,8 @@ class LegalDiaryApp {
 
     let updatedInstructions = item.senior_instructions || '';
     if (proceedings) {
-      const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-      updatedInstructions = `[${today} Order: ${proceedings}] ` + updatedInstructions;
+      const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      updatedInstructions = `[${today}: ${proceedings}] ` + updatedInstructions;
     }
 
     const updates = {
@@ -724,7 +729,7 @@ class LegalDiaryApp {
           .eq('id', id);
         if (error) throw error;
       } catch (err) {
-        this.showToast('Supabase update failed: ' + err.message, 'error');
+        this.showToast('Supabase Error', 'error');
       }
     }
 
@@ -733,13 +738,13 @@ class LegalDiaryApp {
     this.closeNdohModal();
     this.updateCounters();
     this.render();
-    this.showToast(`NDOH fixed for ${this.formatDisplayDate(newDate)}`, 'success');
+    this.showToast('NDOH Updated', 'success');
   }
 
   // Delete Case
   async deleteCase(id) {
     const item = this.cases.find(c => c.id === id);
-    if (!confirm(`Delete case record:\n${item?.case_number} - ${item?.parties}?`)) {
+    if (!confirm(`Delete case record: ${item?.case_number}?`)) {
       return;
     }
 
@@ -751,7 +756,7 @@ class LegalDiaryApp {
           .eq('id', id);
         if (error) throw error;
       } catch (err) {
-        this.showToast('Supabase delete error: ' + err.message, 'error');
+        this.showToast('Supabase Error', 'error');
       }
     }
 
@@ -759,7 +764,7 @@ class LegalDiaryApp {
     this.saveToLocal();
     this.updateCounters();
     this.render();
-    this.showToast('Case removed', 'info');
+    this.showToast('Deleted', 'info');
   }
 
   // WhatsApp Share
@@ -782,7 +787,7 @@ _Sent via Legal Diary_`;
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
   }
 
-  // Print Daily Cause List
+  // Print Daily Board
   printDailyBoard() {
     const todayCases = this.cases.filter(c => {
       if (c.status === 'Disposed') return false;
@@ -790,18 +795,18 @@ _Sent via Legal Diary_`;
     });
 
     const casesToPrint = todayCases.length > 0 ? todayCases : this.getFilteredCases();
-    const title = todayCases.length > 0 ? "TODAY'S CAUSE LIST BOARD" : "COURT CASES SCHEDULE";
+    const title = todayCases.length > 0 ? "TODAY'S CAUSE LIST" : "COURT CASES SCHEDULE";
 
     const printWindow = window.open('', '_blank');
     const rows = casesToPrint.map((c, i) => `
-      <tr style="border-bottom: 1px solid #ddd;">
-        <td style="padding: 8px; text-align: center;">${i + 1}</td>
-        <td style="padding: 8px; font-weight: bold; font-family: monospace;">${c.case_number}</td>
-        <td style="padding: 8px;">${c.parties}</td>
-        <td style="padding: 8px;">${c.court_name || ''} <br><small style="color: #666;">${c.judge_name || ''}</small></td>
-        <td style="padding: 8px;"><b>${c.hearing_stage || ''}</b></td>
-        <td style="padding: 8px; font-weight: bold;">${this.formatDisplayDate(c.next_hearing_date)}</td>
-        <td style="padding: 8px; font-size: 11px;">${c.senior_instructions || '-'}</td>
+      <tr style="border-bottom: 0.5px solid #d1d1d6;">
+        <td style="padding: 10px; text-align: center;">${i + 1}</td>
+        <td style="padding: 10px; font-weight: 600; font-family: -apple-system, monospace;">${c.case_number}</td>
+        <td style="padding: 10px;">${c.parties}</td>
+        <td style="padding: 10px;">${c.court_name || ''} <br><small style="color: #636366;">${c.judge_name || ''}</small></td>
+        <td style="padding: 10px;"><b>${c.hearing_stage || ''}</b></td>
+        <td style="padding: 10px; font-weight: 600;">${this.formatDisplayDate(c.next_hearing_date)}</td>
+        <td style="padding: 10px; font-size: 11px;">${c.senior_instructions || '-'}</td>
       </tr>
     `).join('');
 
@@ -811,11 +816,11 @@ _Sent via Legal Diary_`;
       <head>
         <title>${title}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 25px; color: #111; }
-          h2 { margin-bottom: 4px; text-align: center; font-size: 18px; letter-spacing: 0.5px; }
-          p { text-align: center; color: #666; font-size: 12px; margin-top: 0; }
-          table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-          th { background: #f8fafc; border-bottom: 2px solid #0f172a; padding: 10px 8px; text-align: left; font-size: 12px; text-transform: uppercase; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; padding: 30px; color: #000; }
+          h2 { margin-bottom: 4px; text-align: center; font-size: 19px; }
+          p { text-align: center; color: #8e8e93; font-size: 12px; margin-top: 0; }
+          table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+          th { background: #f2f2f7; border-bottom: 1px solid #c6c6c8; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; color: #636366; }
           @media print {
             button { display: none; }
           }
@@ -823,14 +828,14 @@ _Sent via Legal Diary_`;
       </head>
       <body>
         <h2>${title}</h2>
-        <p>Generated on ${new Date().toLocaleString('en-IN')}</p>
+        <p>Generated on ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
         <div style="text-align: right; margin-bottom: 12px;">
-          <button onclick="window.print()" style="padding: 8px 16px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Print / Save PDF</button>
+          <button onclick="window.print()" style="padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Print</button>
         </div>
         <table>
           <thead>
             <tr>
-              <th style="width: 35px; text-align: center;">#</th>
+              <th style="width: 30px; text-align: center;">#</th>
               <th>Case No.</th>
               <th>Parties</th>
               <th>Court / Room</th>
@@ -849,7 +854,7 @@ _Sent via Legal Diary_`;
     printWindow.document.close();
   }
 
-  // Settings Modal Handlers
+  // Settings
   openSettingsModal() {
     document.getElementById('cfgUrl').value = localStorage.getItem(this.STORAGE_KEY_URL) || '';
     document.getElementById('cfgKey').value = localStorage.getItem(this.STORAGE_KEY_KEY) || '';
@@ -866,7 +871,7 @@ _Sent via Legal Diary_`;
     const key = document.getElementById('cfgKey').value.trim();
 
     if (!url || !key) {
-      this.showToast('Please enter Supabase URL and Anon Key', 'error');
+      this.showToast('Please enter both keys', 'error');
       return;
     }
 
@@ -880,7 +885,7 @@ _Sent via Legal Diary_`;
     this.closeSettingsModal();
 
     if (this.isSupabaseConnected) {
-      this.showToast('Connected to Supabase Cloud!', 'success');
+      this.showToast('Cloud Connected', 'success');
     }
   }
 
@@ -895,39 +900,44 @@ _Sent via Legal Diary_`;
     this.updateCounters();
     this.render();
     this.closeSettingsModal();
-    this.showToast('Switched to Demo Mode', 'info');
+    this.showToast('Demo Mode', 'info');
   }
 
-  // Toast System
+  // iOS 15 Pill HUD Notification (AirPods / Silent Mode style)
   showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
-    const colors = {
-      success: 'bg-emerald-600/95 text-white border-emerald-500/50 shadow-emerald-500/20',
-      error: 'bg-rose-600/95 text-white border-rose-500/50 shadow-rose-500/20',
-      warning: 'bg-amber-600/95 text-white border-amber-500/50 shadow-amber-500/20',
-      info: 'bg-slate-800/95 text-slate-100 border-white/10 shadow-slate-900/50'
-    };
-
     const toast = document.createElement('div');
-    toast.className = `p-3.5 rounded-2xl shadow-2xl text-xs font-semibold border flex items-center justify-between pointer-events-auto transition-all transform duration-300 translate-y-[-10px] opacity-0 backdrop-blur-md ${colors[type] || colors.info}`;
+    toast.className = `px-4 py-2 rounded-full shadow-2xl text-[13px] font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-[#2C2C2E]/95 backdrop-blur-xl border border-white/10 text-white`;
+    
+    let icon = 'check-circle-2';
+    let iconColor = 'text-ios-green';
+    if (type === 'error') {
+      icon = 'alert-circle';
+      iconColor = 'text-ios-red';
+    } else if (type === 'warning') {
+      icon = 'alert-triangle';
+      iconColor = 'text-ios-orange';
+    }
+
     toast.innerHTML = `
+      <i data-lucide="${icon}" class="w-4 h-4 ${iconColor}"></i>
       <span>${message}</span>
-      <button onclick="this.parentElement.remove()" class="ml-2 text-white/80 hover:text-white p-0.5">&times;</button>
     `;
 
     container.appendChild(toast);
+    if (window.lucide) lucide.createIcons();
 
     setTimeout(() => {
-      toast.classList.remove('translate-y-[-10px]', 'opacity-0');
+      toast.classList.remove('translate-y-[-20px]', 'opacity-0');
       toast.classList.add('translate-y-0', 'opacity-100');
     }, 10);
 
     setTimeout(() => {
-      toast.classList.add('opacity-0', 'translate-y-[-10px]');
+      toast.classList.add('opacity-0', 'translate-y-[-20px]');
       setTimeout(() => toast.remove(), 300);
-    }, 3200);
+    }, 2500);
   }
 }
 

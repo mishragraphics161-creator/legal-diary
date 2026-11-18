@@ -9,8 +9,9 @@ class LegalDiaryApp {
     this.searchQuery = '';
     this.supabaseClient = null;
     this.isSupabaseConnected = false;
+    this.currentTheme = localStorage.getItem('legal_diary_theme') || 'dark';
 
-    // Storage Keys (v2 for fresh real cases data)
+    // Storage Keys
     this.STORAGE_KEY_CASES = 'legal_diary_cases_v2';
     this.STORAGE_KEY_URL = 'legal_diary_supabase_url';
     this.STORAGE_KEY_KEY = 'legal_diary_supabase_key';
@@ -19,6 +20,7 @@ class LegalDiaryApp {
   }
 
   async init() {
+    this.applyTheme(this.currentTheme);
     this.renderTodayDate();
     this.initSupabase();
     await this.loadCases();
@@ -27,6 +29,29 @@ class LegalDiaryApp {
     if (window.lucide) {
       lucide.createIcons();
     }
+  }
+
+  // Theme Toggle (Dark / Light)
+  applyTheme(theme) {
+    this.currentTheme = theme;
+    localStorage.setItem('legal_diary_theme', theme);
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+      icon.setAttribute('data-lucide', theme === 'dark' ? 'sun' : 'moon');
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+
+  toggleTheme() {
+    const newTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(newTheme);
+    this.showToast(newTheme === 'dark' ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
   }
 
   // Format today's date for iOS Navigation title
@@ -61,15 +86,16 @@ class LegalDiaryApp {
     }
   }
 
+  // Storage badge (Rebranded from Demo Mode to Device Storage)
   updateBadge(connected) {
     const badge = document.getElementById('supabaseBadge');
     if (!badge) return;
     if (connected) {
-      badge.textContent = 'iCloud Synced';
-      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-green/15 text-ios-green border border-ios-green/30';
+      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-ios-green animate-pulse"></span> <span>Cloud Synced</span>`;
+      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-green/15 text-ios-green border border-ios-green/30 flex items-center gap-1.5';
     } else {
-      badge.textContent = 'Demo Mode';
-      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30';
+      badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-ios-orange animate-pulse"></span> <span>Device Storage</span>`;
+      badge.className = 'text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-ios-orange/15 text-ios-orange border border-ios-orange/30 flex items-center gap-1.5';
     }
   }
 
@@ -402,7 +428,7 @@ class LegalDiaryApp {
         }
       } catch (err) {
         console.warn('Supabase fetch failed:', err);
-        this.showToast('Offline • Local Cache', 'warning');
+        this.showToast('Offline Mode Active', 'warning');
       }
     }
 
@@ -432,7 +458,7 @@ class LegalDiaryApp {
     this.updateCounters();
     this.render();
     if (btn) btn.classList.remove('animate-spin');
-    this.showToast('Updated', 'success');
+    this.showToast('List Updated', 'success');
   }
 
   // Date difference
@@ -454,7 +480,7 @@ class LegalDiaryApp {
     if (status === 'Disposed') {
       return {
         text: 'Disposed',
-        badgeClass: 'bg-[#2C2C2E] text-ios-gray',
+        badgeClass: 'bg-black/10 dark:bg-[#2C2C2E] text-ios-gray',
         dateClass: 'text-ios-gray'
       };
     }
@@ -488,8 +514,8 @@ class LegalDiaryApp {
     } else {
       return {
         text: `In ${diff} Days`,
-        badgeClass: 'bg-[#2C2C2E] text-ios-gray font-medium',
-        dateClass: 'text-white'
+        badgeClass: 'bg-black/10 dark:bg-[#2C2C2E] text-ios-gray font-medium',
+        dateClass: 'text-neutral-700 dark:text-white'
       };
     }
   }
@@ -529,6 +555,11 @@ class LegalDiaryApp {
     setSafe('countTomorrow', tomorrowCount);
     setSafe('countWeek', weekCount);
     setSafe('countOverdue', overdueCount);
+
+    const countNotice = document.getElementById('casesCountNotice');
+    if (countNotice) {
+      countNotice.textContent = `${this.cases.length} cases total`;
+    }
   }
 
   // iOS Tab Switcher
@@ -672,17 +703,17 @@ class LegalDiaryApp {
       const isUrgent = c.priority === 'Urgent';
 
       return `
-        <div class="ios-card shadow-sm">
+        <div class="ios-card shadow-sm hover:shadow-md transition">
           
           <!-- Card Header Cell -->
-          <div class="p-3.5">
+          <div class="p-3.5 sm:p-4">
             <div class="flex items-start justify-between gap-2">
               <div class="flex-1">
                 <div class="flex items-center gap-1.5 flex-wrap">
                   <!-- iOS Case Number Pill -->
                   <button 
                     onclick="app.copyToClipboard('${c.case_number}', 'Case No.')" 
-                    class="inline-flex items-center gap-1 text-[12px] font-mono font-semibold text-ios-blue bg-ios-blue/10 px-2 py-0.5 rounded-[6px] active:opacity-60 transition"
+                    class="inline-flex items-center gap-1 text-[12px] font-mono font-semibold text-ios-blue bg-ios-blue/10 hover:bg-ios-blue/20 px-2 py-0.5 rounded-[6px] active:opacity-60 transition"
                     title="Tap to copy"
                   >
                     <span>${c.case_number}</span>
@@ -697,14 +728,14 @@ class LegalDiaryApp {
                 </div>
 
                 <!-- Case Title -->
-                <h3 class="text-[15px] font-bold text-white mt-1.5 leading-snug">
+                <h3 class="text-[15px] sm:text-[16px] font-bold text-neutral-900 dark:text-white mt-1.5 leading-snug">
                   ${c.parties}
                 </h3>
               </div>
               
               <!-- iOS Status Badge -->
               <div class="flex flex-col items-end shrink-0">
-                <span class="text-[11px] px-2 py-0.5 rounded-full ${badge.badgeClass}">
+                <span class="text-[11px] px-2.5 py-0.5 rounded-full ${badge.badgeClass}">
                   ${badge.text}
                 </span>
                 <span class="text-[12px] ${badge.dateClass} mt-1 font-semibold flex items-center gap-1">
@@ -719,18 +750,18 @@ class LegalDiaryApp {
           <div class="ios-divider"></div>
 
           <!-- Information Cell (Court & Stage) -->
-          <div class="p-3.5 bg-[#252528] space-y-2 text-[13px]">
+          <div class="p-3.5 sm:p-4 ios-card-inner space-y-2 text-[13px]">
             ${c.court_name ? `
-              <div class="flex items-center gap-2 text-white">
+              <div class="flex items-center gap-2 text-neutral-900 dark:text-white">
                 <div class="w-5 h-5 rounded-[5px] bg-ios-blue flex items-center justify-center shrink-0">
                   <i data-lucide="landmark" class="w-3 h-3 text-white"></i>
                 </div>
-                <span class="font-medium truncate">${c.court_name}</span>
+                <span class="font-semibold truncate">${c.court_name}</span>
                 ${c.judge_name ? `<span class="text-ios-gray truncate text-[12px]">(${c.judge_name})</span>` : ''}
               </div>
             ` : ''}
 
-            <div class="flex items-center gap-2 text-white">
+            <div class="flex items-center gap-2 text-neutral-900 dark:text-white">
               <div class="w-5 h-5 rounded-[5px] bg-ios-purple flex items-center justify-center shrink-0">
                 <i data-lucide="gavel" class="w-3 h-3 text-white"></i>
               </div>
@@ -739,11 +770,11 @@ class LegalDiaryApp {
 
             <!-- Senior Directive Row (Remarks) -->
             ${c.senior_instructions ? `
-              <div class="flex items-start gap-2 pt-1">
+              <div class="flex items-start gap-2 pt-1 border-t border-black/5 dark:border-white/5">
                 <div class="w-5 h-5 rounded-[5px] bg-ios-orange flex items-center justify-center shrink-0 mt-0.5">
                   <i data-lucide="message-square" class="w-3 h-3 text-white"></i>
                 </div>
-                <div class="flex-1 text-[13px] text-[#D1D1D6] leading-relaxed italic">
+                <div class="flex-1 text-[13px] text-neutral-700 dark:text-[#D1D1D6] leading-relaxed italic">
                   "${c.senior_instructions}"
                 </div>
               </div>
@@ -754,12 +785,12 @@ class LegalDiaryApp {
           <div class="ios-divider"></div>
 
           <!-- Action Footer Cell -->
-          <div class="p-2.5 bg-[#1C1C1E] flex items-center justify-between gap-2">
+          <div class="p-2.5 bg-black/5 dark:bg-[#1C1C1E] flex items-center justify-between gap-2">
             
             <!-- Quick NDOH Update -->
             <button 
               onclick="app.openNdohModal('${c.id}')"
-              class="flex-1 bg-ios-blue/15 text-ios-blue font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center justify-center gap-1.5 active:opacity-60 transition"
+              class="flex-1 bg-ios-blue/15 hover:bg-ios-blue/25 text-ios-blue font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center justify-center gap-1.5 active:opacity-60 transition"
             >
               <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
               Update Date
@@ -768,7 +799,7 @@ class LegalDiaryApp {
             <!-- WhatsApp Share -->
             <button 
               onclick="app.shareOnWhatsApp('${c.id}')"
-              class="bg-ios-green/15 text-ios-green font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center gap-1.5 active:opacity-60 transition"
+              class="bg-ios-green/15 hover:bg-ios-green/25 text-ios-green font-semibold text-[13px] py-2 px-3 rounded-[10px] flex items-center gap-1.5 active:opacity-60 transition"
               title="Share on WhatsApp"
             >
               <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
@@ -781,7 +812,7 @@ class LegalDiaryApp {
                 href="${c.file_drive_link}" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="bg-[#2C2C2E] text-ios-blue p-2 rounded-[10px] active:opacity-60 transition"
+                class="bg-black/10 dark:bg-[#2C2C2E] text-ios-blue p-2 rounded-[10px] active:opacity-60 transition"
                 title="Open Dossier"
               >
                 <i data-lucide="link" class="w-4 h-4"></i>
@@ -790,10 +821,10 @@ class LegalDiaryApp {
 
             <!-- More / Edit / Delete -->
             <div class="flex items-center space-x-1">
-              <button onclick="app.editCase('${c.id}')" class="p-2 text-ios-gray hover:text-white rounded-lg active:opacity-60 transition">
+              <button onclick="app.editCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-blue rounded-lg active:opacity-60 transition" title="Edit">
                 <i data-lucide="edit-3" class="w-4 h-4"></i>
               </button>
-              <button onclick="app.deleteCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-red rounded-lg active:opacity-60 transition">
+              <button onclick="app.deleteCase('${c.id}')" class="p-2 text-ios-gray hover:text-ios-red rounded-lg active:opacity-60 transition" title="Delete">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
             </div>
@@ -1136,16 +1167,16 @@ _Sent via Legal Diary_`;
     this.updateCounters();
     this.render();
     this.closeSettingsModal();
-    this.showToast('Demo Mode', 'info');
+    this.showToast('Reset to 23 Cases', 'info');
   }
 
-  // iOS 15 Pill HUD Notification (AirPods / Silent Mode style)
+  // iOS 15 Pill HUD Notification
   showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `px-4 py-2 rounded-full shadow-2xl text-[13px] font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-[#2C2C2E]/95 backdrop-blur-xl border border-white/10 text-white`;
+    toast.className = `px-4 py-2 rounded-full shadow-2xl text-[13px] font-semibold flex items-center gap-2 pointer-events-auto transition-all transform duration-300 translate-y-[-20px] opacity-0 bg-[#2C2C2E]/95 dark:bg-[#2C2C2E]/95 bg-white/95 text-black dark:text-white backdrop-blur-xl border border-black/10 dark:border-white/10 shadow-lg`;
     
     let icon = 'check-circle-2';
     let iconColor = 'text-ios-green';

@@ -26,9 +26,37 @@ class LegalDiaryApp {
     await this.loadCases();
     this.updateCounters();
     this.render();
+    this.initScrollListener();
     if (window.lucide) {
       lucide.createIcons();
     }
+  }
+
+  // Dynamic iOS 15 Header Scroll Collapse Listener
+  initScrollListener() {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const topSection = document.getElementById('collapsibleHeaderTop');
+      const bottomSection = document.getElementById('collapsibleHeaderBottom');
+
+      // When scrolling down, keep ONLY: Case Diary, Search bar, Settings icon
+      // Hide everything else!
+      if (scrollY > 20) {
+        if (topSection && !topSection.classList.contains('collapsed')) {
+          topSection.classList.add('collapsed');
+        }
+        if (bottomSection && !bottomSection.classList.contains('collapsed')) {
+          bottomSection.classList.add('collapsed');
+        }
+      } else {
+        if (topSection && topSection.classList.contains('collapsed')) {
+          topSection.classList.remove('collapsed');
+        }
+        if (bottomSection && bottomSection.classList.contains('collapsed')) {
+          bottomSection.classList.remove('collapsed');
+        }
+      }
+    }, { passive: true });
   }
 
   // Theme Toggle (Dark / Light)

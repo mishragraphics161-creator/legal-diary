@@ -10,8 +10,8 @@ class LegalDiaryApp {
     this.supabaseClient = null;
     this.isSupabaseConnected = false;
 
-    // Storage Keys
-    this.STORAGE_KEY_CASES = 'legal_diary_cases_cache';
+    // Storage Keys (v2 for fresh real cases data)
+    this.STORAGE_KEY_CASES = 'legal_diary_cases_v2';
     this.STORAGE_KEY_URL = 'legal_diary_supabase_url';
     this.STORAGE_KEY_KEY = 'legal_diary_supabase_key';
 
@@ -73,7 +73,7 @@ class LegalDiaryApp {
     }
   }
 
-  // Sample Cases
+  // 23 Actual Real Court Cases given by Senior
   getSampleCases() {
     const today = new Date();
     const formatDate = (offsetDays) => {
@@ -84,66 +84,300 @@ class LegalDiaryApp {
 
     return [
       {
-        id: 'sample-1',
-        case_number: 'WP(C) 1042/2024',
-        parties: 'Ramesh Kumar vs State of UP & Ors.',
-        court_name: 'High Court of Judicature',
-        judge_name: 'Courtroom 4 • Justice Sharma',
+        id: 'case-1',
+        case_number: 'Case #01',
+        parties: 'Pawan Gupta v. Vishvanath Pitariya',
+        court_name: 'ACJM-5',
+        judge_name: '',
         next_hearing_date: formatDate(0), // Today
         hearing_stage: 'Final Arguments',
-        senior_instructions: 'Senior will argue post-lunch. Keep previous citation of (2021) 4 SCC 12 flagged.',
-        file_drive_link: 'https://drive.google.com',
+        senior_instructions: '',
+        file_drive_link: '',
         status: 'Active',
         priority: 'Urgent'
       },
       {
-        id: 'sample-2',
-        case_number: 'CS (OS) 88/2023',
-        parties: 'Apex Builders Ltd vs Verma Enterprises',
-        court_name: 'District Court Saket',
-        judge_name: 'Commercial Court 2',
+        id: 'case-2',
+        case_number: 'Case #02',
+        parties: 'Pawan Gupta v. Raman Gupta',
+        court_name: 'CJSD',
+        judge_name: '',
         next_hearing_date: formatDate(1), // Tomorrow
         hearing_stage: 'Evidence / Cross',
-        senior_instructions: 'Cross-examination of Defendant witness PW-1. Questionnaire ready.',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent'
-      },
-      {
-        id: 'sample-3',
-        case_number: 'Bail Appln 412/2024',
-        parties: 'Mohit Sharma vs State (NCT of Delhi)',
-        court_name: 'Patiala House Court',
-        judge_name: 'Special ASJ Court 3',
-        next_hearing_date: formatDate(4), // This week
-        hearing_stage: 'Bail Hearing',
-        senior_instructions: 'File reply to IO status report before 10:30 AM.',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent'
-      },
-      {
-        id: 'sample-4',
-        case_number: 'Civil Appeal 230/2022',
-        parties: 'Smt. Kamla Devi vs Municipal Corp',
-        court_name: 'Tis Hazari Court',
-        judge_name: 'Civil Judge Sr. Div.',
-        next_hearing_date: formatDate(18), // Future
-        hearing_stage: 'Framing of Issues',
-        senior_instructions: 'Proposed draft issues served. Awaiting court order.',
+        senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
         priority: 'Normal'
       },
       {
-        id: 'sample-5',
-        case_number: 'CRL. M.C. 19/2023',
-        parties: 'Sunil Mehta vs State & Anr.',
-        court_name: 'High Court',
-        judge_name: 'Courtroom 14',
-        next_hearing_date: formatDate(-2), // Passed
+        id: 'case-3',
+        case_number: 'Case #03',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'ACJM-4',
+        judge_name: '',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Framing of Issues',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-4',
+        case_number: 'Case #04',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'ACJM-1',
+        judge_name: '',
+        next_hearing_date: formatDate(3),
         hearing_stage: 'Admission / Notice',
-        senior_instructions: 'Hearing concluded, update new NDOH from court master order sheet.',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-5',
+        case_number: 'Case #05',
+        parties: 'Pawan Gupta v. Ashok Singh',
+        court_name: 'DJ',
+        judge_name: '',
+        next_hearing_date: formatDate(4),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-6',
+        case_number: 'Case #06',
+        parties: 'Jafar Ali v. State of U.P.',
+        court_name: 'CO-IInd',
+        judge_name: '',
+        next_hearing_date: formatDate(0), // Today
+        hearing_stage: 'Miscellaneous',
+        senior_instructions: '2 files',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-7',
+        case_number: 'Case #07',
+        parties: 'Smt. Chhavi Rastogi v. Aman',
+        court_name: 'FTC-41',
+        judge_name: '',
+        next_hearing_date: formatDate(1), // Tomorrow
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-8',
+        case_number: 'Case #08',
+        parties: 'Pawan Singh v. Kailash Singh',
+        court_name: 'ACJJD-5',
+        judge_name: '',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Framing of Issues',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-9',
+        case_number: 'Case #09',
+        parties: 'Vimal v. Komal Singh',
+        court_name: 'AFC-1st',
+        judge_name: '',
+        next_hearing_date: formatDate(3),
+        hearing_stage: 'Miscellaneous',
+        senior_instructions: 'Skeleton',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-10',
+        case_number: 'Case #10',
+        parties: 'Mumtaz v. Unknown',
+        court_name: 'ACJM-3',
+        judge_name: '',
+        next_hearing_date: formatDate(1), // Tomorrow
+        hearing_stage: 'Admission / Notice',
+        senior_instructions: 'FR',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-11',
+        case_number: 'Case #11',
+        parties: 'Alok Verma v. Raunak Juneja',
+        court_name: 'AJM-3',
+        judge_name: '',
+        next_hearing_date: formatDate(5),
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-12',
+        case_number: 'Case #12',
+        parties: 'State v. Dharampal',
+        court_name: 'ADJ/FTC',
+        judge_name: '',
+        next_hearing_date: formatDate(6),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-13',
+        case_number: 'Case #13',
+        parties: 'State v. Dharampal',
+        court_name: 'ACJM-5',
+        judge_name: '',
+        next_hearing_date: formatDate(8),
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-14',
+        case_number: 'Case #14',
+        parties: 'Shree Devi v. Janardan',
+        court_name: 'ACJM/FTC',
+        judge_name: '',
+        next_hearing_date: formatDate(9),
+        hearing_stage: 'Framing of Issues',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-15',
+        case_number: 'Case #15',
+        parties: 'Shree Devi v. Janardan',
+        court_name: 'FC',
+        judge_name: '',
+        next_hearing_date: formatDate(10),
+        hearing_stage: 'Miscellaneous',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-16',
+        case_number: 'Case #16',
+        parties: 'Gyanendara Mishra',
+        court_name: 'District Court',
+        judge_name: '',
+        next_hearing_date: formatDate(4),
+        hearing_stage: 'Admission / Notice',
+        senior_instructions: 'Notice',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-17',
+        case_number: 'Case #17',
+        parties: 'Prathvi Pal v. Banvari',
+        court_name: 'ACJM-3',
+        judge_name: '',
+        next_hearing_date: formatDate(12),
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-18',
+        case_number: 'Case #18',
+        parties: 'Madhuri Devi v. Geeta Devi',
+        court_name: 'ADJ-2nd',
+        judge_name: '',
+        next_hearing_date: formatDate(14),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-19',
+        case_number: 'Case #19',
+        parties: 'Pooja v. Kaushal Singh',
+        court_name: 'AFC-1st',
+        judge_name: '',
+        next_hearing_date: formatDate(5),
+        hearing_stage: 'Miscellaneous',
+        senior_instructions: '144(3) BNSS',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-20',
+        case_number: 'Case #20',
+        parties: 'Release – Pramod Kumar',
+        court_name: 'ACJM-5',
+        judge_name: '',
+        next_hearing_date: formatDate(7),
+        hearing_stage: 'Order / Judgment',
+        senior_instructions: 'Sampoorna Nagar',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Urgent'
+      },
+      {
+        id: 'case-21',
+        case_number: 'Case #21',
+        parties: 'Smt. Kishori Devi v. Pushpendra Kumar',
+        court_name: 'Gram Nay. Gola',
+        judge_name: '',
+        next_hearing_date: formatDate(16),
+        hearing_stage: 'Evidence / Cross',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-22',
+        case_number: 'Case #22',
+        parties: 'Ram Gulam v. Sahab Dayal',
+        court_name: 'Gram Nay. Gola',
+        judge_name: '',
+        next_hearing_date: formatDate(18),
+        hearing_stage: 'Framing of Issues',
+        senior_instructions: '',
+        file_drive_link: '',
+        status: 'Active',
+        priority: 'Normal'
+      },
+      {
+        id: 'case-23',
+        case_number: 'Case #23',
+        parties: 'Daya Shankar Mishra v. Kulwant Singh',
+        court_name: 'Gram Nay. Gola',
+        judge_name: '',
+        next_hearing_date: formatDate(20),
+        hearing_stage: 'Final Arguments',
+        senior_instructions: '',
         file_drive_link: '',
         status: 'Active',
         priority: 'Normal'
@@ -161,9 +395,11 @@ class LegalDiaryApp {
           .order('next_hearing_date', { ascending: true });
 
         if (error) throw error;
-        this.cases = data || [];
-        localStorage.setItem(this.STORAGE_KEY_CASES, JSON.stringify(this.cases));
-        return;
+        if (data && data.length > 0) {
+          this.cases = data;
+          localStorage.setItem(this.STORAGE_KEY_CASES, JSON.stringify(this.cases));
+          return;
+        }
       } catch (err) {
         console.warn('Supabase fetch failed:', err);
         this.showToast('Offline • Local Cache', 'warning');
@@ -501,7 +737,7 @@ class LegalDiaryApp {
               <span class="font-medium">Stage: <span class="text-ios-orange font-semibold">${c.hearing_stage || 'General'}</span></span>
             </div>
 
-            <!-- Senior Directive Row -->
+            <!-- Senior Directive Row (Remarks) -->
             ${c.senior_instructions ? `
               <div class="flex items-start gap-2 pt-1">
                 <div class="w-5 h-5 rounded-[5px] bg-ios-orange flex items-center justify-center shrink-0 mt-0.5">

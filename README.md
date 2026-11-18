@@ -52,6 +52,9 @@ create policy "Allow all operations with anon key"
   for all 
   using (true) 
   with check (true);
+
+-- 4. (Optional) Insert the 23 cases given by Senior:
+-- See seed_data.sql in this repository or run the script in seed_data.sql
 ```
 
 4. Go to **Project Settings -> API** in Supabase:

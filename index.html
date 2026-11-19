@@ -264,9 +264,10 @@
         </button>
       </div>
 
-      <div class="sheet-body" style="padding: 24px 28px;">
-        <form id="caseForm" onsubmit="app.handleCaseSubmit(event)">
-          <input type="hidden" id="caseId">
+      <form id="caseForm" onsubmit="app.handleCaseSubmit(event)" class="modal-form-wrap">
+        <input type="hidden" id="caseId">
+
+        <div class="sheet-body" style="padding: 24px 28px; flex: 1; overflow-y: auto;">
 
           <!-- Section 1: Case Identification & Parties -->
           <div class="form-section-card">
@@ -471,18 +472,20 @@
             </div>
           </div>
 
-          <!-- Sticky Modal Footer -->
-          <div class="modal-actions-sticky">
-            <button type="button" onclick="app.closeCaseModal()" class="btn btn-secondary">Cancel</button>
-            <button type="reset" class="btn btn-ghost btn-sm">Clear</button>
-            <button type="submit" class="btn btn-primary" style="min-width: 140px; font-weight: 750;">
-              💾 Save Case
-            </button>
-          </div>
+          <!-- Bottom buffer spacer so last input is always cleanly visible when scrolled to bottom -->
+          <div style="height: 24px; flex-shrink: 0;"></div>
+        </div>
 
-        </form>
-      </div>
+        <!-- Pinned Non-Overlapping Footer (Separated from Scroll Body) -->
+        <div class="modal-actions-footer">
+          <button type="button" onclick="app.closeCaseModal()" class="btn btn-secondary">Cancel</button>
+          <button type="reset" class="btn btn-ghost btn-sm">Clear</button>
+          <button type="submit" class="btn btn-primary" style="min-width: 140px; font-weight: 750;">
+            💾 Save Case
+          </button>
+        </div>
 
+      </form>
     </div>
   </div>
 

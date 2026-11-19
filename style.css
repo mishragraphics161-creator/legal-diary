@@ -1960,24 +1960,39 @@ select optgroup {
   box-shadow: 0 2px 8px var(--accent-glow);
 }
 
-/* Sticky Modal Footer with Ample Height and Spacing */
-.modal-actions-sticky {
-  position: sticky;
-  bottom: 0;
+/* Modal Form Wrapper & Pinned Non-Overlapping Footer */
+.modal-form-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.modal-form-wrap .sheet-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.modal-actions-sticky,
+.modal-actions-footer {
+  position: relative;
+  flex-shrink: 0;
   background: var(--surface-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
   padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 14px;
-  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
   z-index: 10;
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
 }
-.modal-actions-sticky .btn {
+.modal-actions-sticky .btn,
+.modal-actions-footer .btn {
   height: 48px;
   padding: 10px 24px;
   font-size: 14px;
@@ -1985,12 +2000,14 @@ select optgroup {
   border-radius: var(--radius-md);
 }
 @media (max-width: 640px) {
-  .modal-actions-sticky {
+  .modal-actions-sticky,
+  .modal-actions-footer {
     border-radius: 0;
     padding: 12px 16px;
     gap: 10px;
   }
-  .modal-actions-sticky .btn {
+  .modal-actions-sticky .btn,
+  .modal-actions-footer .btn {
     flex: 1;
     height: 46px;
     padding: 8px 14px;

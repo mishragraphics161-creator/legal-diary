@@ -2323,6 +2323,498 @@ _Legal Diary Portal_`;
     }
   }
 
+  // Senior's 23 Court Cases Initial Seed Dataset
+  getSeniorSeedCases() {
+    const today = new Date();
+    const formatDate = (offsetDays) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() + offsetDays);
+      return d.toISOString().split('T')[0];
+    };
+
+    return [
+      {
+        id: 'case-01',
+        case_number: 'Case #01',
+        parties: 'Pawan Gupta vs Vishvanath Pitariya',
+        court_name: 'ACJM-5',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(0),
+        hearing_stage: 'Final Arguments',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'Pairokar to appear with verification affidavit',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: [
+          {
+            date: formatDate(-35),
+            stage: 'Evidence / Examination',
+            remarks: 'Complainant evidence concluded. Case posted for final arguments.'
+          }
+        ]
+      },
+      {
+        id: 'case-02',
+        case_number: 'Case #02',
+        parties: 'Pawan Gupta vs Raman Gupta',
+        court_name: 'CJSD',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(1),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Prepare cross-examination questions for DW-1',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: []
+      },
+      {
+        id: 'case-03',
+        case_number: 'Case #03',
+        parties: 'Pawan Gupta vs Ashok Singh',
+        court_name: 'ACJM-4',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Framing of Issues',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'File draft proposed charges/issues',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: []
+      },
+      {
+        id: 'case-04',
+        case_number: 'Case #04',
+        parties: 'Pawan Gupta vs Ashok Singh',
+        court_name: 'ACJM-1',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(3),
+        hearing_stage: 'Admission / Notice',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Track postal service report / registry slip',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: []
+      },
+      {
+        id: 'case-05',
+        case_number: 'Case #05',
+        parties: 'Pawan Gupta vs Ashok Singh',
+        court_name: 'DJ',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(4),
+        hearing_stage: 'Final Arguments',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'File written synopsis and key case citations',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: []
+      },
+      {
+        id: 'case-06',
+        case_number: 'Case #06',
+        parties: 'Jafar Ali vs State of UP(2 Files)',
+        court_name: 'CO-IInd',
+        case_type: 'Criminal',
+        representing: 'Applicant',
+        next_hearing_date: formatDate(0),
+        hearing_stage: 'Police Report / CD',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: '2 Files - Verify case diary and obtain status report from Circle Officer',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-B',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: '2 Files',
+        hearing_history: [
+          {
+            date: formatDate(-32),
+            stage: 'Notice to IO',
+            remarks: 'Investigating officer called with case diary. Next date fixed for report.'
+          }
+        ]
+      },
+      {
+        id: 'case-07',
+        case_number: 'Case #07',
+        parties: 'Smt. Chhavi Rastogi vs Aman',
+        court_name: 'FTC-41',
+        case_type: 'Family',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(1),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Petitioner affidavit ready for examination',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-B',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-2',
+        hearing_history: []
+      },
+      {
+        id: 'case-08',
+        case_number: 'Case #08',
+        parties: 'Pawan Singh vs Kailash Singh',
+        court_name: 'ACJJD-5',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(2),
+        hearing_stage: 'Framing of Issues',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Settlement of issues based on pleadings',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-B',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-2',
+        hearing_history: []
+      },
+      {
+        id: 'case-09',
+        case_number: 'Case #09',
+        parties: 'Vimal vs Komal Singh (skeleton)',
+        court_name: 'AFC-1st',
+        case_type: 'Family',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(3),
+        hearing_stage: 'Miscellaneous',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Skeleton argument / file to be prepared and filed',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-C',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-3',
+        hearing_history: []
+      },
+      {
+        id: 'case-10',
+        case_number: 'Case #10',
+        parties: 'Mumtaz vs Unknown (FR)',
+        court_name: 'ACJM-3',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(1),
+        hearing_stage: 'Admission / Notice',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'FR - Final Report submitted, prepare protest petition',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-C',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-3',
+        hearing_history: []
+      },
+      {
+        id: 'case-11',
+        case_number: 'Case #11',
+        parties: 'Alok Verma vs Raunak Juneja',
+        court_name: 'AJM-3',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(5),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Cross-examination of complainant witness',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-C',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-3',
+        hearing_history: []
+      },
+      {
+        id: 'case-12',
+        case_number: 'Case #12',
+        parties: 'State vs Dharampal',
+        court_name: 'ADJ/FTC',
+        case_type: 'Criminal',
+        representing: 'Accused',
+        next_hearing_date: formatDate(6),
+        hearing_stage: 'Final Arguments',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'Lead defense arguments on material contradictions',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-4',
+        hearing_history: []
+      },
+      {
+        id: 'case-13',
+        case_number: 'Case #13',
+        parties: 'State vs Dharampal',
+        court_name: 'ACJM-5',
+        case_type: 'Criminal',
+        representing: 'Accused',
+        next_hearing_date: formatDate(8),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'PW-2 cross-examination pending',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-4',
+        hearing_history: []
+      },
+      {
+        id: 'case-14',
+        case_number: 'Case #14',
+        parties: 'Shree Devi vs Janardan',
+        court_name: 'ACJM/FTC',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(9),
+        hearing_stage: 'Framing of Issues',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Framing of charges / statement of accused',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-4',
+        hearing_history: []
+      },
+      {
+        id: 'case-15',
+        case_number: 'Case #15',
+        parties: 'Shree Devi vs Janardan',
+        court_name: 'FC',
+        case_type: 'Family',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(10),
+        hearing_stage: 'Miscellaneous',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Counseling and interim maintenance application consideration',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-4',
+        hearing_history: []
+      },
+      {
+        id: 'case-16',
+        case_number: 'Case #16',
+        parties: 'Gyanendara Mishra (Notice)',
+        court_name: 'District Court',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(4),
+        hearing_stage: 'Admission / Notice',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'Notice matter - confirm reply timeline',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: []
+      },
+      {
+        id: 'case-17',
+        case_number: 'Case #17',
+        parties: 'Prathvi Pal vs Banvari',
+        court_name: 'ACJM-3',
+        case_type: 'Criminal',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(12),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Summon witnesses through process server',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-B',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-2',
+        hearing_history: []
+      },
+      {
+        id: 'case-18',
+        case_number: 'Case #18',
+        parties: 'Madhuri Devi vs Geeta Devi',
+        court_name: 'ADJ-2nd',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(14),
+        hearing_stage: 'Final Arguments',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Title dispute arguments and revenue record citations',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-C',
+        chamber_shelf: 'Shelf-1',
+        chamber_bundle_no: 'Bundle-3',
+        hearing_history: []
+      },
+      {
+        id: 'case-19',
+        case_number: 'Case #19',
+        parties: 'Pooja vs Kaushal Singh (144(3) BNSS',
+        court_name: 'AFC-1st',
+        case_type: 'Criminal',
+        representing: 'Applicant',
+        act_sections: '144(3) BNSS',
+        next_hearing_date: formatDate(5),
+        hearing_stage: 'Miscellaneous',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'Application under Section 144(3) BNSS for maintenance execution',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-C',
+        chamber_shelf: 'Shelf-2',
+        chamber_bundle_no: 'Bundle-3',
+        hearing_history: []
+      },
+      {
+        id: 'case-20',
+        case_number: 'Case #20',
+        parties: 'Release Pramod Kumar',
+        court_name: 'ACJM-5',
+        case_type: 'Bail',
+        representing: 'Accused',
+        police_station_fir: 'SampoornaNagar',
+        next_hearing_date: formatDate(7),
+        hearing_stage: 'Order / Judgment',
+        priority: 'Urgent',
+        status: 'Active',
+        senior_instructions: 'Release Application - Location: SampoornaNagar - Follow up on release order transmission',
+        file_in_chamber: false,
+        file_current_holder: 'SampoornaNagar',
+        chamber_almirah: 'Almirah-A',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-1',
+        hearing_history: [
+          {
+            date: formatDate(-9),
+            stage: 'Bail / Release Hearing',
+            remarks: 'Bail bonds furnished and accepted. Release order verification pending.'
+          }
+        ]
+      },
+      {
+        id: 'case-21',
+        case_number: 'Case #21',
+        parties: 'Smt. Kishori Devi vs Pushpendra Kumar',
+        court_name: 'Gram Nay. Gola',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(16),
+        hearing_stage: 'Evidence / Cross',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Village conciliation report & spot inspection report review',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-5',
+        hearing_history: []
+      },
+      {
+        id: 'case-22',
+        case_number: 'Case #22',
+        parties: 'Ram Gulam vs Sahab Dayal',
+        court_name: 'Gram Nay. Gola',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(18),
+        hearing_stage: 'Framing of Issues',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Boundary demarcation documents to be marked as exhibits',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-5',
+        hearing_history: []
+      },
+      {
+        id: 'case-23',
+        case_number: 'Case #23',
+        parties: 'Daya Shankar Mishra vs Kulwant Singh',
+        court_name: 'Gram Nay. Gola',
+        case_type: 'Civil',
+        representing: 'Petitioner',
+        next_hearing_date: formatDate(20),
+        hearing_stage: 'Final Arguments',
+        priority: 'Normal',
+        status: 'Active',
+        senior_instructions: 'Final oral submissions on tenancy and agricultural land possession',
+        file_in_chamber: true,
+        file_current_holder: 'Chamber',
+        chamber_almirah: 'Almirah-D',
+        chamber_shelf: 'Shelf-3',
+        chamber_bundle_no: 'Bundle-5',
+        hearing_history: []
+      }
+    ];
+  }
+
+  loadSeniorCasesSeed(silent = false) {
+    const seedCases = this.getSeniorSeedCases();
+    this.cases = seedCases;
+    this.saveToLocal();
+
+    // Also queue sync for Supabase if connected
+    seedCases.forEach(c => {
+      this.enqueueSyncAction('upsert', c.id, c);
+    });
+
+    this.updateCounters();
+    this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
+    if (this.isOnline && this.isSupabaseConnected) {
+      this.autoSyncDatabase();
+    }
+    if (!silent) {
+      this.closeSettingsModal();
+      this.showToast('All 23 Senior Court Cases loaded into DB successfully!', 'success');
+    }
+  }
+
   clearAllCases() {
     if (confirm('Are you sure you want to clear all cases from this device? This will erase all local cases.')) {
       this.cases = [];
@@ -2338,7 +2830,7 @@ _Legal Diary Portal_`;
   }
 
   useDemoMode() {
-    this.clearAllCases();
+    this.loadSeniorCasesSeed();
   }
 
   // Minimal Toast

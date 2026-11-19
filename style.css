@@ -283,6 +283,7 @@ body {
 /* --- 4. FLOATING SEARCH & BRAND PANEL --- */
 .app-shell {
   padding-top: 14px;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 .search-panel {
@@ -2253,5 +2254,32 @@ select optgroup {
     height: 46px;
     padding: 8px 14px;
     font-size: 13px;
+  }
+}
+
+/* --- 16. MOBILE & REALME 9 PRO+ (412px) OPTIMIZATIONS --- */
+@media (max-width: 480px) {
+  .top-nav-inner {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .btn-util {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-height: 30px;
+  }
+  /* On 412px mobile, hide brand text and redundant "+ Case" in search header since bottom nav FAB handles it */
+  .brand-badge span {
+    display: none;
+  }
+  .search-panel .btn-primary {
+    display: none;
+  }
+  .search-field {
+    font-size: 14px;
+  }
+  .site-footer {
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
   }
 }

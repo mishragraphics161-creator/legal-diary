@@ -6,1131 +6,10 @@
   <title>Legal Diary • Court Case &amp; Hearing Tracker</title>
   <link rel="manifest" href="manifest.json">
 
-  <style>
-    /* ==========================================================================
-       LAYER 1: PRIMITIVE COLOR TOKENS (Never use directly in components)
-       ========================================================================== */
-    :root {
-      --n-0: #ffffff;
-      --n-50: #f8fafc;
-      --n-100: #f1f5f9;
-      --n-200: #e2e8f0;
-      --n-300: #cbd5e1;
-      --n-400: #94a3b8;
-      --n-500: #64748b;
-      --n-900: #0f172a;
-
-      --b-50: #eff6ff;
-      --b-600: #2563eb;
-      --b-700: #1d4ed8;
-
-      --g-50: #f0fdf4;
-      --g-700: #15803d;
-
-      --a-50: #fffbeb;
-      --a-700: #b45309;
-
-      --r-50: #fef2f2;
-      --r-700: #b91c1c;
-
-      /* Typography & Radii */
-      --font-stack: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-      --radius: 12px;
-      --radius-sm: 8px;
-      --radius-pill: 9999px;
-
-      /* Micro-motion (140ms max) */
-      --motion-fast: 140ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* ==========================================================================
-       LAYER 2: SEMANTIC TOKENS (Light Mode Default)
-       ========================================================================== */
-    :root, [data-theme="light"] {
-      color-scheme: light;
-
-      --bg: var(--n-50);
-      --surface: var(--n-0);
-      --surface-subtle: var(--n-100);
-
-      --text: var(--n-900);
-      --text-muted: var(--n-500);
-      --text-placeholder: var(--n-500);
-      --on-accent: var(--n-0);
-
-      --border: var(--n-200);
-      --border-strong: var(--n-300);
-      --border-hover: var(--n-400);
-
-      --accent: var(--b-600);
-      --accent-hover: var(--b-700);
-      --accent-soft: var(--b-50);
-      --accent-ring: rgba(37, 99, 235, 0.35);
-
-      --success: var(--g-700);
-      --success-soft: var(--g-50);
-
-      --warn: var(--a-700);
-      --warn-soft: var(--a-50);
-
-      --danger: var(--r-700);
-      --danger-soft: var(--r-50);
-
-      --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
-    }
-
-    /* ==========================================================================
-       LAYER 2: SEMANTIC TOKENS (Dark Mode Override)
-       ========================================================================== */
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        color-scheme: dark;
-
-        --bg: #0b1220;
-        --surface: #111a2b;
-        --surface-subtle: #172236;
-
-        --text: #e8edf5;
-        --text-muted: #97a3b6;
-        --text-placeholder: #7c8798;
-        --on-accent: #08111f;
-
-        --border: #22304a;
-        --border-strong: #33456b;
-        --border-hover: #445a86;
-
-        --accent: #6ea8fe;
-        --accent-hover: #93bfff;
-        --accent-soft: #16243d;
-        --accent-ring: rgba(110, 168, 254, 0.35);
-
-        --success: #5ed69b;
-        --success-soft: #0f2a20;
-
-        --warn: #f2b45c;
-        --warn-soft: #2b2011;
-
-        --danger: #ff8b83;
-        --danger-soft: #2e1717;
-
-        --shadow: none;
-      }
-    }
-
-    /* Manual Dark Mode override */
-    [data-theme="dark"] {
-      color-scheme: dark;
-
-      --bg: #0b1220;
-      --surface: #111a2b;
-      --surface-subtle: #172236;
-
-      --text: #e8edf5;
-      --text-muted: #97a3b6;
-      --text-placeholder: #7c8798;
-      --on-accent: #08111f;
-
-      --border: #22304a;
-      --border-strong: #33456b;
-      --border-hover: #445a86;
-
-      --accent: #6ea8fe;
-      --accent-hover: #93bfff;
-      --accent-soft: #16243d;
-      --accent-ring: rgba(110, 168, 254, 0.35);
-
-      --success: #5ed69b;
-      --success-soft: #0f2a20;
-
-      --warn: #f2b45c;
-      --warn-soft: #2b2011;
-
-      --danger: #ff8b83;
-      --danger-soft: #2e1717;
-
-      --shadow: none;
-    }
-
-    /* ==========================================================================
-       RESET & BASE TYPOGRAPHY (Swiss Minimalist)
-       ========================================================================== */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-stack);
-      font-size: 16px;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      min-height: 100vh;
-      padding-bottom: clamp(48px, 8vw, 80px);
-    }
-
-    h1, h2, h3, h4 {
-      color: var(--text);
-      font-weight: 650;
-      letter-spacing: -0.02em;
-      line-height: 1.25;
-    }
-
-    p {
-      color: var(--text);
-    }
-
-    .text-muted {
-      color: var(--text-muted);
-    }
-
-    /* Universal Focus Visible */
-    :focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    /* Skip Link */
-    .skip-link {
-      position: absolute;
-      top: -100px;
-      left: 16px;
-      background: var(--accent);
-      color: var(--on-accent);
-      padding: 10px 16px;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      text-decoration: none;
-      z-index: 9999;
-      transition: top var(--motion-fast);
-    }
-    .skip-link:focus {
-      top: 16px;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    /* Main Container Shell */
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      margin-inline: auto;
-      padding-inline: clamp(12px, 3vw, 24px);
-    }
-
-    /* ==========================================================================
-       TOP UTILITY BAR
-       ========================================================================== */
-    .top-nav-bar {
-      background-color: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding-block: 8px;
-      position: sticky;
-      top: 0;
-      z-index: 80;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-
-    .top-nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .top-nav-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .storage-badge {
-      background-color: var(--warn-soft);
-      color: var(--warn);
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11.5px;
-      font-weight: 650;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .top-date-text {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .top-nav-right {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-util {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      cursor: pointer;
-      transition: all var(--motion-fast);
-      line-height: 1.4;
-    }
-    .btn-util:hover {
-      background: var(--surface-subtle);
-      color: var(--text);
-      border-color: var(--border-hover);
-    }
-
-    /* ==========================================================================
-       BUTTON SYSTEM (Variable Driven)
-       ========================================================================== */
-    .btn {
-      --btn-bg: transparent;
-      --btn-fg: var(--text);
-      --btn-border: transparent;
-      --btn-hover-bg: transparent;
-      --btn-hover-border: transparent;
-
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-      padding-inline: 14px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 600;
-      line-height: 1;
-      text-decoration: none;
-      border: 1px solid var(--btn-border);
-      border-radius: var(--radius-sm);
-      background-color: var(--btn-bg);
-      color: var(--btn-fg);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background-color var(--motion-fast),
-                  border-color var(--motion-fast),
-                  color var(--motion-fast),
-                  transform var(--motion-fast);
-    }
-
-    .btn:hover {
-      background-color: var(--btn-hover-bg);
-      border-color: var(--btn-hover-border);
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .btn-sm {
-      min-height: 34px;
-      padding-inline: 12px;
-      font-size: 13px;
-    }
-
-    .btn-primary {
-      --btn-bg: var(--accent);
-      --btn-fg: var(--on-accent);
-      --btn-border: var(--accent);
-      --btn-hover-bg: var(--accent-hover);
-      --btn-hover-border: var(--accent-hover);
-    }
-
-    .btn-secondary {
-      --btn-bg: var(--surface);
-      --btn-fg: var(--text);
-      --btn-border: var(--border-strong);
-      --btn-hover-bg: var(--surface-subtle);
-      --btn-hover-border: var(--border-hover);
-    }
-
-    .btn-ghost {
-      --btn-bg: transparent;
-      --btn-fg: var(--text-muted);
-      --btn-border: transparent;
-      --btn-hover-bg: var(--surface-subtle);
-      --btn-hover-border: transparent;
-    }
-    .btn-ghost:hover {
-      --btn-fg: var(--text);
-    }
-
-    .btn-danger {
-      --btn-bg: transparent;
-      --btn-fg: var(--danger);
-      --btn-border: var(--danger);
-      --btn-hover-bg: var(--danger-soft);
-      --btn-hover-border: var(--danger);
-    }
-
-    /* Badges */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      font-size: 11.5px;
-      font-weight: 600;
-      line-height: 1.2;
-      width: fit-content;
-      white-space: nowrap;
-    }
-    .badge-success {
-      background-color: var(--success-soft);
-      color: var(--success);
-    }
-    .badge-warn {
-      background-color: var(--warn-soft);
-      color: var(--warn);
-    }
-    .badge-neutral {
-      background-color: var(--surface-subtle);
-      color: var(--text-muted);
-    }
-    .badge-danger {
-      background-color: var(--danger-soft);
-      color: var(--danger);
-    }
-
-    /* ==========================================================================
-       MAIN APP SHELL & SEARCH PANEL
-       ========================================================================== */
-    .app-shell {
-      padding-top: 14px;
-      padding-bottom: 48px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .search-panel {
-      background-color: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 8px 12px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: var(--shadow);
-    }
-
-    .brand-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background-color: var(--accent);
-      color: var(--on-accent);
-      padding: 7px 12px;
-      border-radius: var(--radius-sm);
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-    }
-
-    .search-input-wrap {
-      position: relative;
-      flex: 1;
-      display: flex;
-      align-items: center;
-    }
-
-    .search-lens {
-      position: absolute;
-      left: 12px;
-      color: var(--text-placeholder);
-      pointer-events: none;
-    }
-
-    .search-field {
-      width: 100%;
-      height: 38px;
-      padding: 6px 32px 6px 36px;
-      border: 1px solid transparent;
-      border-radius: var(--radius-sm);
-      background: transparent;
-      color: var(--text);
-      font-size: 14px;
-      font-family: inherit;
-      transition: border-color var(--motion-fast);
-    }
-
-    .search-field:focus {
-      outline: none;
-      background: var(--bg);
-      border-color: var(--accent);
-    }
-
-    .search-clear-btn {
-      position: absolute;
-      right: 10px;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 12px;
-    }
-
-    .btn-icon {
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: all var(--motion-fast);
-      flex-shrink: 0;
-    }
-    .btn-icon:hover {
-      background: var(--border);
-      color: var(--text);
-    }
-
-    /* ==========================================================================
-       SEGMENT FILTER PILLS
-       ========================================================================== */
-    .filters-segment-bar {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 4px;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
-    }
-
-    .segment-pill {
-      background: transparent;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      padding: 6px 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all var(--motion-fast);
-      white-space: nowrap;
-    }
-
-    .segment-pill:hover {
-      color: var(--text);
-      background-color: var(--surface-subtle);
-    }
-
-    .segment-pill.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: var(--accent-ring);
-      font-weight: 700;
-    }
-
-    .pill-count {
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: var(--radius-pill);
-      background: var(--surface-subtle);
-      color: currentColor;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .segment-pill.active .pill-count {
-      background: var(--surface);
-      color: var(--accent);
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
-
-    /* ==========================================================================
-       SECTION TITLE BAR & COURT FILTER
-       ========================================================================== */
-    .section-title-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-inline: 4px;
-      margin-top: 4px;
-    }
-
-    .section-title {
-      font-size: 12.5px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin: 0;
-    }
-
-    .court-dropdown {
-      background: var(--surface);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      padding: 5px 10px;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    /* ==========================================================================
-       RESPONSIVE 2-COLUMN CASES GRID
-       ========================================================================== */
-    .cases-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    @media (max-width: 820px) {
-      .cases-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .case-card {
-      background-color: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-      transition: transform var(--motion-fast), box-shadow var(--motion-fast), border-color var(--motion-fast);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .case-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: var(--shadow);
-    }
-
-    .card-summary {
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .card-summary-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .court-badge {
-      background-color: var(--accent-soft);
-      color: var(--accent);
-      padding: 2px 7px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-
-    .card-summary-main {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .card-parties {
-      font-size: 14.5px;
-      font-weight: 650;
-      color: var(--text);
-      letter-spacing: -0.01em;
-      margin: 0;
-      line-height: 1.35;
-    }
-
-    .chevron-arrow {
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      transition: transform var(--motion-fast), color var(--motion-fast);
-      flex-shrink: 0;
-    }
-    .chevron-arrow.expanded {
-      transform: rotate(180deg);
-      color: var(--accent);
-    }
-
-    /* Details Dossier */
-    .card-details {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows var(--motion-fast);
-    }
-    .card-details.expanded {
-      grid-template-rows: 1fr;
-    }
-    .card-details-inner {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      opacity: 0;
-      transition: opacity var(--motion-fast);
-      margin-top: 0;
-    }
-    .card-details.expanded .card-details-inner {
-      opacity: 1;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
-    .details-meta-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      font-size: 12.5px;
-    }
-    .case-no-pill {
-      border: 1px solid var(--border-strong);
-      background: var(--surface-subtle);
-      color: var(--text);
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .copy-icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 12px;
-      padding: 0;
-      color: var(--text-muted);
-      line-height: 1;
-    }
-    .urgent-badge {
-      background-color: var(--danger-soft);
-      color: var(--danger);
-      font-weight: 700;
-      font-size: 11px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      letter-spacing: 0.04em;
-    }
-    .hearing-date-pill {
-      color: var(--text-muted);
-      font-size: 12.5px;
-      font-weight: 500;
-      margin-left: auto;
-    }
-
-    .stage-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12.5px;
-    }
-    .stage-label {
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
-    }
-    .stage-pill {
-      background-color: var(--warn-soft);
-      color: var(--warn);
-      font-weight: 650;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .notes-banner {
-      background-color: var(--warn-soft);
-      border: 1px solid var(--warn);
-      color: var(--warn);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
-      font-size: 13px;
-      font-style: italic;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    /* History Block in Card */
-    .history-block {
-      background-color: var(--surface-subtle);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .history-block-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .history-label {
-      font-size: 11.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-    }
-    .history-count-badge {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    .history-items-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border-left: 2px solid var(--border-strong);
-      padding-left: 10px;
-      margin-left: 4px;
-    }
-    .history-item-entry {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .history-item-meta {
-      font-size: 12px;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .history-date {
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-    .history-sep {
-      color: var(--text-muted);
-    }
-    .history-stage {
-      color: var(--text-muted);
-    }
-    .history-notes-text {
-      font-size: 12px;
-      color: var(--text);
-      margin: 0;
-      background: var(--surface);
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-    }
-    .history-empty-text {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-style: italic;
-      margin: 0;
-    }
-
-    /* Action Buttons Row */
-    .card-actions-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-top: 6px;
-      flex-wrap: wrap;
-    }
-    .btn-action-update {
-      background-color: var(--accent);
-      color: var(--on-accent);
-      border: 1px solid var(--accent);
-      border-radius: var(--radius-sm);
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color var(--motion-fast);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-action-update:hover {
-      background-color: var(--accent-hover);
-    }
-    .btn-action-whatsapp {
-      background-color: #15803d;
-      color: #ffffff;
-      border: 1px solid #15803d;
-      border-radius: var(--radius-sm);
-      padding: 6px 14px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity var(--motion-fast);
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-action-whatsapp:hover {
-      opacity: 0.9;
-    }
-    .btn-action-ghost {
-      background: transparent;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--text);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn-action-ghost:hover {
-      background: var(--surface-subtle);
-    }
-    .btn-action-danger {
-      background: transparent;
-      border: 1px solid var(--danger);
-      border-radius: var(--radius-sm);
-      padding: 6px 10px;
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--danger);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn-action-danger:hover {
-      background: var(--danger-soft);
-    }
-
-    /* Form Fields for Modals */
-    .form-input,
-    .form-select,
-    .form-textarea {
-      width: 100%;
-      min-height: 40px;
-      padding: 8px 12px;
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 13.5px;
-      line-height: 1.5;
-      transition: border-color var(--motion-fast), box-shadow var(--motion-fast);
-    }
-
-    .form-textarea {
-      min-height: 80px;
-      resize: vertical;
-    }
-
-    .form-input:focus,
-    .form-select:focus,
-    .form-textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-ring);
-    }
-
-    /* Empty State */
-    .empty-state {
-      padding: 48px 20px;
-      text-align: center;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-
-    /* ==========================================================================
-       MODAL BOTTOM SHEETS & FORMS (2-Column Grid)
-       ========================================================================== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 120;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .sheet-card {
-      width: 100%;
-      max-width: 680px;
-      max-height: 90vh;
-      background: var(--surface);
-      border-top: 1px solid var(--border-strong);
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
-      overflow-y: auto;
-      box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.25);
-    }
-
-    .sheet-header {
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .sheet-body {
-      padding: 20px 24px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-    @media (min-width: 640px) {
-      .form-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .col-span-full {
-      grid-column: 1 / -1;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .form-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .req-mark {
-      color: var(--danger);
-    }
-
-    .preset-row {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      margin-top: 4px;
-    }
-
-    .form-actions {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 10px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-
-    .action-right {
-      margin-left: auto;
-    }
-
-    /* Toast */
-    #toastContainer {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      pointer-events: none;
-    }
-    .toast-box {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border-strong);
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: var(--shadow);
-    }
-
-    /* Footer */
-    .site-footer {
-      padding-block: clamp(32px, 5vw, 48px);
-      border-top: 1px solid var(--border);
-      margin-top: clamp(48px, 8vw, 80px);
-    }
-
-    .footer-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    @media (min-width: 640px) {
-      .footer-inner {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-      }
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 18px;
-    }
-    .footer-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color var(--motion-fast);
-    }
-    .footer-link:hover {
-      color: var(--text);
-    }
-
-    /* Reduced Motion */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
-      }
-    }
-  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -1226,6 +105,14 @@
         <span>7 Days</span>
         <span id="countWeek" class="pill-count">0</span>
       </button>
+      <button type="button" class="segment-pill" onclick="app.setQuickFilter('in_chamber')" data-filter="in_chamber">
+        <span>🟢 In Chamber</span>
+        <span id="countInChamber" class="pill-count">0</span>
+      </button>
+      <button type="button" class="segment-pill" onclick="app.setQuickFilter('out_chamber')" data-filter="out_chamber">
+        <span>🟠 Outside</span>
+        <span id="countOutChamber" class="pill-count">0</span>
+      </button>
       <button type="button" class="segment-pill" onclick="app.setQuickFilter('overdue')" data-filter="overdue">
         <span>Passed</span>
         <span id="countOverdue" class="pill-count">0</span>
@@ -1233,19 +120,12 @@
     </div>
 
     <!-- Section Bar: Title & Court Filter -->
-    <div class="section-title-bar">
-      <h2 class="section-title">ALL REGISTERED CASES</h2>
+    <div class="section-title-bar" id="mainSectionBar">
+      <h2 class="section-title" id="sectionTitleText">ALL REGISTERED CASES</h2>
       <div class="court-filter-wrapper">
         <label for="courtSelect" class="sr-only">Filter by Court</label>
         <select id="courtSelect" onchange="app.filterByCourt(this.value)" class="court-dropdown">
           <option value="all">🏛 All Courts</option>
-          <option value="ACJM">ACJM Courts</option>
-          <option value="FTC">FTC Courts</option>
-          <option value="CJSD">CJSD Courts</option>
-          <option value="District">District Court</option>
-          <option value="Gram">Gram Nyayalaya</option>
-          <option value="DJ">DJ Court</option>
-          <option value="AFC">AFC Courts</option>
         </select>
       </div>
     </div>
@@ -1253,22 +133,122 @@
     <!-- 2-Column Responsive Cases Grid -->
     <div id="casesList" class="cases-grid"></div>
 
+    <!-- Dedicated Chamber View (Toggleable via bottom nav) -->
+    <section id="chamberView" class="chamber-view" style="display: none;">
+      <!-- Chamber Stats Summary -->
+      <div class="chamber-stats-grid">
+        <div class="chamber-stat-card">
+          <div class="chamber-stat-icon">🟢</div>
+          <div class="chamber-stat-data">
+            <span class="chamber-stat-val" id="chamberStatIn" style="color: var(--success);">0</span>
+            <span class="chamber-stat-lbl">In Chamber Files</span>
+          </div>
+        </div>
+        <div class="chamber-stat-card">
+          <div class="chamber-stat-icon">🟠</div>
+          <div class="chamber-stat-data">
+            <span class="chamber-stat-val" id="chamberStatOut" style="color: var(--warn);">0</span>
+            <span class="chamber-stat-lbl">Outside / In Court</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Routine Action Bar (Morning & Evening Chamber Routine) -->
+      <div class="chamber-section" style="padding: 12px 14px; background: var(--surface-subtle);">
+        <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+          <span>⚡ Chamber Daily Routines</span>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">Quick Actions</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <button 
+            type="button" 
+            onclick="app.checkOutTodayFiles()" 
+            class="btn btn-secondary btn-sm" 
+            style="font-size: 11px; padding: 6px 8px; text-align: left; line-height: 1.3;"
+            title="Mark all of today's cases as checked out to court"
+          >
+            ☀️ <strong>Check-Out Today</strong><br>
+            <span style="font-size: 10px; color: var(--text-muted);">Take today's files to court</span>
+          </button>
+
+          <button 
+            type="button" 
+            onclick="app.returnAllFilesToChamber()" 
+            class="btn btn-secondary btn-sm" 
+            style="font-size: 11px; padding: 6px 8px; text-align: left; line-height: 1.3; border-color: var(--success);"
+            title="Return all files outside back to their racks"
+          >
+            🌙 <strong>Return All Files</strong><br>
+            <span style="font-size: 10px; color: var(--success);">Mark all back in chamber</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chamber Search & Almirah Filter Bar -->
+      <div class="chamber-section" style="padding: 12px 14px;">
+        <div class="search-input-wrap" style="width: 100%;">
+          <svg class="search-lens" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            type="text" 
+            id="chamberSearchInput" 
+            oninput="app.handleChamberSearch(this.value)" 
+            placeholder="Search Almirah, Shelf, Basta #, or Holder..." 
+            class="search-field"
+          >
+        </div>
+
+        <!-- Almirah Selector Pills (Dynamically populated from your real chamber files) -->
+        <div class="filters-segment-bar" id="chamberAlmirahFilterBar" style="margin-top: 10px; margin-bottom: 0;">
+          <button type="button" class="segment-pill active" onclick="app.setChamberAlmirahFilter('all')" data-alm="all">
+            <span>All Racks</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Attention: Files Outside Chamber -->
+      <div class="chamber-section">
+        <div class="chamber-section-head" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3>⚠️ Files Currently Outside Chamber</h3>
+            <p class="text-muted" style="font-size: 12px; margin: 0;">Files taken for court proceedings, junior briefing, or given to clients.</p>
+          </div>
+        </div>
+        <div id="chamberOutsideList" class="chamber-outside-list"></div>
+      </div>
+
+      <!-- Chamber Almirahs & Shelf Directory -->
+      <div class="chamber-section">
+        <div class="chamber-section-head">
+          <h3>🗄️ Chamber Almirah &amp; Shelf Directory</h3>
+          <p class="text-muted" style="font-size: 12px; margin: 0;">Instant physical file location in your chamber.</p>
+        </div>
+        <div id="chamberAlmirahList" class="chamber-almirah-grid"></div>
+      </div>
+    </section>
+
     <!-- Empty State -->
     <div id="emptyState" class="empty-state">
-      <h3 style="font-size: 16px;">No Records Found</h3>
-      <p class="text-muted" style="font-size: 13px;">No cases match your filter or search query.</p>
-      <button type="button" onclick="app.clearSearch(); app.setQuickFilter('all')" class="btn btn-secondary btn-sm" style="margin-top: 8px;">
-        Reset All Filters
-      </button>
+      <div style="font-size: 32px; margin-bottom: 8px;">📖</div>
+      <h3 id="emptyStateTitle" style="font-size: 16px;">Case Diary is Empty</h3>
+      <p id="emptyStateDesc" class="text-muted" style="font-size: 13px; max-width: 320px; margin: 0 auto 12px auto;">No cases registered yet. Tap '+ Case' to add your first client case with chamber tracking and hearing history.</p>
+      <div id="emptyStateActions">
+        <button type="button" onclick="app.openCaseModal()" class="btn btn-primary btn-sm">
+          + Add First Case
+        </button>
+      </div>
     </div>
 
   </main>
 
   <!-- ==========================================================================
-       MODAL 1: ADD / EDIT CASE (2-Column Grid Form Card)
+       MODAL 1: ADD / EDIT CASE (Mobile First Form Sheet)
        ========================================================================== -->
   <div id="caseModal" class="modal-overlay" onclick="if(event.target===this) app.closeCaseModal()">
     <div class="sheet-card">
+      <div class="sheet-handle-bar"></div>
       
       <div class="sheet-header">
         <h3 id="caseModalTitle" style="font-size: 17px;">New Case Entry</h3>
@@ -1282,7 +262,7 @@
           <!-- Case Number -->
           <div class="form-group">
             <label for="caseNumber" class="form-label">Case Number <span class="req-mark" aria-hidden="true">*</span></label>
-            <input type="text" id="caseNumber" required placeholder="e.g. C.C. 142/2026" class="form-input">
+            <input type="text" id="caseNumber" required placeholder="e.g. C.C. 142/2026 or Bail 45/2026" class="form-input">
           </div>
 
           <!-- Parties -->
@@ -1291,22 +271,65 @@
             <input type="text" id="caseParties" required placeholder="e.g. Ramesh Kumar v. State of U.P." class="form-input">
           </div>
 
+          <!-- Case Type -->
+          <div class="form-group">
+            <label for="caseType" class="form-label">Case Type</label>
+            <select id="caseType" class="form-select">
+              <option value="Criminal">Criminal Case / Trial</option>
+              <option value="Bail">Bail Application</option>
+              <option value="Civil">Civil Suit / Injunction</option>
+              <option value="Writ">Writ Petition (HC)</option>
+              <option value="Family">Family / Matrimonial</option>
+              <option value="NI Act 138">Cheque Bounce (138 NI Act)</option>
+              <option value="Revenue">Revenue / Tehsildar</option>
+              <option value="Other">Other Matter</option>
+            </select>
+          </div>
+
+          <!-- Representing Side -->
+          <div class="form-group">
+            <label for="caseRepresenting" class="form-label">Representing Side</label>
+            <select id="caseRepresenting" class="form-select">
+              <option value="Petitioner">Petitioner / Applicant / Complainant</option>
+              <option value="Respondent">Respondent / Accused / Opposite Party</option>
+            </select>
+          </div>
+
           <!-- Court -->
           <div class="form-group">
             <label for="caseCourt" class="form-label">Court / Bench</label>
-            <input type="text" id="caseCourt" placeholder="e.g. ACJM-5, FTC-41, CJSD" class="form-input">
-            <div class="preset-row">
-              <button type="button" onclick="app.setCourtPreset('ACJM-5')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">ACJM-5</button>
-              <button type="button" onclick="app.setCourtPreset('FTC-41')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">FTC-41</button>
-              <button type="button" onclick="app.setCourtPreset('CJSD')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">CJSD</button>
-              <button type="button" onclick="app.setCourtPreset('District Court')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">Dist. Court</button>
-            </div>
+            <input type="text" id="caseCourt" list="courtsDatalist" placeholder="e.g. ACJM-5, FTC-41, CJSD, District Court" class="form-input">
+            <datalist id="courtsDatalist"></datalist>
           </div>
 
-          <!-- Judge -->
+          <!-- Judge / Room -->
           <div class="form-group">
             <label for="caseJudge" class="form-label">Presiding Officer / Room</label>
             <input type="text" id="caseJudge" placeholder="e.g. Sri R.K. Sharma, Room No 4" class="form-input">
+          </div>
+
+          <!-- Police Station & FIR No. -->
+          <div class="form-group">
+            <label for="casePoliceStation" class="form-label">Police Station / Crime (FIR) No.</label>
+            <input type="text" id="casePoliceStation" placeholder="e.g. P.S. Kotwali, Crime 102/2025" class="form-input">
+          </div>
+
+          <!-- Acts & Sections -->
+          <div class="form-group">
+            <label for="caseSections" class="form-label">Acts &amp; Sections</label>
+            <input type="text" id="caseSections" placeholder="e.g. 420, 467 IPC / 144(3) BNSS" class="form-input">
+          </div>
+
+          <!-- Client Name -->
+          <div class="form-group">
+            <label for="caseClientName" class="form-label">Client Name</label>
+            <input type="text" id="caseClientName" placeholder="Client contact person" class="form-input">
+          </div>
+
+          <!-- Client Phone -->
+          <div class="form-group">
+            <label for="caseClientPhone" class="form-label">Client Mobile / WhatsApp</label>
+            <input type="tel" id="caseClientPhone" placeholder="e.g. 9876543210" class="form-input">
           </div>
 
           <!-- NDOH Date -->
@@ -1339,11 +362,47 @@
 
           <!-- Status -->
           <div class="form-group">
-            <label for="caseStatus" class="form-label">File Status</label>
+            <label for="caseStatus" class="form-label">Case Status</label>
             <select id="caseStatus" class="form-select">
               <option value="Active">Active Case</option>
               <option value="Disposed">Disposed / Closed</option>
             </select>
+          </div>
+
+          <!-- Physical Chamber File Location Section -->
+          <div class="form-group col-span-full" style="background: var(--surface-subtle); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--border-strong);">
+            <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+              <span>🏛️ Physical File Chamber Location</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label for="caseFileInChamber" class="form-label">File Status</label>
+                <select id="caseFileInChamber" class="form-select" onchange="app.toggleChamberFormFields(this.value)">
+                  <option value="true">🟢 In Chamber</option>
+                  <option value="false">🟠 Outside Chamber</option>
+                </select>
+              </div>
+              <div id="holderFieldWrap" style="display: none;">
+                <label for="caseCurrentHolder" class="form-label">Current Holder / Location</label>
+                <input type="text" id="caseCurrentHolder" placeholder="e.g. Adv Rahul / Court 12 / Client" class="form-input">
+              </div>
+            </div>
+
+            <div id="chamberLocationFieldsWrap" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <div>
+                <label for="caseChamberAlmirah" class="form-label">Almirah / Rack</label>
+                <input type="text" id="caseChamberAlmirah" placeholder="Almirah-A" class="form-input">
+              </div>
+              <div>
+                <label for="caseChamberShelf" class="form-label">Shelf No.</label>
+                <input type="text" id="caseChamberShelf" placeholder="Shelf-1" class="form-input">
+              </div>
+              <div>
+                <label for="caseChamberBundle" class="form-label">Bundle / Basta #</label>
+                <input type="text" id="caseChamberBundle" placeholder="Bundle #12" class="form-input">
+              </div>
+            </div>
           </div>
 
           <!-- Senior Directive -->
@@ -1376,6 +435,7 @@
        ========================================================================== -->
   <div id="ndohModal" class="modal-overlay" onclick="if(event.target===this) app.closeNdohModal()">
     <div class="sheet-card" style="max-width: 540px;">
+      <div class="sheet-handle-bar"></div>
       
       <div class="sheet-header">
         <div>
@@ -1406,12 +466,12 @@
           </div>
 
           <div class="form-group">
-            <label for="ndohNotes" class="form-label">Court Summary / Senior Update</label>
-            <textarea id="ndohNotes" rows="2" placeholder="Summary of today's court order..." class="form-textarea"></textarea>
+            <label for="ndohNotes" class="form-label">Court Summary / Proceedings / Order</label>
+            <textarea id="ndohNotes" rows="2" placeholder="Summary of today's court order (saved to history)..." class="form-textarea"></textarea>
           </div>
 
           <div class="form-actions" style="margin-top: 4px;">
-            <button type="submit" class="btn btn-primary">Update NDOH</button>
+            <button type="submit" class="btn btn-primary">Update NDOH &amp; Save History</button>
             <button type="button" onclick="app.closeNdohModal()" class="btn btn-secondary action-right">Cancel</button>
           </div>
         </form>
@@ -1419,6 +479,223 @@
 
     </div>
   </div>
+
+  <!-- ==========================================================================
+       MODAL 3: QUICK CHAMBER FILE MOVEMENT SHEET
+       ========================================================================== -->
+  <div id="chamberModal" class="modal-overlay" onclick="if(event.target===this) app.closeChamberModal()">
+    <div class="sheet-card" style="max-width: 520px;">
+      <div class="sheet-handle-bar"></div>
+
+      <div class="sheet-header">
+        <div>
+          <h3 style="font-size: 17px;">🏛️ Chamber File Tracker</h3>
+          <p id="chamberModalCaseTitle" class="text-muted" style="font-size: 12px; margin-top: 2px;">Case Title</p>
+        </div>
+        <button type="button" onclick="app.closeChamberModal()" class="btn btn-ghost btn-sm">Close</button>
+      </div>
+
+      <div class="sheet-body">
+        <form onsubmit="app.handleChamberMovementSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
+          <input type="hidden" id="chamberModalCaseId">
+
+          <div class="form-group">
+            <label class="form-label">Where is the physical file right now?</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <button 
+                type="button" 
+                id="btnStatusInChamber"
+                onclick="app.selectChamberModalStatus(true)" 
+                class="btn btn-secondary" 
+                style="border-color: var(--success); color: var(--success); font-weight: 700;"
+              >
+                🟢 In Chamber
+              </button>
+              <button 
+                type="button" 
+                id="btnStatusOutChamber"
+                onclick="app.selectChamberModalStatus(false)" 
+                class="btn btn-secondary" 
+                style="border-color: var(--warn); color: var(--warn); font-weight: 700;"
+              >
+                🟠 Outside Chamber
+              </button>
+            </div>
+          </div>
+
+          <!-- Section A: If In Chamber -->
+          <div id="modalChamberInWrap" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+              <div>
+                <label for="modalAlmirah" class="form-label">Almirah / Rack</label>
+                <input type="text" id="modalAlmirah" placeholder="Almirah-A" class="form-input">
+              </div>
+              <div>
+                <label for="modalShelf" class="form-label">Shelf</label>
+                <input type="text" id="modalShelf" placeholder="Shelf-1" class="form-input">
+              </div>
+              <div>
+                <label for="modalBundle" class="form-label">Bundle #</label>
+                <input type="text" id="modalBundle" placeholder="Bundle #05" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: If Outside Chamber -->
+          <div id="modalChamberOutWrap" style="display: none; flex-direction: column; gap: 10px;">
+            <div class="form-group">
+              <label for="modalHolderSelect" class="form-label">File Given To / Purpose</label>
+              <select id="modalHolderSelect" class="form-select" onchange="app.handleHolderSelectChange(this.value)">
+                <option value="Courtroom">In Courtroom for Hearing</option>
+                <option value="Junior Advocate">With Junior Advocate (Briefing/Prep)</option>
+                <option value="Senior Advocate">With Senior Counsel</option>
+                <option value="Munshi / Clerk">With Munshi / Clerk (Photocopy/Filing)</option>
+                <option value="Client">Given to Client (Signatures/Docs)</option>
+                <option value="Other">Other Location</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="modalHolderName" class="form-label">Person Name / Details</label>
+              <input type="text" id="modalHolderName" placeholder="e.g. Adv. Rahul / Room No. 4" class="form-input">
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top: 6px;">
+            <button type="submit" class="btn btn-primary">Save Physical File Status</button>
+            <button type="button" onclick="app.closeChamberModal()" class="btn btn-secondary action-right">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: HEARING HISTORY TIMELINE SHEET
+       ========================================================================== -->
+  <div id="historyModal" class="modal-overlay" onclick="if(event.target===this) app.closeHistoryModal()">
+    <div class="sheet-card" style="max-width: 620px;">
+      <div class="sheet-handle-bar"></div>
+
+      <div class="sheet-header">
+        <div>
+          <h3 style="font-size: 17px;">📜 Case Hearing History</h3>
+          <p id="historyModalCaseTitle" class="text-muted" style="font-size: 12px; margin-top: 2px;">Case Title</p>
+        </div>
+        <button type="button" onclick="app.closeHistoryModal()" class="btn btn-ghost btn-sm">Close</button>
+      </div>
+
+      <div class="sheet-body" style="display: flex; flex-direction: column; gap: 14px;">
+        
+        <!-- Dossier Actions & Add Date Row -->
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
+          <div style="display: flex; gap: 6px;">
+            <button type="button" onclick="app.printCaseHistory()" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 3px 8px;" title="Print Complete Case Order Sheet & Timeline">
+              🖨️ Print Dossier
+            </button>
+            <button type="button" onclick="app.shareCaseHistoryWhatsApp()" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 3px 8px; color: #16a34a; border-color: rgba(22, 163, 74, 0.3);" title="Share Full Case Timeline on WhatsApp">
+              💬 WhatsApp
+            </button>
+          </div>
+
+          <button type="button" onclick="app.toggleAddHistoryForm()" class="btn btn-primary btn-sm" style="font-size: 11px; padding: 3px 10px;">
+            + Add Past Date
+          </button>
+        </div>
+
+        <!-- History Search Bar -->
+        <div class="search-input-wrap" style="width: 100%;">
+          <input 
+            type="text" 
+            id="historySearchInput" 
+            oninput="app.handleHistorySearch(this.value)" 
+            placeholder="Search hearings (orders, stay, evidence, bail)..." 
+            class="search-field" 
+            style="font-size: 12px; height: 34px;"
+          >
+        </div>
+
+        <!-- Hidden form for manual past date entry / edit -->
+        <div id="addHistoryFormWrap" style="display: none; background: var(--surface-subtle); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+          <form onsubmit="app.handleManualHistorySubmit(event)" style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="hidden" id="manualHistCaseId">
+            <input type="hidden" id="manualHistIndex" value="-1">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div>
+                <label for="manualHistDate" class="form-label">Hearing Date <span class="req-mark">*</span></label>
+                <input type="date" id="manualHistDate" required class="form-input">
+              </div>
+              <div>
+                <label for="manualHistStage" class="form-label">Hearing Stage</label>
+                <input type="text" id="manualHistStage" placeholder="e.g. Framing of Issues" class="form-input">
+              </div>
+            </div>
+            <div>
+              <label for="manualHistRemarks" class="form-label">Court Proceedings / Summary / Order</label>
+              <textarea id="manualHistRemarks" rows="2" placeholder="Summary of what happened in court..." class="form-textarea"></textarea>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="submit" id="btnSaveManualHist" class="btn btn-primary btn-sm">Save Entry</button>
+              <button type="button" onclick="app.toggleAddHistoryForm(false)" class="btn btn-ghost btn-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Chronological Timeline List -->
+        <div id="historyTimelineContainer" class="timeline-wrap"></div>
+
+      </div>
+
+      <div class="sheet-header" style="border-top: 1px solid var(--border); border-bottom: none;">
+        <button type="button" onclick="app.closeHistoryModal()" class="btn btn-secondary" style="width: 100%;">Done</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Mobile App Native Bottom Navigation -->
+  <nav class="app-bottom-nav" aria-label="Mobile Navigation">
+    <button type="button" class="nav-tab active" id="btnNavBoard" onclick="app.switchTab('board')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+      <span>Today</span>
+      <span class="nav-badge" id="navBadgeToday">0</span>
+    </button>
+
+    <button type="button" class="nav-tab" id="btnNavCases" onclick="app.switchTab('all')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+      </svg>
+      <span>Cases</span>
+    </button>
+
+    <button type="button" class="nav-fab-btn" onclick="app.openCaseModal()" title="Add New Case" aria-label="Add Case">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+
+    <button type="button" class="nav-tab" id="btnNavChamber" onclick="app.switchTab('chamber')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 21h18M3 7v14M21 7v14M6 21V11M18 21V11M10 21V11M14 21V11M3 7l9-4 9 4"></path>
+      </svg>
+      <span>Chamber</span>
+      <span class="nav-badge-warn" id="navBadgeChamberOut">0</span>
+    </button>
+
+    <button type="button" class="nav-tab" id="btnNavSettings" onclick="app.openSettingsModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+      <span>Settings</span>
+    </button>
+  </nav>
 
   <!-- ==========================================================================
        MODAL 3: STORAGE & CLOUD SETTINGS
@@ -1453,8 +730,8 @@
           <button type="button" onclick="app.saveSupabaseConfig()" class="btn btn-primary" style="width: 100%;">
             Save &amp; Connect Cloud
           </button>
-          <button type="button" onclick="app.useDemoMode()" class="btn btn-danger" style="width: 100%;">
-            Reset to Sample Cases
+          <button type="button" onclick="app.clearAllCases()" class="btn btn-danger" style="width: 100%;">
+            Clear All Local Cases
           </button>
         </div>
       </div>

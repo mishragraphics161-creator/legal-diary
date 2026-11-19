@@ -4,11 +4,17 @@
 class LegalDiaryApp {
   constructor() {
     this.cases = [];
-    this.currentTab = 'all';
+    this.currentTab = 'board'; // 'board' (today), 'all', 'chamber', 'settings'
     this.quickFilter = 'all';
     this.searchQuery = '';
     this.selectedCourt = 'all';
     this.expandedCardIds = new Set();
+    this.modalChamberStatus = true;
+    this.currentHistoryCaseId = null;
+    this.chamberSearchQuery = '';
+    this.chamberAlmirahFilter = 'all';
+    this.historySearchQuery = '';
+    this.editingHistoryIndex = -1;
 
     // Supabase REST Config
     this.supabaseUrl = localStorage.getItem('legal_diary_supabase_url') || '';
@@ -35,8 +41,9 @@ class LegalDiaryApp {
     await this.loadCases();
     this.updateCounters();
     this.updateSyncBadge();
-    this.render();
+    this.switchTab('board', false);
     this.initScrollListener();
+    this.initCardSwipeListeners();
 
     // If online on start, auto-check and sync any pending changes
     if (this.isOnline && this.isSupabaseConnected) {
@@ -138,14 +145,26 @@ class LegalDiaryApp {
             id: item.data.id,
             case_number: item.data.case_number,
             parties: item.data.parties,
-            court_name: item.data.court_name,
-            judge_name: item.data.judge_name,
+            case_type: item.data.case_type || 'Criminal',
+            representing: item.data.representing || 'Petitioner',
+            court_name: item.data.court_name || '',
+            judge_name: item.data.judge_name || '',
+            police_station_fir: item.data.police_station_fir || '',
+            act_sections: item.data.act_sections || '',
+            client_name: item.data.client_name || '',
+            client_phone: item.data.client_phone || '',
             next_hearing_date: item.data.next_hearing_date,
-            hearing_stage: item.data.hearing_stage,
-            senior_instructions: item.data.senior_instructions,
-            file_drive_link: item.data.file_drive_link,
-            priority: item.data.priority,
-            status: item.data.status,
+            hearing_stage: item.data.hearing_stage || '',
+            senior_instructions: item.data.senior_instructions || '',
+            file_drive_link: item.data.file_drive_link || '',
+            priority: item.data.priority || 'Normal',
+            status: item.data.status || 'Active',
+            file_in_chamber: item.data.file_in_chamber !== false,
+            file_current_holder: item.data.file_current_holder || 'Chamber',
+            chamber_almirah: item.data.chamber_almirah || 'Almirah-A',
+            chamber_shelf: item.data.chamber_shelf || 'Shelf-1',
+            chamber_bundle_no: item.data.chamber_bundle_no || '',
+            file_last_moved_at: item.data.file_last_moved_at || null,
             hearing_history: JSON.stringify(item.data.hearing_history || []),
             updated_at: new Date().toISOString()
           };
@@ -204,6 +223,13 @@ class LegalDiaryApp {
             }
             return {
               ...c,
+              case_type: c.case_type || 'Criminal',
+              representing: c.representing || 'Petitioner',
+              file_in_chamber: c.file_in_chamber !== false,
+              file_current_holder: c.file_current_holder || 'Chamber',
+              chamber_almirah: c.chamber_almirah || 'Almirah-A',
+              chamber_shelf: c.chamber_shelf || 'Shelf-1',
+              chamber_bundle_no: c.chamber_bundle_no || '',
               hearing_history: hist
             };
           });
@@ -293,6 +319,53 @@ class LegalDiaryApp {
     }, { passive: true });
   }
 
+  // Mobile Touch Swipe Gestures (Swipe Right = Chamber Toggle, Swipe Left = NDOH Update)
+  initCardSwipeListeners() {
+    const list = document.getElementById('casesList');
+    if (!list) return;
+
+    let startX = 0;
+    let startY = 0;
+    let targetCard = null;
+
+    list.addEventListener('touchstart', (e) => {
+      targetCard = e.target.closest('.case-card');
+      if (!targetCard) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    list.addEventListener('touchend', (e) => {
+      if (!targetCard) return;
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const diffX = endX - startX;
+      const diffY = endY - startY;
+
+      // Check for horizontal swipe gesture (> 80px horizontal, less vertical)
+      if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY) * 1.8) {
+        const cardId = targetCard.id.replace('card-', '');
+        const item = this.cases.find(c => c.id === cardId);
+        if (!item) return;
+
+        if (diffX > 0) {
+          // Swipe Right: Chamber toggle
+          this.triggerHaptic('medium');
+          if (item.file_in_chamber === false) {
+            this.quickReturnToChamber(cardId);
+          } else {
+            this.openChamberModal(cardId);
+          }
+        } else {
+          // Swipe Left: Quick NDOH Update
+          this.triggerHaptic('medium');
+          this.openNdohModal(cardId);
+        }
+      }
+      targetCard = null;
+    }, { passive: true });
+  }
+
   // Theme Toggle (Supports System, Dark, Light)
   toggleTheme() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
@@ -329,430 +402,120 @@ class LegalDiaryApp {
     }
   }
 
-  // Realistic Advocate Cases
-  getSampleCases() {
-    const now = new Date();
-    const formatDate = (offsetDays) => {
-      const d = new Date(now);
-      d.setDate(d.getDate() + offsetDays);
-      return d.toISOString().split('T')[0];
-    };
-
-    return [
-      {
-        id: 'case-1',
-        case_number: 'Case #1',
-        parties: 'Pawan Gupta v. Vishwanath Pitariya',
-        court_name: 'ACJM-5',
-        judge_name: '',
-        next_hearing_date: formatDate(-1),
-        hearing_stage: 'Summons / Notice',
-        senior_instructions: 'Pairokar to appear with verification affidavit',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-45), stage: 'Institution / Plaint', remarks: 'Case filed and registered. Court ordered issue of preliminary notices.' },
-          { date: formatDate(-22), stage: 'Service of Summons', remarks: 'Summons returned unserved due to incorrect address. Fresh registered notice ordered.' }
-        ]
-      },
-      {
-        id: 'case-2',
-        case_number: 'Case #2',
-        parties: 'Jafar Ali v. State of U.P.',
-        court_name: 'CO-IInd',
-        judge_name: '',
-        next_hearing_date: formatDate(-1),
-        hearing_stage: 'Police Report / CD',
-        senior_instructions: 'Verify case diary and obtain status report',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-60), stage: 'Bail Appearance', remarks: 'Interim protection extended till case diary inspection.' },
-          { date: formatDate(-28), stage: 'Case Diary Inspection', remarks: 'Investigating Officer absent. Court directed warning notice to SSP.' }
-        ]
-      },
-      {
-        id: 'case-3',
-        case_number: 'Case #3',
-        parties: 'Pawan Gupta v. Raman Gupta',
-        court_name: 'CJSD',
-        judge_name: '',
-        next_hearing_date: formatDate(0),
-        hearing_stage: 'Written Statement',
-        senior_instructions: 'File certified copy of order / judgment',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent',
-        hearing_history: [
-          { date: formatDate(-40), stage: 'First Appearance', remarks: 'Vakalatnama filed by opposite counsel Sri Sharma.' },
-          { date: formatDate(-14), stage: 'Time for WS', remarks: 'Defendant sought 2 weeks final adjournment for filing written statement on payment of ₹500 costs.' }
-        ]
-      },
-      {
-        id: 'case-4',
-        case_number: 'Case #4',
-        parties: 'Smt. Chhavi Rastogi v. Aman',
-        court_name: 'FTC-41',
-        judge_name: '',
-        next_hearing_date: formatDate(0),
-        hearing_stage: 'Mediation / Settlement',
-        senior_instructions: 'Check report regarding execution of bailable warrant',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent',
-        hearing_history: [
-          { date: formatDate(-50), stage: 'Section 125 Filing', remarks: 'Maintenance petition instituted. Notice issued to husband.' },
-          { date: formatDate(-20), stage: 'Mediation Referral', remarks: 'Both parties appeared in court chamber and agreed for reconciliation attempts.' }
-        ]
-      },
-      {
-        id: 'case-5',
-        case_number: 'Case #5',
-        parties: 'Mumtaz v. Unknown',
-        court_name: 'ACJM-3',
-        judge_name: '',
-        next_hearing_date: formatDate(0),
-        hearing_stage: 'Admission / Notice',
-        senior_instructions: 'File protest objection against Final Report (FR)',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent',
-        hearing_history: [
-          { date: formatDate(-38), stage: 'FR Receipt', remarks: 'Police final closure report received in court office.' },
-          { date: formatDate(-12), stage: 'Protest Filing', remarks: 'Complainant filed protest petition with supported evidence affidavits.' }
-        ]
-      },
-      {
-        id: 'case-6',
-        case_number: 'Case #6',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'ACJM-4',
-        judge_name: '',
-        next_hearing_date: formatDate(1),
-        hearing_stage: 'Charge / Plea',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-30), stage: 'Supply of Copies', remarks: 'Section 207 CrPC compliance completed. Copies handed over to defense.' }
-        ]
-      },
-      {
-        id: 'case-7',
-        case_number: 'Case #7',
-        parties: 'Pawan Singh v. Kailash Singh',
-        court_name: 'ACJJD-5',
-        judge_name: '',
-        next_hearing_date: formatDate(1),
-        hearing_stage: 'Summons / Notice',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-25), stage: 'Suit Registered', remarks: 'Injunction application 39 Rule 1 & 2 CPC filed.' }
-        ]
-      },
-      {
-        id: 'case-8',
-        case_number: 'Case #8',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'ACJM-1',
-        judge_name: '',
-        next_hearing_date: formatDate(2),
-        hearing_stage: 'Evidence / Cross',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-55), stage: 'Charges Framed', remarks: 'Charges framed under Section 138 NI Act. Accused pleaded not guilty.' },
-          { date: formatDate(-18), stage: 'PW-1 Examination in Chief', remarks: 'Affidavit of complainant tendered in evidence.' }
-        ]
-      },
-      {
-        id: 'case-9',
-        case_number: 'Case #9',
-        parties: 'Vimal v. Komal Singh',
-        court_name: 'AFC-1st',
-        judge_name: '',
-        next_hearing_date: formatDate(2),
-        hearing_stage: 'Final Arguments',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-42), stage: 'Defendant Evidence Closed', remarks: 'DW-1 & DW-2 cross-examined and discharged.' },
-          { date: formatDate(-15), stage: 'Part Heard Arguments', remarks: 'Plaintiff counsel completed initial citations.' }
-        ]
-      },
-      {
-        id: 'case-10',
-        case_number: 'Case #10',
-        parties: 'Pawan Gupta v. Ashok Singh',
-        court_name: 'DJ',
-        judge_name: '',
-        next_hearing_date: formatDate(3),
-        hearing_stage: 'Appeal Hearing',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-35), stage: 'Lower Court Record (LCR)', remarks: 'TCR summoned and received from trial court.' }
-        ]
-      },
-      {
-        id: 'case-11',
-        case_number: 'Case #11',
-        parties: 'Gyanendara Mishra',
-        court_name: 'District Court',
-        judge_name: '',
-        next_hearing_date: formatDate(3),
-        hearing_stage: 'Miscellaneous',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-20), stage: 'Application 7 Rule 11', remarks: 'Maintainability application filed by opposite side.' }
-        ]
-      },
-      {
-        id: 'case-12',
-        case_number: 'Case #12',
-        parties: 'Pooja v. Kaushal Singh',
-        court_name: 'AFC-1st',
-        judge_name: '',
-        next_hearing_date: formatDate(4),
-        hearing_stage: 'Evidence / Cross',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-45), stage: 'Interim Maintenance', remarks: 'Interim order of ₹8,000 per month passed.' }
-        ]
-      },
-      {
-        id: 'case-13',
-        case_number: 'Case #13',
-        parties: 'State v. Dharampal',
-        court_name: 'ADJ/FTC',
-        judge_name: '',
-        next_hearing_date: formatDate(5),
-        hearing_stage: 'Witness Examination',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-60), stage: 'Committal', remarks: 'Case committed to Sessions division.' },
-          { date: formatDate(-20), stage: 'PW-1 & PW-2 Examination', remarks: 'Eye witness examination recorded in chief.' }
-        ]
-      },
-      {
-        id: 'case-14',
-        case_number: 'Case #14',
-        parties: 'Release – Pramod Kumar',
-        court_name: 'ACJM-5',
-        judge_name: '',
-        next_hearing_date: formatDate(6),
-        hearing_stage: 'Order / Judgment',
-        senior_instructions: 'Sampoorna Nagar bail bond compliance',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Urgent',
-        hearing_history: [
-          { date: formatDate(-30), stage: 'Bail Arguments', remarks: 'Arguments completed, order reserved.' }
-        ]
-      },
-      {
-        id: 'case-15',
-        case_number: 'Case #15',
-        parties: 'Smt. Kishori Devi v. Pushpendra Kumar',
-        court_name: 'Gram Nay. Gola',
-        judge_name: '',
-        next_hearing_date: formatDate(6),
-        hearing_stage: 'Framing of Issues',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-24), stage: 'Admission & Denial', remarks: 'Documents admitted in evidence.' }
-        ]
-      },
-      {
-        id: 'case-16',
-        case_number: 'Case #16',
-        parties: 'Ram Gulam v. Sahab Dayal',
-        court_name: 'Gram Nay. Gola',
-        judge_name: '',
-        next_hearing_date: formatDate(6),
-        hearing_stage: 'Written Statement',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-18), stage: 'Notice Service', remarks: 'Defendant received copy of plaint.' }
-        ]
-      },
-      {
-        id: 'case-17',
-        case_number: 'Case #17',
-        parties: 'Daya Shankar Mishra v. Kulwant Singh',
-        court_name: 'Gram Nay. Gola',
-        judge_name: '',
-        next_hearing_date: formatDate(6),
-        hearing_stage: 'Evidence / Cross',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-32), stage: 'PW-1 Evidence', remarks: 'Cross-examination deferred on request.' }
-        ]
-      },
-      {
-        id: 'case-18',
-        case_number: 'Case #18',
-        parties: 'State v. Dharampal',
-        court_name: 'ACJM-5',
-        judge_name: '',
-        next_hearing_date: formatDate(7),
-        hearing_stage: 'Charge / Plea',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-28), stage: 'Cognizance', remarks: 'Court took cognizance on charge-sheet.' }
-        ]
-      },
-      {
-        id: 'case-19',
-        case_number: 'Case #19',
-        parties: 'Madhuri Devi v. Geeta Devi',
-        court_name: 'ADJ-2nd',
-        judge_name: '',
-        next_hearing_date: formatDate(7),
-        hearing_stage: 'Arguments on Injunction',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-25), stage: 'Interim Status Quo', remarks: 'Status quo granted till next date.' }
-        ]
-      },
-      {
-        id: 'case-20',
-        case_number: 'Case #20',
-        parties: 'Alok Verma v. Raunak Juneja',
-        court_name: 'AJM-3',
-        judge_name: '',
-        next_hearing_date: formatDate(8),
-        hearing_stage: 'Final Arguments',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-35), stage: 'Evidence Closed', remarks: 'Both parties concluded oral and documentary proofs.' }
-        ]
-      },
-      {
-        id: 'case-21',
-        case_number: 'Case #21',
-        parties: 'Shree Devi v. Janardan',
-        court_name: 'FC',
-        judge_name: '',
-        next_hearing_date: formatDate(9),
-        hearing_stage: 'Cross Examination',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-21), stage: 'Affidavit Tendered', remarks: 'Examination in chief concluded.' }
-        ]
-      },
-      {
-        id: 'case-22',
-        case_number: 'Case #22',
-        parties: 'Prathvi Pal v. Banvari',
-        court_name: 'ACJM-3',
-        judge_name: '',
-        next_hearing_date: formatDate(11),
-        hearing_stage: 'Summons / Notice',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-30), stage: 'Complaint Filed', remarks: 'Statement recorded under Section 200 CrPC.' }
-        ]
-      },
-      {
-        id: 'case-23',
-        case_number: 'Case #23',
-        parties: 'Shree Devi v. Janardan',
-        court_name: 'ACJM/FTC',
-        judge_name: '',
-        next_hearing_date: formatDate(15),
-        hearing_stage: 'Order / Judgment',
-        senior_instructions: '',
-        file_drive_link: '',
-        status: 'Active',
-        priority: 'Normal',
-        hearing_history: [
-          { date: formatDate(-40), stage: 'Arguments Heard', remarks: 'Written arguments submitted by Sri Mishra.' }
-        ]
-      }
-    ];
-  }
-
   // Load cases (Offline First: always read local cache first)
   async loadCases() {
+    const isCleaned = localStorage.getItem('legal_diary_clean_db_v1');
+    if (!isCleaned) {
+      // One-time purge of any previous hardcoded mock/sample cases from browser storage
+      this.cases = [];
+      this.saveToLocal();
+      localStorage.setItem('legal_diary_clean_db_v1', 'true');
+      return;
+    }
+
     const local = localStorage.getItem(this.STORAGE_KEY_CASES);
     if (local) {
       try {
         this.cases = JSON.parse(local);
         this.ensureHistoryIntegrity();
       } catch (e) {
-        this.cases = this.getSampleCases();
+        this.cases = [];
         this.saveToLocal();
       }
     } else {
-      this.cases = this.getSampleCases();
+      this.cases = [];
       this.saveToLocal();
     }
   }
 
-  // Ensure every case has valid hearing_history array
+  // Ensure every case has valid hearing_history array and physical chamber tracking fields
   ensureHistoryIntegrity() {
     let modified = false;
-    const samples = this.getSampleCases();
     this.cases.forEach(c => {
-      if (!Array.isArray(c.hearing_history) || c.hearing_history.length === 0) {
-        const match = samples.find(s => s.id === c.id || s.case_number === c.case_number);
-        if (match && match.hearing_history && match.hearing_history.length > 0) {
-          c.hearing_history = [...match.hearing_history];
-          modified = true;
-        } else {
-          c.hearing_history = c.hearing_history || [];
-        }
+      if (c.file_in_chamber === undefined) {
+        c.file_in_chamber = true;
+        modified = true;
+      }
+      if (!c.file_current_holder) {
+        c.file_current_holder = 'Chamber';
+        modified = true;
+      }
+      if (!Array.isArray(c.hearing_history)) {
+        c.hearing_history = [];
+        modified = true;
       }
     });
     if (modified) {
       this.saveToLocal();
     }
+  }
+
+  escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Dynamically populate court filter dropdown from user's registered cases
+  populateCourtDropdown() {
+    const select = document.getElementById('courtSelect');
+    if (!select) return;
+    const currentVal = this.selectedCourt || 'all';
+    const courts = new Set();
+    this.cases.forEach(c => {
+      if (c.court_name && c.court_name.trim()) {
+        courts.add(c.court_name.trim());
+      }
+    });
+    const sorted = Array.from(courts).sort();
+    
+    let optionsHtml = '<option value="all">🏛 All Courts</option>';
+    sorted.forEach(c => {
+      optionsHtml += `<option value="${this.escapeHtml(c)}">${this.escapeHtml(c)}</option>`;
+    });
+    select.innerHTML = optionsHtml;
+    select.value = sorted.includes(currentVal) ? currentVal : 'all';
+    this.selectedCourt = select.value;
+
+    // Also populate datalist in case modal
+    const datalist = document.getElementById('courtsDatalist');
+    if (datalist) {
+      datalist.innerHTML = sorted.map(c => `<option value="${this.escapeHtml(c)}"></option>`).join('');
+    }
+  }
+
+  // Dynamically populate chamber almirah filter pills from user's registered cases
+  renderAlmirahFilterPills() {
+    const bar = document.getElementById('chamberAlmirahFilterBar');
+    if (!bar) return;
+    const almirahs = new Set();
+    this.cases.forEach(c => {
+      if (c.chamber_almirah && c.chamber_almirah.trim()) {
+        almirahs.add(c.chamber_almirah.trim());
+      }
+    });
+    const sorted = Array.from(almirahs).sort();
+    const current = this.chamberAlmirahFilter || 'all';
+
+    let html = `
+      <button type="button" class="segment-pill ${current === 'all' ? 'active' : ''}" onclick="app.setChamberAlmirahFilter('all')" data-alm="all">
+        <span>All Racks (${this.cases.length})</span>
+      </button>
+    `;
+    sorted.forEach(alm => {
+      const active = current === alm ? 'active' : '';
+      const count = this.cases.filter(c => c.chamber_almirah === alm).length;
+      html += `
+        <button type="button" class="segment-pill ${active}" onclick="app.setChamberAlmirahFilter('${this.escapeHtml(alm)}')" data-alm="${this.escapeHtml(alm)}">
+          <span>${this.escapeHtml(alm)} (${count})</span>
+        </button>
+      `;
+    });
+    bar.innerHTML = html;
   }
 
   saveToLocal() {
@@ -843,6 +606,8 @@ class LegalDiaryApp {
     let tomorrowCount = 0;
     let weekCount = 0;
     let overdueCount = 0;
+    let inChamberCount = 0;
+    let outChamberCount = 0;
 
     this.cases.forEach(c => {
       if (c.status === 'Disposed') return;
@@ -852,6 +617,9 @@ class LegalDiaryApp {
       else if (diff < 0) overdueCount++;
 
       if (diff >= 0 && diff <= 7) weekCount++;
+
+      if (c.file_in_chamber !== false) inChamberCount++;
+      else outChamberCount++;
     });
 
     const setSafe = (id, val) => {
@@ -864,11 +632,251 @@ class LegalDiaryApp {
     setSafe('countTomorrow', tomorrowCount);
     setSafe('countWeek', weekCount);
     setSafe('countOverdue', overdueCount);
+    setSafe('countInChamber', inChamberCount);
+    setSafe('countOutChamber', outChamberCount);
 
-    setSafe('metricToday', todayCount);
-    setSafe('metricTomorrow', tomorrowCount);
-    setSafe('metricWeek', weekCount);
-    setSafe('metricTotal', this.cases.length);
+    // Mobile Bottom Nav Badges
+    setSafe('navBadgeToday', todayCount);
+    setSafe('navBadgeChamberOut', outChamberCount);
+
+    setSafe('chamberStatIn', inChamberCount);
+    setSafe('chamberStatOut', outChamberCount);
+  }
+
+  // Mobile Bottom Navigation Tab Switcher
+  switchTab(tabName, shouldRender = true) {
+    this.currentTab = tabName;
+
+    // Update bottom nav active state
+    const navButtons = {
+      board: document.getElementById('btnNavBoard'),
+      all: document.getElementById('btnNavCases'),
+      chamber: document.getElementById('btnNavChamber'),
+      settings: document.getElementById('btnNavSettings')
+    };
+
+    Object.keys(navButtons).forEach(key => {
+      if (navButtons[key]) {
+        if (key === tabName) navButtons[key].classList.add('active');
+        else navButtons[key].classList.remove('active');
+      }
+    });
+
+    const casesList = document.getElementById('casesList');
+    const chamberView = document.getElementById('chamberView');
+    const mainSectionBar = document.getElementById('mainSectionBar');
+    const sectionTitleText = document.getElementById('sectionTitleText');
+    const filterPillsBar = document.querySelector('.filters-segment-bar');
+    const emptyState = document.getElementById('emptyState');
+
+    if (tabName === 'chamber') {
+      if (casesList) casesList.style.display = 'none';
+      if (chamberView) chamberView.style.display = 'flex';
+      if (filterPillsBar) filterPillsBar.style.display = 'none';
+      if (mainSectionBar) mainSectionBar.style.display = 'none';
+      if (emptyState) emptyState.style.display = 'none';
+      this.renderChamberView();
+    } else {
+      if (casesList) casesList.style.display = 'grid';
+      if (chamberView) chamberView.style.display = 'none';
+      if (filterPillsBar) filterPillsBar.style.display = 'flex';
+      if (mainSectionBar) mainSectionBar.style.display = 'flex';
+
+      if (tabName === 'board') {
+        this.setQuickFilter('today');
+        if (sectionTitleText) sectionTitleText.textContent = "TODAY'S CAUSE LIST & HEARINGS";
+      } else if (tabName === 'all') {
+        this.setQuickFilter('all');
+        if (sectionTitleText) sectionTitleText.textContent = "ALL REGISTERED CASES";
+      }
+    }
+  }
+
+  // Render Chamber Inventory & Outside Files View
+  renderChamberView() {
+    this.updateCounters();
+    this.renderAlmirahFilterPills();
+    const outsideListEl = document.getElementById('chamberOutsideList');
+    const almirahListEl = document.getElementById('chamberAlmirahList');
+
+    const q = (this.chamberSearchQuery || '').toLowerCase();
+    const almFilter = this.chamberAlmirahFilter || 'all';
+
+    // 1. Files Outside Chamber (Filtered by search)
+    let outsideCases = this.cases.filter(c => c.file_in_chamber === false);
+    if (q) {
+      outsideCases = outsideCases.filter(c => 
+        (c.case_number && c.case_number.toLowerCase().includes(q)) ||
+        (c.parties && c.parties.toLowerCase().includes(q)) ||
+        (c.file_current_holder && c.file_current_holder.toLowerCase().includes(q)) ||
+        (c.chamber_almirah && c.chamber_almirah.toLowerCase().includes(q))
+      );
+    }
+
+    if (outsideListEl) {
+      if (outsideCases.length === 0) {
+        outsideListEl.innerHTML = `
+          <div style="padding: 16px; text-align: center; color: var(--success); background: var(--success-soft); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600;">
+            ${q ? 'No outside files match your search query.' : '✅ All physical case files are currently safely inside your chamber!'}
+          </div>
+        `;
+      } else {
+        outsideListEl.innerHTML = outsideCases.map(c => `
+          <div class="chamber-outside-row">
+            <div>
+              <div style="font-weight: 750; font-size: 13px;">${c.case_number} • ${c.parties}</div>
+              <div style="font-size: 12px; color: var(--warn); margin-top: 3px;">
+                📍 Holder / Location: <strong>${c.file_current_holder || 'In Court / Junior'}</strong>
+                ${c.chamber_almirah ? ` • <span class="text-muted">(Home: ${c.chamber_almirah} / ${c.chamber_shelf || 'Shelf-1'})</span>` : ''}
+              </div>
+            </div>
+            <div style="display: flex; gap: 6px; flex-shrink: 0;">
+              <button 
+                type="button" 
+                onclick="app.quickReturnToChamber('${c.id}')" 
+                class="btn btn-primary btn-sm" 
+                style="min-height: 28px; padding: 2px 10px; font-size: 11px; background: var(--success); border-color: var(--success);"
+                title="Return file back to chamber"
+              >
+                ⏎ Return to Chamber
+              </button>
+              <button 
+                type="button" 
+                onclick="app.openChamberModal('${c.id}')" 
+                class="btn btn-secondary btn-sm" 
+                style="min-height: 28px; padding: 2px 8px; font-size: 11px;"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 2. Chamber Almirah & Rack Directory (Filtered by rack & search)
+    if (almirahListEl) {
+      let insideCases = this.cases.filter(c => c.file_in_chamber !== false);
+      if (q) {
+        insideCases = insideCases.filter(c => 
+          (c.case_number && c.case_number.toLowerCase().includes(q)) ||
+          (c.parties && c.parties.toLowerCase().includes(q)) ||
+          (c.chamber_almirah && c.chamber_almirah.toLowerCase().includes(q)) ||
+          (c.chamber_shelf && c.chamber_shelf.toLowerCase().includes(q)) ||
+          (c.chamber_bundle_no && c.chamber_bundle_no.toLowerCase().includes(q))
+        );
+      }
+      if (almFilter !== 'all') {
+        insideCases = insideCases.filter(c => (c.chamber_almirah || '').includes(almFilter));
+      }
+
+      const almirahMap = {};
+      insideCases.forEach(c => {
+        const alm = c.chamber_almirah || 'Almirah-A';
+        if (!almirahMap[alm]) almirahMap[alm] = [];
+        almirahMap[alm].push(c);
+      });
+
+      const almirahs = Object.keys(almirahMap).sort();
+      if (almirahs.length === 0) {
+        almirahListEl.innerHTML = `<p class="text-muted" style="font-size: 13px;">No cases found matching your chamber filter.</p>`;
+      } else {
+        almirahListEl.innerHTML = almirahs.map(alm => {
+          const files = almirahMap[alm];
+          return `
+            <div class="almirah-card">
+              <div class="almirah-title">
+                <span>🗄️ ${alm}</span>
+                <span class="pill-count" style="background: var(--accent); color: #fff;">${files.length} Files</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                ${files.slice(0, 8).map(f => `
+                  <div style="font-size: 12px; display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border);">
+                    <span style="font-weight: 600;">${f.case_number}</span>
+                    <span class="text-muted">${f.chamber_shelf || 'Shelf-1'}${f.chamber_bundle_no ? ` • ${f.chamber_bundle_no}` : ''}</span>
+                  </div>
+                `).join('')}
+                ${files.length > 8 ? `
+                  <div style="font-size: 11px; color: var(--accent); font-weight: 600; text-align: center; margin-top: 4px;">
+                    + ${files.length - 8} more files in this rack
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+  }
+
+  // Chamber Search & Filter Handlers
+  handleChamberSearch(query) {
+    this.chamberSearchQuery = query.toLowerCase().trim();
+    this.renderChamberView();
+  }
+
+  setChamberAlmirahFilter(alm) {
+    this.chamberAlmirahFilter = alm;
+    document.querySelectorAll('#chamberAlmirahFilterBar .segment-pill').forEach(btn => {
+      if (btn.dataset.alm === alm) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+    this.renderChamberView();
+  }
+
+  // 1-Tap Daily Chamber Routines
+  checkOutTodayFiles() {
+    const todayCases = this.cases.filter(c => {
+      if (c.status === 'Disposed') return false;
+      return this.getDateDifference(c.next_hearing_date) === 0 && c.file_in_chamber !== false;
+    });
+
+    if (todayCases.length === 0) {
+      this.showToast("No chamber files pending checkout for today's hearing", 'info');
+      return;
+    }
+
+    todayCases.forEach(c => {
+      c.file_in_chamber = false;
+      c.file_current_holder = `In Courtroom (${c.court_name || 'Court'})`;
+      c.file_last_moved_at = new Date().toISOString();
+      this.enqueueSyncAction('upsert', c.id, c);
+    });
+
+    this.saveToLocal();
+    this.updateCounters();
+    this.render();
+    this.renderChamberView();
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+
+    this.triggerHaptic('success');
+    this.showToast(`Checked out ${todayCases.length} files to Courtroom 📤`, 'success');
+  }
+
+  returnAllFilesToChamber() {
+    const outsideCases = this.cases.filter(c => c.file_in_chamber === false);
+    if (outsideCases.length === 0) {
+      this.showToast('All files are already in chamber 🟢', 'info');
+      return;
+    }
+
+    if (!confirm(`Return all ${outsideCases.length} files back to their chamber racks?`)) return;
+
+    outsideCases.forEach(c => {
+      c.file_in_chamber = true;
+      c.file_current_holder = 'Chamber';
+      c.file_last_moved_at = new Date().toISOString();
+      this.enqueueSyncAction('upsert', c.id, c);
+    });
+
+    this.saveToLocal();
+    this.updateCounters();
+    this.render();
+    this.renderChamberView();
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+
+    this.triggerHaptic('success');
+    this.showToast(`All ${outsideCases.length} files safely returned to Chamber 🟢`, 'success');
   }
 
   // Segment Filter Tab Click
@@ -933,6 +941,12 @@ class LegalDiaryApp {
           const diff = this.getDateDifference(item.next_hearing_date);
           return diff >= 0 && diff <= 7;
         }
+        if (this.quickFilter === 'in_chamber') {
+          return item.file_in_chamber !== false;
+        }
+        if (this.quickFilter === 'out_chamber') {
+          return item.file_in_chamber === false;
+        }
         if (this.quickFilter === 'overdue') {
           if (item.status === 'Disposed') return false;
           return this.getDateDifference(item.next_hearing_date) < 0;
@@ -954,6 +968,15 @@ class LegalDiaryApp {
           (item.case_number && item.case_number.toLowerCase().includes(q)) ||
           (item.parties && item.parties.toLowerCase().includes(q)) ||
           (item.court_name && item.court_name.toLowerCase().includes(q)) ||
+          (item.case_type && item.case_type.toLowerCase().includes(q)) ||
+          (item.client_name && item.client_name.toLowerCase().includes(q)) ||
+          (item.client_phone && item.client_phone.includes(q)) ||
+          (item.police_station_fir && item.police_station_fir.toLowerCase().includes(q)) ||
+          (item.act_sections && item.act_sections.toLowerCase().includes(q)) ||
+          (item.chamber_almirah && item.chamber_almirah.toLowerCase().includes(q)) ||
+          (item.chamber_shelf && item.chamber_shelf.toLowerCase().includes(q)) ||
+          (item.chamber_bundle_no && item.chamber_bundle_no.toLowerCase().includes(q)) ||
+          (item.file_current_holder && item.file_current_holder.toLowerCase().includes(q)) ||
           (item.hearing_stage && item.hearing_stage.toLowerCase().includes(q)) ||
           (item.senior_instructions && item.senior_instructions.toLowerCase().includes(q))
         );
@@ -1015,19 +1038,35 @@ class LegalDiaryApp {
     }
   }
 
-  // RENDER (Swiss Typographic Minimalist Agenda Stream with Past Hearing History)
+  // RENDER (Mobile-First Agenda Stream with Chamber File Tracking & Hearing History)
   render() {
+    this.populateCourtDropdown();
     const container = document.getElementById('casesList');
     const emptyState = document.getElementById('emptyState');
     const filtered = this.getFilteredCases();
 
     if (filtered.length === 0) {
       container.innerHTML = '';
-      emptyState.style.display = 'flex';
+      if (emptyState) {
+        emptyState.style.display = 'block';
+        const titleEl = document.getElementById('emptyStateTitle');
+        const descEl = document.getElementById('emptyStateDesc');
+        const actionsEl = document.getElementById('emptyStateActions');
+        
+        if (this.cases.length === 0) {
+          if (titleEl) titleEl.textContent = 'Case Diary is Empty';
+          if (descEl) descEl.textContent = 'No cases registered yet. Tap \'+ Case\' to add your first client case with chamber tracking and hearing history.';
+          if (actionsEl) actionsEl.innerHTML = '<button type="button" onclick="app.openCaseModal()" class="btn btn-primary btn-sm">+ Add First Case</button>';
+        } else {
+          if (titleEl) titleEl.textContent = 'No Records Match Filter';
+          if (descEl) descEl.textContent = 'No cases match your active filter or search query.';
+          if (actionsEl) actionsEl.innerHTML = '<button type="button" onclick="app.clearSearch(); app.setQuickFilter(\'all\')" class="btn btn-secondary btn-sm">Reset All Filters</button>';
+        }
+      }
       return;
     }
 
-    emptyState.style.display = 'none';
+    if (emptyState) emptyState.style.display = 'none';
 
     container.innerHTML = filtered.map((c, idx) => {
       const statusInfo = this.getHearingStatusInfo(c.next_hearing_date, c.status);
@@ -1035,6 +1074,8 @@ class LegalDiaryApp {
       const isUrgent = c.priority === 'Urgent';
       const isExpanded = this.expandedCardIds.has(c.id);
       const historyList = Array.isArray(c.hearing_history) ? c.hearing_history : [];
+      const isInChamber = c.file_in_chamber !== false;
+      const cleanPhone = (c.client_phone || '').replace(/\D/g, '');
 
       return `
         <article class="case-card" id="card-${c.id}">
@@ -1042,9 +1083,12 @@ class LegalDiaryApp {
           <!-- Clickable Header Row -->
           <div onclick="app.toggleCard('${c.id}')" class="card-summary">
             
-            <!-- Line 1: Court Badge vs Status Badge -->
+            <!-- Line 1: Court Badge vs Case Type vs Status Badge -->
             <div class="card-summary-top">
               <span class="court-badge">${c.court_name || 'Court'}</span>
+              <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 2px 7px; background: var(--surface-subtle); border-radius: var(--radius-sm);">
+                ${c.case_type || 'Criminal'}${c.representing ? ` • ${c.representing}` : ''}
+              </span>
               <span class="${statusInfo.badgeClass}">
                 ${statusInfo.label}
               </span>
@@ -1059,6 +1103,28 @@ class LegalDiaryApp {
                 </svg>
               </span>
             </div>
+
+            <!-- Line 3: Physical Chamber File Location Status (Always visible on mobile) -->
+            ${isInChamber ? `
+              <div class="chamber-status-box in-chamber" onclick="event.stopPropagation()">
+                <span>🟢 <strong>In Chamber</strong>: ${c.chamber_almirah || 'Almirah-A'} • ${c.chamber_shelf || 'Shelf-1'} ${c.chamber_bundle_no ? `• ${c.chamber_bundle_no}` : ''}</span>
+                <button type="button" onclick="app.openChamberModal('${c.id}')" class="chamber-quick-btn" title="Mark physical file issued out">
+                  📤 Issue / Move
+                </button>
+              </div>
+            ` : `
+              <div class="chamber-status-box out-chamber" onclick="event.stopPropagation()">
+                <span>🟠 <strong>Outside Chamber</strong>: With <strong>${c.file_current_holder || 'In Court'}</strong></span>
+                <div style="display: flex; gap: 4px;">
+                  <button type="button" onclick="app.quickReturnToChamber('${c.id}')" class="chamber-quick-btn" style="background: var(--success); color: #fff; border-color: var(--success);" title="Return file to chamber">
+                    ⏎ Return
+                  </button>
+                  <button type="button" onclick="app.openChamberModal('${c.id}')" class="chamber-quick-btn" title="Change location">
+                    Edit
+                  </button>
+                </div>
+              </div>
+            `}
 
           </div>
 
@@ -1087,11 +1153,41 @@ class LegalDiaryApp {
                 <span class="hearing-date-pill">🗓 Hearing: <strong>${displayDate}</strong></span>
               </div>
 
-              <!-- Stage line -->
-              <div class="stage-row">
-                <span class="stage-label">STAGE:</span>
-                <span class="stage-pill">${c.hearing_stage || 'General'}</span>
+              <!-- Stage & Court Room line -->
+              <div class="stage-row" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between;">
+                <div>
+                  <span class="stage-label">STAGE:</span>
+                  <span class="stage-pill">${c.hearing_stage || 'General'}</span>
+                </div>
+                ${c.judge_name ? `
+                  <div style="font-size: 11px; color: var(--text-muted); align-self: center;">
+                    🏛️ <strong>${c.judge_name}</strong>
+                  </div>
+                ` : ''}
               </div>
+
+              <!-- Police Station & FIR / Acts if present -->
+              ${(c.police_station_fir || c.act_sections) ? `
+                <div style="font-size: 12px; background: var(--surface-subtle); padding: 7px 10px; border-radius: var(--radius-sm); border-left: 2px solid var(--accent); margin-top: 6px;">
+                  ${c.police_station_fir ? `<span>🚓 <strong>${c.police_station_fir}</strong></span> ` : ''}
+                  ${c.act_sections ? `<span class="text-muted">• Sec: <strong>${c.act_sections}</strong></span>` : ''}
+                </div>
+              ` : ''}
+
+              <!-- Client Details & 1-Tap Call/WhatsApp -->
+              ${(c.client_name || c.client_phone) ? `
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; margin-top: 6px; padding: 6px 10px; background: var(--surface-subtle); border-radius: var(--radius-sm);">
+                  <div>
+                    <span>👤 <strong>${c.client_name || 'Client'}</strong>${c.client_phone ? `: ${c.client_phone}` : ''}</span>
+                  </div>
+                  ${cleanPhone ? `
+                    <div class="client-actions" onclick="event.stopPropagation()">
+                      <a href="tel:${cleanPhone}" class="btn-call" title="Call Client">📞 Call</a>
+                      <a href="https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`Namaste, regarding case ${c.case_number} (${c.parties}), next hearing date is fixed for ${displayDate}.`)}" target="_blank" class="btn-wa" title="WhatsApp Client">💬 Chat</a>
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
 
               <!-- Senior directive / yellow notes banner -->
               ${c.senior_instructions ? `
@@ -1104,12 +1200,22 @@ class LegalDiaryApp {
               <div class="history-block">
                 <div class="history-block-header">
                   <span class="history-label">Hearing History</span>
-                  <span class="history-count-badge">${historyList.length} Recorded</span>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="history-count-badge">${historyList.length} Recorded</span>
+                    <button 
+                      type="button" 
+                      onclick="event.stopPropagation(); app.openHistoryModal('${c.id}')" 
+                      class="btn btn-secondary btn-sm" 
+                      style="min-height: 24px; padding: 2px 8px; font-size: 11px;"
+                    >
+                      📜 View Timeline
+                    </button>
+                  </div>
                 </div>
 
                 ${historyList.length > 0 ? `
                   <div class="history-items-list">
-                    ${[...historyList].reverse().map(h => `
+                    ${[...historyList].reverse().slice(0, 2).map(h => `
                       <div class="history-item-entry">
                         <div class="history-item-meta">
                           <span class="history-date">${this.formatDisplayDate(h.date)}</span>
@@ -1119,6 +1225,13 @@ class LegalDiaryApp {
                         ${h.remarks ? `<p class="history-notes-text">“${h.remarks}”</p>` : ''}
                       </div>
                     `).join('')}
+                    ${historyList.length > 2 ? `
+                      <div style="text-align: center; margin-top: 4px;">
+                        <a href="javascript:void(0)" onclick="event.stopPropagation(); app.openHistoryModal('${c.id}')" style="font-size: 11px; color: var(--accent); font-weight: 600; text-decoration: none;">
+                          + View all ${historyList.length} hearings in timeline →
+                        </a>
+                      </div>
+                    ` : ''}
                   </div>
                 ` : `
                   <p class="history-empty-text">First hearing entry recorded. Click 'Update Date' to advance the date and record history.</p>
@@ -1183,6 +1296,15 @@ class LegalDiaryApp {
     }).join('');
   }
 
+  // Toggle Chamber Form Fields (In Chamber vs Outside)
+  toggleChamberFormFields(val) {
+    const isInChamber = val === 'true' || val === true;
+    const holderWrap = document.getElementById('holderFieldWrap');
+    const locWrap = document.getElementById('chamberLocationFieldsWrap');
+    if (holderWrap) holderWrap.style.display = isInChamber ? 'none' : 'block';
+    if (locWrap) locWrap.style.display = isInChamber ? 'grid' : 'none';
+  }
+
   // MODAL 1: ADD / EDIT CASE (Offline First + Optimistic Local Update)
   openCaseModal(id = null) {
     const modal = document.getElementById('caseModal');
@@ -1197,19 +1319,40 @@ class LegalDiaryApp {
       document.getElementById('caseId').value = item.id;
       document.getElementById('caseNumber').value = item.case_number;
       document.getElementById('caseParties').value = item.parties;
+      document.getElementById('caseType').value = item.case_type || 'Criminal';
+      document.getElementById('caseRepresenting').value = item.representing || 'Petitioner';
       document.getElementById('caseCourt').value = item.court_name || '';
       document.getElementById('caseJudge').value = item.judge_name || '';
+      document.getElementById('casePoliceStation').value = item.police_station_fir || '';
+      document.getElementById('caseSections').value = item.act_sections || '';
+      document.getElementById('caseClientName').value = item.client_name || '';
+      document.getElementById('caseClientPhone').value = item.client_phone || '';
       document.getElementById('caseNextDate').value = item.next_hearing_date;
+      document.getElementById('casePriority').value = item.priority || 'Normal';
       document.getElementById('caseStage').value = item.hearing_stage || '';
+      document.getElementById('caseStatus').value = item.status || 'Active';
+      
+      const inChamber = item.file_in_chamber !== false;
+      document.getElementById('caseFileInChamber').value = String(inChamber);
+      document.getElementById('caseChamberAlmirah').value = item.chamber_almirah || 'Almirah-A';
+      document.getElementById('caseChamberShelf').value = item.chamber_shelf || 'Shelf-1';
+      document.getElementById('caseChamberBundle').value = item.chamber_bundle_no || '';
+      document.getElementById('caseCurrentHolder').value = item.file_current_holder || '';
+      this.toggleChamberFormFields(inChamber);
+
       document.getElementById('caseInstructions').value = item.senior_instructions || '';
       document.getElementById('caseDriveLink').value = item.file_drive_link || '';
-      document.getElementById('casePriority').value = item.priority || 'Normal';
-      document.getElementById('caseStatus').value = item.status || 'Active';
     } else {
       title.textContent = 'New Case Entry';
       document.getElementById('caseId').value = '';
       const today = new Date().toISOString().split('T')[0];
       document.getElementById('caseNextDate').value = today;
+      document.getElementById('caseFileInChamber').value = 'true';
+      document.getElementById('caseChamberAlmirah').value = 'Almirah-A';
+      document.getElementById('caseChamberShelf').value = 'Shelf-1';
+      document.getElementById('caseChamberBundle').value = '';
+      document.getElementById('caseCurrentHolder').value = '';
+      this.toggleChamberFormFields(true);
     }
 
     modal.classList.add('active');
@@ -1223,18 +1366,34 @@ class LegalDiaryApp {
     e.preventDefault();
     const id = document.getElementById('caseId').value;
     const existing = id ? this.cases.find(c => c.id === id) : null;
+    const fileInChamber = document.getElementById('caseFileInChamber').value === 'true';
+
     const caseData = {
       id: id || 'case-' + Date.now(),
       case_number: document.getElementById('caseNumber').value.trim(),
       parties: document.getElementById('caseParties').value.trim(),
+      case_type: document.getElementById('caseType').value,
+      representing: document.getElementById('caseRepresenting').value,
       court_name: document.getElementById('caseCourt').value.trim(),
       judge_name: document.getElementById('caseJudge').value.trim(),
+      police_station_fir: document.getElementById('casePoliceStation').value.trim(),
+      act_sections: document.getElementById('caseSections').value.trim(),
+      client_name: document.getElementById('caseClientName').value.trim(),
+      client_phone: document.getElementById('caseClientPhone').value.trim(),
       next_hearing_date: document.getElementById('caseNextDate').value,
       hearing_stage: document.getElementById('caseStage').value.trim(),
-      senior_instructions: document.getElementById('caseInstructions').value.trim(),
-      file_drive_link: document.getElementById('caseDriveLink').value.trim(),
       priority: document.getElementById('casePriority').value,
       status: document.getElementById('caseStatus').value,
+      
+      file_in_chamber: fileInChamber,
+      file_current_holder: fileInChamber ? 'Chamber' : (document.getElementById('caseCurrentHolder').value.trim() || 'Outside Chamber'),
+      chamber_almirah: document.getElementById('caseChamberAlmirah').value.trim() || 'Almirah-A',
+      chamber_shelf: document.getElementById('caseChamberShelf').value.trim() || 'Shelf-1',
+      chamber_bundle_no: document.getElementById('caseChamberBundle').value.trim(),
+      file_last_moved_at: existing ? existing.file_last_moved_at : new Date().toISOString(),
+
+      senior_instructions: document.getElementById('caseInstructions').value.trim(),
+      file_drive_link: document.getElementById('caseDriveLink').value.trim(),
       hearing_history: (existing && Array.isArray(existing.hearing_history)) ? existing.hearing_history : []
     };
 
@@ -1250,6 +1409,7 @@ class LegalDiaryApp {
     this.closeCaseModal();
     this.updateCounters();
     this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
 
     // 2. Queue for database sync
     this.enqueueSyncAction('upsert', caseData.id, caseData);
@@ -1260,6 +1420,422 @@ class LegalDiaryApp {
     } else {
       this.showToast(id ? 'Case updated locally' : 'Case saved locally', 'success');
     }
+  }
+
+  // ==========================================================================
+  // CHAMBER FILE TRACKING METHODS
+  // ==========================================================================
+  openChamberModal(id) {
+    const item = this.cases.find(c => c.id === id);
+    if (!item) return;
+
+    document.getElementById('chamberModalCaseId').value = item.id;
+    document.getElementById('chamberModalCaseTitle').textContent = `${item.case_number} • ${item.parties}`;
+    document.getElementById('modalAlmirah').value = item.chamber_almirah || 'Almirah-A';
+    document.getElementById('modalShelf').value = item.chamber_shelf || 'Shelf-1';
+    document.getElementById('modalBundle').value = item.chamber_bundle_no || '';
+    document.getElementById('modalHolderName').value = (item.file_current_holder && item.file_current_holder !== 'Chamber') ? item.file_current_holder : '';
+
+    this.selectChamberModalStatus(item.file_in_chamber !== false);
+    document.getElementById('chamberModal').classList.add('active');
+  }
+
+  closeChamberModal() {
+    document.getElementById('chamberModal').classList.remove('active');
+  }
+
+  selectChamberModalStatus(isInChamber) {
+    this.modalChamberStatus = Boolean(isInChamber);
+    const inWrap = document.getElementById('modalChamberInWrap');
+    const outWrap = document.getElementById('modalChamberOutWrap');
+    const btnIn = document.getElementById('btnStatusInChamber');
+    const btnOut = document.getElementById('btnStatusOutChamber');
+
+    if (this.modalChamberStatus) {
+      if (inWrap) inWrap.style.display = 'flex';
+      if (outWrap) outWrap.style.display = 'none';
+      if (btnIn) { btnIn.style.background = 'var(--success-soft)'; btnIn.style.boxShadow = '0 0 0 2px var(--success)'; }
+      if (btnOut) { btnOut.style.background = 'transparent'; btnOut.style.boxShadow = 'none'; }
+    } else {
+      if (inWrap) inWrap.style.display = 'none';
+      if (outWrap) outWrap.style.display = 'flex';
+      if (btnOut) { btnOut.style.background = 'var(--warn-soft)'; btnOut.style.boxShadow = '0 0 0 2px var(--warn)'; }
+      if (btnIn) { btnIn.style.background = 'transparent'; btnIn.style.boxShadow = 'none'; }
+    }
+  }
+
+  handleHolderSelectChange(val) {
+    const nameInput = document.getElementById('modalHolderName');
+    if (!nameInput) return;
+    if (val === 'Courtroom') nameInput.value = 'In Courtroom for Hearing';
+    else if (val === 'Junior Advocate') nameInput.value = 'Junior Advocate';
+    else if (val === 'Senior Advocate') nameInput.value = 'Senior Briefing';
+    else if (val === 'Munshi / Clerk') nameInput.value = 'Munshi Ji (Photocopy/Filing)';
+    else if (val === 'Client') nameInput.value = 'Given to Client';
+    else nameInput.value = '';
+    nameInput.focus();
+  }
+
+  handleChamberMovementSubmit(e) {
+    e.preventDefault();
+    const id = document.getElementById('chamberModalCaseId').value;
+    const item = this.cases.find(c => c.id === id);
+    if (!item) return;
+
+    item.file_in_chamber = this.modalChamberStatus;
+    if (this.modalChamberStatus) {
+      item.file_current_holder = 'Chamber';
+      item.chamber_almirah = document.getElementById('modalAlmirah').value.trim() || 'Almirah-A';
+      item.chamber_shelf = document.getElementById('modalShelf').value.trim() || 'Shelf-1';
+      item.chamber_bundle_no = document.getElementById('modalBundle').value.trim();
+    } else {
+      const holder = document.getElementById('modalHolderName').value.trim() || document.getElementById('modalHolderSelect').value;
+      item.file_current_holder = holder;
+    }
+    item.file_last_moved_at = new Date().toISOString();
+
+    this.saveToLocal();
+    this.closeChamberModal();
+    this.updateCounters();
+    this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
+
+    this.enqueueSyncAction('upsert', item.id, item);
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+
+    const msg = this.modalChamberStatus ? 'File marked In Chamber 🟢' : `File marked Outside: ${item.file_current_holder} 🟠`;
+    this.showToast(msg, 'success');
+  }
+
+  quickReturnToChamber(id) {
+    const item = this.cases.find(c => c.id === id);
+    if (!item) return;
+
+    item.file_in_chamber = true;
+    item.file_current_holder = 'Chamber';
+    item.file_last_moved_at = new Date().toISOString();
+
+    this.saveToLocal();
+    this.updateCounters();
+    this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
+
+    this.enqueueSyncAction('upsert', item.id, item);
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+
+    this.triggerHaptic('success');
+    this.showToast(`${item.case_number} returned to Chamber 🟢`, 'success');
+  }
+
+  // Haptic Feedback for Mobile App Feel
+  triggerHaptic(type = 'light') {
+    if ('vibrate' in navigator) {
+      try {
+        if (type === 'light') navigator.vibrate(20);
+        else if (type === 'medium') navigator.vibrate(40);
+        else if (type === 'success') navigator.vibrate([25, 35, 25]);
+      } catch (e) {}
+    }
+  }
+
+  // ==========================================================================
+  // HEARING HISTORY METHODS
+  // ==========================================================================
+  openHistoryModal(id) {
+    const item = this.cases.find(c => c.id === id);
+    if (!item) return;
+
+    this.currentHistoryCaseId = id;
+    this.historySearchQuery = '';
+    const searchInput = document.getElementById('historySearchInput');
+    if (searchInput) searchInput.value = '';
+
+    document.getElementById('manualHistCaseId').value = id;
+    document.getElementById('manualHistIndex').value = '-1';
+    document.getElementById('historyModalCaseTitle').textContent = `${item.case_number} • ${item.parties}`;
+    this.toggleAddHistoryForm(false);
+    this.renderHistoryTimeline(item);
+    document.getElementById('historyModal').classList.add('active');
+    this.triggerHaptic('light');
+  }
+
+  closeHistoryModal() {
+    document.getElementById('historyModal').classList.remove('active');
+    this.currentHistoryCaseId = null;
+    this.historySearchQuery = '';
+  }
+
+  handleHistorySearch(query) {
+    this.historySearchQuery = (query || '').toLowerCase().trim();
+    if (this.currentHistoryCaseId) {
+      const item = this.cases.find(c => c.id === this.currentHistoryCaseId);
+      if (item) this.renderHistoryTimeline(item);
+    }
+  }
+
+  toggleAddHistoryForm(forceState = null) {
+    const wrap = document.getElementById('addHistoryFormWrap');
+    if (!wrap) return;
+    if (forceState !== null) {
+      wrap.style.display = forceState ? 'block' : 'none';
+    } else {
+      wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+    }
+    if (wrap.style.display === 'block') {
+      const idxInput = document.getElementById('manualHistIndex');
+      if (!idxInput || idxInput.value === '-1') {
+        document.getElementById('manualHistDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('manualHistStage').value = '';
+        document.getElementById('manualHistRemarks').value = '';
+        const btnSave = document.getElementById('btnSaveManualHist');
+        if (btnSave) btnSave.textContent = 'Save Entry';
+      }
+    }
+  }
+
+  editHistoryItem(caseId, index) {
+    const item = this.cases.find(c => c.id === caseId);
+    if (!item || !Array.isArray(item.hearing_history) || !item.hearing_history[index]) return;
+
+    const entry = item.hearing_history[index];
+    document.getElementById('manualHistCaseId').value = caseId;
+    document.getElementById('manualHistIndex').value = index;
+    document.getElementById('manualHistDate').value = entry.date;
+    document.getElementById('manualHistStage').value = entry.stage || '';
+    document.getElementById('manualHistRemarks').value = entry.remarks || '';
+    const btnSave = document.getElementById('btnSaveManualHist');
+    if (btnSave) btnSave.textContent = 'Update Entry';
+
+    this.toggleAddHistoryForm(true);
+  }
+
+  handleManualHistorySubmit(e) {
+    e.preventDefault();
+    const id = document.getElementById('manualHistCaseId').value;
+    const item = this.cases.find(c => c.id === id);
+    if (!item) return;
+
+    if (!Array.isArray(item.hearing_history)) item.hearing_history = [];
+
+    const dateVal = document.getElementById('manualHistDate').value;
+    const stageVal = document.getElementById('manualHistStage').value.trim() || 'Hearing';
+    const remarksVal = document.getElementById('manualHistRemarks').value.trim() || 'Court proceedings logged';
+    const index = parseInt(document.getElementById('manualHistIndex').value, 10);
+
+    if (index >= 0 && index < item.hearing_history.length) {
+      // Edit existing entry
+      item.hearing_history[index].date = dateVal;
+      item.hearing_history[index].stage = stageVal;
+      item.hearing_history[index].remarks = remarksVal;
+      item.hearing_history[index].updated_at = new Date().toISOString();
+      this.showToast('Hearing entry updated', 'success');
+    } else {
+      // Add new entry
+      item.hearing_history.push({
+        date: dateVal,
+        stage: stageVal,
+        remarks: remarksVal,
+        recorded_at: new Date().toISOString()
+      });
+      this.showToast('Hearing history entry added', 'success');
+    }
+
+    // Sort by date ascending
+    item.hearing_history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Reset index
+    document.getElementById('manualHistIndex').value = '-1';
+
+    this.saveToLocal();
+    this.toggleAddHistoryForm(false);
+    this.renderHistoryTimeline(item);
+    this.render();
+
+    this.enqueueSyncAction('upsert', item.id, item);
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+    this.triggerHaptic('success');
+  }
+
+  deleteHistoryItem(caseId, index) {
+    const item = this.cases.find(c => c.id === caseId);
+    if (!item || !Array.isArray(item.hearing_history)) return;
+
+    if (!confirm('Delete this hearing history entry?')) return;
+
+    item.hearing_history.splice(index, 1);
+    this.saveToLocal();
+    this.renderHistoryTimeline(item);
+    this.render();
+
+    this.enqueueSyncAction('upsert', item.id, item);
+    if (this.isOnline && this.isSupabaseConnected) this.autoSyncDatabase();
+    this.showToast('History entry deleted', 'info');
+  }
+
+  renderHistoryTimeline(item) {
+    const container = document.getElementById('historyTimelineContainer');
+    if (!container) return;
+
+    let list = Array.isArray(item.hearing_history) ? item.hearing_history : [];
+    const q = this.historySearchQuery;
+    if (q) {
+      list = list.filter(h => 
+        (h.stage && h.stage.toLowerCase().includes(q)) ||
+        (h.remarks && h.remarks.toLowerCase().includes(q)) ||
+        (h.date && h.date.includes(q))
+      );
+    }
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <p class="text-muted" style="font-size: 13px;">${q ? 'No hearings match your search term.' : 'No past hearing dates recorded yet for this case. Use \'+ Add Past Date\' above or \'Update NDOH\' to log hearings.'}</p>
+      `;
+      return;
+    }
+
+    // Render in reverse chronological order
+    const originalList = item.hearing_history || [];
+    container.innerHTML = [...list].reverse().map(h => {
+      const realIdx = originalList.indexOf(h);
+      return `
+        <div class="timeline-node">
+          <div class="timeline-dot"></div>
+          <div class="timeline-card">
+            <div class="timeline-meta">
+              <span>📅 ${this.formatDisplayDate(h.date)}</span>
+              <span>•</span>
+              <span class="timeline-stage">${h.stage || 'Hearing'}</span>
+              <div style="margin-left: auto; display: flex; gap: 8px;">
+                <button 
+                  type="button" 
+                  onclick="app.editHistoryItem('${item.id}', ${realIdx})" 
+                  style="background: none; border: none; cursor: pointer; color: var(--accent); font-size: 11px; font-weight: 600;"
+                  title="Edit Entry"
+                >
+                  ✏️ Edit
+                </button>
+                <button 
+                  type="button" 
+                  onclick="app.deleteHistoryItem('${item.id}', ${realIdx})" 
+                  style="background: none; border: none; cursor: pointer; color: var(--danger); font-size: 11px;"
+                  title="Delete Entry"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            ${h.remarks ? `<p class="timeline-remarks">“${h.remarks}”</p>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Print Case History Order Sheet Dossier
+  printCaseHistory() {
+    if (!this.currentHistoryCaseId) return;
+    const item = this.cases.find(c => c.id === this.currentHistoryCaseId);
+    if (!item) return;
+
+    const printWin = window.open('', '_blank');
+    if (!printWin) {
+      alert('Please allow popups to print case history.');
+      return;
+    }
+
+    const list = Array.isArray(item.hearing_history) ? item.hearing_history : [];
+
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <title>Order Sheet Dossier • ${item.case_number}</title>
+        <style>
+          body { font-family: ui-sans-serif, system-ui, sans-serif; padding: 28px; color: #0f172a; line-height: 1.5; font-size: 13px; }
+          .header-box { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; }
+          h1 { margin: 0 0 6px 0; font-size: 20px; font-weight: 750; }
+          .parties { font-size: 16px; font-weight: 650; margin: 4px 0 10px 0; }
+          .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; margin-bottom: 12px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+          th { background: #f1f5f9; padding: 10px 8px; border: 1px solid #cbd5e1; text-align: left; font-size: 11px; text-transform: uppercase; }
+          td { padding: 8px; border: 1px solid #cbd5e1; vertical-align: top; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="header-box">
+          <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b;">Advocate Case History &amp; Order Sheet Dossier</div>
+          <h1>${item.case_number}</h1>
+          <div class="parties">${item.parties}</div>
+          <div class="meta-grid">
+            <div><strong>Court:</strong> ${item.court_name || 'N/A'}${item.judge_name ? ` (${item.judge_name})` : ''}</div>
+            <div><strong>Case Type:</strong> ${item.case_type || 'Criminal'} • ${item.representing || 'Petitioner'}</div>
+            <div><strong>Physical File:</strong> ${item.file_in_chamber ? `In Chamber (${item.chamber_almirah} / ${item.chamber_shelf})` : `Outside (${item.file_current_holder})`}</div>
+            <div><strong>Next Hearing (NDOH):</strong> ${this.formatDisplayDate(item.next_hearing_date)}</div>
+            <div><strong>Stage:</strong> ${item.hearing_stage || 'General'}</div>
+            <div><strong>Priority:</strong> ${item.priority || 'Normal'}</div>
+          </div>
+          ${item.senior_instructions ? `<div style="background: #f8fafc; padding: 8px 12px; border-left: 3px solid #2563eb; font-style: italic;">“${item.senior_instructions}”</div>` : ''}
+        </div>
+
+        <h3 style="font-size: 14px; margin: 16px 0 8px 0;">CHRONOLOGICAL ORDER SHEET (${list.length} HEARINGS)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align: center;">#</th>
+              <th style="width: 100px;">Hearing Date</th>
+              <th style="width: 140px;">Stage / Purpose</th>
+              <th>Court Proceedings / Order Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map((h, i) => `
+              <tr>
+                <td style="text-align: center; font-weight: 600;">${i + 1}</td>
+                <td style="font-weight: 600; font-variant-numeric: tabular-nums;">${this.formatDisplayDate(h.date)}</td>
+                <td><span style="font-weight: 600;">${h.stage || 'Hearing'}</span></td>
+                <td>${h.remarks || 'Proceeding recorded'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div style="margin-top: 30px; text-align: center;">
+          <button onclick="window.print()" style="padding: 10px 24px; font-size: 14px; font-weight: 600; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
+            🖨️ Print / Save as PDF
+          </button>
+        </div>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
+  }
+
+  // Share Full History Dossier to WhatsApp
+  shareCaseHistoryWhatsApp() {
+    if (!this.currentHistoryCaseId) return;
+    const item = this.cases.find(c => c.id === this.currentHistoryCaseId);
+    if (!item) return;
+
+    const list = Array.isArray(item.hearing_history) ? item.hearing_history : [];
+    const timelineText = list.map((h, i) => `${i + 1}. *${this.formatDisplayDate(h.date)}* (${h.stage || 'Hearing'}): ${h.remarks || 'Proceeding recorded'}`).join('\n');
+
+    const msg = 
+`*COMPLETE CASE TIMELINE DOSSIER*
+*Case No:* ${item.case_number}
+*Parties:* ${item.parties}
+*Court:* ${item.court_name || 'N/A'}${item.judge_name ? ` (${item.judge_name})` : ''}
+*Type:* ${item.case_type || 'General'} (${item.representing || 'Counsel'})
+*Next Date (NDOH):* ${this.formatDisplayDate(item.next_hearing_date)} [${item.hearing_stage || 'Hearing'}]
+*Physical File:* ${item.file_in_chamber ? `In Chamber (${item.chamber_almirah} / ${item.chamber_shelf})` : `Outside (${item.file_current_holder})`}
+
+*HEARING HISTORY (${list.length} Dates):*
+${timelineText || 'No past dates logged yet.'}
+
+_Legal Diary System_`;
+
+    const encoded = encodeURIComponent(msg);
+    window.open(`https://wa.me/?text=${encoded}`, '_blank');
   }
 
   // MODAL 2: NDOH QUICK UPDATE
@@ -1315,6 +1891,7 @@ class LegalDiaryApp {
     this.closeNdohModal();
     this.updateCounters();
     this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
 
     // 2. Queue for database sync
     this.enqueueSyncAction('upsert', item.id, item);
@@ -1340,6 +1917,7 @@ class LegalDiaryApp {
     this.saveToLocal();
     this.updateCounters();
     this.render();
+    if (this.currentTab === 'chamber') this.renderChamberView();
 
     // 2. Queue delete for database
     this.enqueueSyncAction('delete', id, null);
@@ -1496,17 +2074,22 @@ _Legal Diary Portal_`;
     }
   }
 
-  useDemoMode() {
-    if (confirm('Restore default sample cases and hearing history?')) {
-      this.cases = this.getSampleCases();
+  clearAllCases() {
+    if (confirm('Are you sure you want to clear all cases from this device? This will erase all local cases.')) {
+      this.cases = [];
       this.syncQueue = [];
       this.saveSyncQueue();
       this.saveToLocal();
       this.updateCounters();
       this.render();
+      if (this.currentTab === 'chamber') this.renderChamberView();
       this.closeSettingsModal();
-      this.showToast('Sample cases restored', 'info');
+      this.showToast('All local cases cleared', 'info');
     }
+  }
+
+  useDemoMode() {
+    this.clearAllCases();
   }
 
   // Minimal Toast

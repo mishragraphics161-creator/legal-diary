@@ -1,11 +1,12 @@
 // Service Worker for Legal Diary
 // Cache assets for 100% offline functionality
 
-const CACHE_NAME = 'legal-diary-v1';
+const CACHE_NAME = 'legal-diary-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './app.js',
+  './style.css',
   './manifest.json'
 ];
 

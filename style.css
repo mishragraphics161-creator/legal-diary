@@ -1210,13 +1210,67 @@ body {
   line-height: 1.5;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
-.form-select {
+.form-select,
+.court-dropdown,
+select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 42px;
+  background-position: right 16px center;
+  padding-right: 44px;
   cursor: pointer;
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+/* Beautiful Options List Menu (Obsidian Dark & Clean Slate Light) */
+select option,
+.form-select option,
+.court-dropdown option {
+  background-color: #0d1322;
+  color: #f8fafc;
+  padding: 14px 18px;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  font-weight: 550;
+  line-height: 2.2;
+}
+
+[data-theme="light"] select option,
+[data-theme="light"] .form-select option,
+[data-theme="light"] .court-dropdown option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+select option:checked,
+.form-select option:checked,
+.court-dropdown option:checked {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 750;
+}
+
+select option:hover,
+.form-select option:hover,
+.court-dropdown option:hover {
+  background-color: #4338ca !important;
+  color: #ffffff !important;
+}
+
+select optgroup {
+  font-weight: 800;
+  color: var(--accent);
+  background-color: var(--surface-subtle);
+  padding: 10px 14px;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--accent);

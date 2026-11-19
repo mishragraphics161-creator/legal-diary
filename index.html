@@ -283,14 +283,14 @@
               <div class="form-group">
                 <label for="caseType" class="form-label">Case Classification</label>
                 <select id="caseType" class="form-select">
-                  <option value="Criminal">Criminal Case / Trial</option>
-                  <option value="Bail">Bail Application</option>
-                  <option value="Civil">Civil Suit / Injunction</option>
-                  <option value="Writ">Writ Petition (High Court)</option>
-                  <option value="Family">Family / Matrimonial</option>
-                  <option value="NI Act 138">Cheque Bounce (138 NI Act)</option>
-                  <option value="Revenue">Revenue / Tehsildar</option>
-                  <option value="Other">Other Matter</option>
+                  <option value="Criminal">⚖️ Criminal Case / Trial</option>
+                  <option value="Bail">🔓 Bail Application</option>
+                  <option value="Civil">📜 Civil Suit / Injunction</option>
+                  <option value="Writ">🏛️ Writ Petition (High Court)</option>
+                  <option value="Family">👨‍👩‍👧 Family / Matrimonial</option>
+                  <option value="NI Act 138">💳 Cheque Bounce (138 NI Act)</option>
+                  <option value="Revenue">🌾 Revenue / Tehsildar</option>
+                  <option value="Other">📁 Other Legal Matter</option>
                 </select>
               </div>
             </div>
@@ -304,16 +304,16 @@
               <div class="form-group">
                 <label for="caseRepresenting" class="form-label">Representing Side</label>
                 <select id="caseRepresenting" class="form-select">
-                  <option value="Petitioner">Petitioner / Applicant / Complainant</option>
-                  <option value="Respondent">Respondent / Accused / Opposite Party</option>
+                  <option value="Petitioner">🔵 Petitioner / Applicant / Complainant</option>
+                  <option value="Respondent">🔴 Respondent / Accused / Opposite Party</option>
                 </select>
               </div>
               <div class="form-group">
                 <label for="casePriority" class="form-label">Case Priority</label>
                 <select id="casePriority" class="form-select">
-                  <option value="Normal">Normal Priority</option>
-                  <option value="Urgent">🚨 Urgent (Stay / Bail)</option>
-                  <option value="Routine">Routine Hearing</option>
+                  <option value="Normal">🟢 Normal Priority</option>
+                  <option value="Urgent">🚨 Urgent (Stay / Bail Hearing)</option>
+                  <option value="Routine">⚪ Routine Proceeding</option>
                 </select>
               </div>
             </div>
@@ -330,7 +330,20 @@
               <div class="form-group">
                 <label for="caseCourt" class="form-label">Court / Bench</label>
                 <input type="text" id="caseCourt" list="courtsDatalist" placeholder="e.g. ACJM-5, FTC-41, CJSD, District Court" class="form-input">
-                <datalist id="courtsDatalist"></datalist>
+                <datalist id="courtsDatalist">
+                  <option value="High Court Bench"></option>
+                  <option value="District &amp; Sessions Court"></option>
+                  <option value="Chief Judicial Magistrate (CJM)"></option>
+                  <option value="ACJM Court"></option>
+                  <option value="Civil Judge Senior Division (CJSD)"></option>
+                  <option value="Civil Judge Junior Division (CJJD)"></option>
+                  <option value="Fast Track Court (FTC)"></option>
+                  <option value="Family Court"></option>
+                  <option value="Commercial Court"></option>
+                  <option value="Revenue Court / SDM"></option>
+                  <option value="Consumer Disputes Forum"></option>
+                  <option value="Gram Nyayalaya"></option>
+                </datalist>
               </div>
               <div class="form-group">
                 <label for="caseJudge" class="form-label">Presiding Officer / Room No.</label>
@@ -385,8 +398,8 @@
               <div class="form-group">
                 <label for="caseStatus" class="form-label">Case Status</label>
                 <select id="caseStatus" class="form-select">
-                  <option value="Active">Active Trial / Hearing</option>
-                  <option value="Disposed">Disposed / Closed</option>
+                  <option value="Active">🟢 Active Case (Ongoing)</option>
+                  <option value="Disposed">🏁 Disposed / Closed / Decided</option>
                 </select>
               </div>
             </div>
@@ -403,8 +416,8 @@
               <div class="form-group">
                 <label for="caseFileInChamber" class="form-label">Physical File Location</label>
                 <select id="caseFileInChamber" class="form-select" onchange="app.toggleChamberFormFields(this.value)">
-                  <option value="true">🟢 In Chamber (In Rack)</option>
-                  <option value="false">🟠 Outside Chamber (With Someone / In Court)</option>
+                  <option value="true">🟢 In Chamber (Placed in Almirah / Rack)</option>
+                  <option value="false">🟠 Outside Chamber (With Junior / In Court / Client)</option>
                 </select>
               </div>
               <div id="holderFieldWrap" class="form-group" style="display: none;">

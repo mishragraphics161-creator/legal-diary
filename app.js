@@ -473,9 +473,9 @@ class LegalDiaryApp {
     });
     const sorted = Array.from(courts).sort();
     
-    let optionsHtml = '<option value="all">🏛 All Courts</option>';
+    let optionsHtml = '<option value="all">🏛️ All Courts (Cause List)</option>';
     sorted.forEach(c => {
-      optionsHtml += `<option value="${this.escapeHtml(c)}">${this.escapeHtml(c)}</option>`;
+      optionsHtml += `<option value="${this.escapeHtml(c)}">🏛️ ${this.escapeHtml(c)}</option>`;
     });
     select.innerHTML = optionsHtml;
     select.value = sorted.includes(currentVal) ? currentVal : 'all';

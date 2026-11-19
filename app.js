@@ -1010,9 +1010,14 @@ class LegalDiaryApp {
   setNdohPreset(days) {
     const d = new Date();
     d.setDate(d.getDate() + days);
+    const dateStr = d.toISOString().split('T')[0];
     const dateInput = document.getElementById('ndohDate');
     if (dateInput) {
-      dateInput.value = d.toISOString().split('T')[0];
+      dateInput.value = dateStr;
+    }
+    const caseNextDate = document.getElementById('caseNextDate');
+    if (caseNextDate) {
+      caseNextDate.value = dateStr;
     }
   }
 
@@ -1301,8 +1306,16 @@ class LegalDiaryApp {
     const isInChamber = val === 'true' || val === true;
     const holderWrap = document.getElementById('holderFieldWrap');
     const locWrap = document.getElementById('chamberLocationFieldsWrap');
+    const chamberCard = document.getElementById('chamberFormCard');
     if (holderWrap) holderWrap.style.display = isInChamber ? 'none' : 'block';
     if (locWrap) locWrap.style.display = isInChamber ? 'grid' : 'none';
+    if (chamberCard) {
+      if (isInChamber) {
+        chamberCard.classList.remove('outside');
+      } else {
+        chamberCard.classList.add('outside');
+      }
+    }
   }
 
   // MODAL 1: ADD / EDIT CASE (Offline First + Optimistic Local Update)

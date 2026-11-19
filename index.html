@@ -247,181 +247,224 @@
        MODAL 1: ADD / EDIT CASE (Mobile First Form Sheet)
        ========================================================================== -->
   <div id="caseModal" class="modal-overlay" onclick="if(event.target===this) app.closeCaseModal()">
-    <div class="sheet-card">
+    <div class="sheet-card sheet-large">
       <div class="sheet-handle-bar"></div>
       
-      <div class="sheet-header">
-        <h3 id="caseModalTitle" style="font-size: 17px;">New Case Entry</h3>
-        <button type="button" onclick="app.closeCaseModal()" class="btn btn-ghost btn-sm">Close</button>
+      <!-- Beautified Modal Header -->
+      <div class="modal-header-fancy">
+        <div class="modal-title-group">
+          <h3 class="modal-main-title">
+            <span>⚖️</span>
+            <span id="caseModalTitle">New Case Entry</span>
+          </h3>
+          <p class="modal-subtitle">Advocate diary, chamber rack location &amp; hearing schedule</p>
+        </div>
+        <button type="button" onclick="app.closeCaseModal()" class="btn btn-ghost btn-sm" aria-label="Close modal">
+          ✕ Close
+        </button>
       </div>
 
-      <div class="sheet-body">
-        <form id="caseForm" onsubmit="app.handleCaseSubmit(event)" class="form-grid">
+      <div class="sheet-body" style="padding: 16px 20px;">
+        <form id="caseForm" onsubmit="app.handleCaseSubmit(event)">
           <input type="hidden" id="caseId">
 
-          <!-- Case Number -->
-          <div class="form-group">
-            <label for="caseNumber" class="form-label">Case Number <span class="req-mark" aria-hidden="true">*</span></label>
-            <input type="text" id="caseNumber" required placeholder="e.g. C.C. 142/2026 or Bail 45/2026" class="form-input">
-          </div>
-
-          <!-- Parties -->
-          <div class="form-group">
-            <label for="caseParties" class="form-label">Parties (Client v. Opponent) <span class="req-mark" aria-hidden="true">*</span></label>
-            <input type="text" id="caseParties" required placeholder="e.g. Ramesh Kumar v. State of U.P." class="form-input">
-          </div>
-
-          <!-- Case Type -->
-          <div class="form-group">
-            <label for="caseType" class="form-label">Case Type</label>
-            <select id="caseType" class="form-select">
-              <option value="Criminal">Criminal Case / Trial</option>
-              <option value="Bail">Bail Application</option>
-              <option value="Civil">Civil Suit / Injunction</option>
-              <option value="Writ">Writ Petition (HC)</option>
-              <option value="Family">Family / Matrimonial</option>
-              <option value="NI Act 138">Cheque Bounce (138 NI Act)</option>
-              <option value="Revenue">Revenue / Tehsildar</option>
-              <option value="Other">Other Matter</option>
-            </select>
-          </div>
-
-          <!-- Representing Side -->
-          <div class="form-group">
-            <label for="caseRepresenting" class="form-label">Representing Side</label>
-            <select id="caseRepresenting" class="form-select">
-              <option value="Petitioner">Petitioner / Applicant / Complainant</option>
-              <option value="Respondent">Respondent / Accused / Opposite Party</option>
-            </select>
-          </div>
-
-          <!-- Court -->
-          <div class="form-group">
-            <label for="caseCourt" class="form-label">Court / Bench</label>
-            <input type="text" id="caseCourt" list="courtsDatalist" placeholder="e.g. ACJM-5, FTC-41, CJSD, District Court" class="form-input">
-            <datalist id="courtsDatalist"></datalist>
-          </div>
-
-          <!-- Judge / Room -->
-          <div class="form-group">
-            <label for="caseJudge" class="form-label">Presiding Officer / Room</label>
-            <input type="text" id="caseJudge" placeholder="e.g. Sri R.K. Sharma, Room No 4" class="form-input">
-          </div>
-
-          <!-- Police Station & FIR No. -->
-          <div class="form-group">
-            <label for="casePoliceStation" class="form-label">Police Station / Crime (FIR) No.</label>
-            <input type="text" id="casePoliceStation" placeholder="e.g. P.S. Kotwali, Crime 102/2025" class="form-input">
-          </div>
-
-          <!-- Acts & Sections -->
-          <div class="form-group">
-            <label for="caseSections" class="form-label">Acts &amp; Sections</label>
-            <input type="text" id="caseSections" placeholder="e.g. 420, 467 IPC / 144(3) BNSS" class="form-input">
-          </div>
-
-          <!-- Client Name -->
-          <div class="form-group">
-            <label for="caseClientName" class="form-label">Client Name</label>
-            <input type="text" id="caseClientName" placeholder="Client contact person" class="form-input">
-          </div>
-
-          <!-- Client Phone -->
-          <div class="form-group">
-            <label for="caseClientPhone" class="form-label">Client Mobile / WhatsApp</label>
-            <input type="tel" id="caseClientPhone" placeholder="e.g. 9876543210" class="form-input">
-          </div>
-
-          <!-- NDOH Date -->
-          <div class="form-group">
-            <label for="caseNextDate" class="form-label">Next Hearing Date (NDOH) <span class="req-mark" aria-hidden="true">*</span></label>
-            <input type="date" id="caseNextDate" required class="form-input">
-          </div>
-
-          <!-- Priority -->
-          <div class="form-group">
-            <label for="casePriority" class="form-label">Priority</label>
-            <select id="casePriority" class="form-select">
-              <option value="Normal">Normal</option>
-              <option value="Urgent">Urgent</option>
-              <option value="Routine">Routine</option>
-            </select>
-          </div>
-
-          <!-- Stage -->
-          <div class="form-group">
-            <label for="caseStage" class="form-label">Hearing Stage</label>
-            <input type="text" id="caseStage" placeholder="e.g. Evidence, Arguments, Bail" class="form-input">
-            <div class="preset-row">
-              <button type="button" onclick="app.setStagePreset('Admission / Notice')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">Admission</button>
-              <button type="button" onclick="app.setStagePreset('Evidence / Cross')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">Evidence</button>
-              <button type="button" onclick="app.setStagePreset('Final Arguments')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">Arguments</button>
-              <button type="button" onclick="app.setStagePreset('Order / Judgment')" class="btn btn-ghost btn-sm" style="min-height: 24px; padding: 2px 6px; font-size: 11px;">Judgment</button>
+          <!-- Section 1: Case Identification & Parties -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="section-icon-badge">⚖️ Case Identity &amp; Parties</span>
+              <span class="section-tag">Required</span>
             </div>
-          </div>
 
-          <!-- Status -->
-          <div class="form-group">
-            <label for="caseStatus" class="form-label">Case Status</label>
-            <select id="caseStatus" class="form-select">
-              <option value="Active">Active Case</option>
-              <option value="Disposed">Disposed / Closed</option>
-            </select>
-          </div>
-
-          <!-- Physical Chamber File Location Section -->
-          <div class="form-group col-span-full" style="background: var(--surface-subtle); padding: 12px; border-radius: var(--radius-sm); border: 1px dashed var(--border-strong);">
-            <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-              <span>🏛️ Physical File Chamber Location</span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-              <div>
-                <label for="caseFileInChamber" class="form-label">File Status</label>
-                <select id="caseFileInChamber" class="form-select" onchange="app.toggleChamberFormFields(this.value)">
-                  <option value="true">🟢 In Chamber</option>
-                  <option value="false">🟠 Outside Chamber</option>
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseNumber" class="form-label">Case Number <span class="req-mark" aria-hidden="true">*</span></label>
+                <input type="text" id="caseNumber" required placeholder="e.g. C.C. 142/2026 or Bail 45/2026" class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="caseType" class="form-label">Case Classification</label>
+                <select id="caseType" class="form-select">
+                  <option value="Criminal">Criminal Case / Trial</option>
+                  <option value="Bail">Bail Application</option>
+                  <option value="Civil">Civil Suit / Injunction</option>
+                  <option value="Writ">Writ Petition (High Court)</option>
+                  <option value="Family">Family / Matrimonial</option>
+                  <option value="NI Act 138">Cheque Bounce (138 NI Act)</option>
+                  <option value="Revenue">Revenue / Tehsildar</option>
+                  <option value="Other">Other Matter</option>
                 </select>
               </div>
-              <div id="holderFieldWrap" style="display: none;">
-                <label for="caseCurrentHolder" class="form-label">Current Holder / Location</label>
-                <input type="text" id="caseCurrentHolder" placeholder="e.g. Adv Rahul / Court 12 / Client" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label for="caseParties" class="form-label">Parties (Client v. Opposite Party) <span class="req-mark" aria-hidden="true">*</span></label>
+              <input type="text" id="caseParties" required placeholder="e.g. Ramesh Kumar v. State of U.P." class="form-input">
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseRepresenting" class="form-label">Representing Side</label>
+                <select id="caseRepresenting" class="form-select">
+                  <option value="Petitioner">Petitioner / Applicant / Complainant</option>
+                  <option value="Respondent">Respondent / Accused / Opposite Party</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="casePriority" class="form-label">Case Priority</label>
+                <select id="casePriority" class="form-select">
+                  <option value="Normal">Normal Priority</option>
+                  <option value="Urgent">🚨 Urgent (Stay / Bail)</option>
+                  <option value="Routine">Routine Hearing</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Forum & Police Station / FIR -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="section-icon-badge">🏛️ Forum &amp; Police Station</span>
+              <span class="section-tag">Court Details</span>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseCourt" class="form-label">Court / Bench</label>
+                <input type="text" id="caseCourt" list="courtsDatalist" placeholder="e.g. ACJM-5, FTC-41, CJSD, District Court" class="form-input">
+                <datalist id="courtsDatalist"></datalist>
+              </div>
+              <div class="form-group">
+                <label for="caseJudge" class="form-label">Presiding Officer / Room No.</label>
+                <input type="text" id="caseJudge" placeholder="e.g. Sri R.K. Sharma, Room No 4" class="form-input">
               </div>
             </div>
 
-            <div id="chamberLocationFieldsWrap" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-              <div>
-                <label for="caseChamberAlmirah" class="form-label">Almirah / Rack</label>
-                <input type="text" id="caseChamberAlmirah" placeholder="Almirah-A" class="form-input">
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="casePoliceStation" class="form-label">Police Station &amp; Crime (FIR) No.</label>
+                <input type="text" id="casePoliceStation" placeholder="e.g. P.S. Kotwali, Crime 102/2025" class="form-input">
               </div>
-              <div>
-                <label for="caseChamberShelf" class="form-label">Shelf No.</label>
-                <input type="text" id="caseChamberShelf" placeholder="Shelf-1" class="form-input">
-              </div>
-              <div>
-                <label for="caseChamberBundle" class="form-label">Bundle / Basta #</label>
-                <input type="text" id="caseChamberBundle" placeholder="Bundle #12" class="form-input">
+              <div class="form-group">
+                <label for="caseSections" class="form-label">Acts &amp; Sections</label>
+                <input type="text" id="caseSections" placeholder="e.g. 420, 467 IPC / 144(3) BNSS" class="form-input">
               </div>
             </div>
           </div>
 
-          <!-- Senior Directive -->
-          <div class="form-group col-span-full">
-            <label for="caseInstructions" class="form-label">Senior's Remarks &amp; Instructions</label>
-            <textarea id="caseInstructions" rows="2" placeholder="Specific notes, affidavits, or court instructions..." class="form-textarea"></textarea>
+          <!-- Section 3: Next Hearing & Stage -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="section-icon-badge">📅 Hearing Schedule &amp; Stage</span>
+              <span class="section-tag">Next Date</span>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseNextDate" class="form-label">Next Hearing Date (NDOH) <span class="req-mark" aria-hidden="true">*</span></label>
+                <input type="date" id="caseNextDate" required class="form-input">
+                <div class="preset-pill-row">
+                  <button type="button" onclick="app.setNdohPreset(1)" class="preset-micro-btn">+1 Day</button>
+                  <button type="button" onclick="app.setNdohPreset(7)" class="preset-micro-btn">+7 Days</button>
+                  <button type="button" onclick="app.setNdohPreset(14)" class="preset-micro-btn">+14 Days</button>
+                  <button type="button" onclick="app.setNdohPreset(30)" class="preset-micro-btn">+1 Month</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="caseStage" class="form-label">Hearing Stage / Purpose</label>
+                <input type="text" id="caseStage" placeholder="e.g. Evidence, Arguments, Bail" class="form-input">
+                <div class="preset-pill-row">
+                  <button type="button" onclick="app.setStagePreset('Admission / Notice')" class="preset-micro-btn">Admission</button>
+                  <button type="button" onclick="app.setStagePreset('Evidence / Cross')" class="preset-micro-btn">Evidence</button>
+                  <button type="button" onclick="app.setStagePreset('Final Arguments')" class="preset-micro-btn">Arguments</button>
+                  <button type="button" onclick="app.setStagePreset('Order / Judgment')" class="preset-micro-btn">Judgment</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseStatus" class="form-label">Case Status</label>
+                <select id="caseStatus" class="form-select">
+                  <option value="Active">Active Trial / Hearing</option>
+                  <option value="Disposed">Disposed / Closed</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <!-- Drive Dossier Link -->
-          <div class="form-group col-span-full">
-            <label for="caseDriveLink" class="form-label">Google Drive / Dossier URL</label>
-            <input type="url" id="caseDriveLink" placeholder="https://drive.google.com/..." class="form-input">
+          <!-- Section 4: Physical Chamber File Location Tracking -->
+          <div class="chamber-form-card" id="chamberFormCard">
+            <div class="form-section-header">
+              <span class="section-icon-badge">🗄️ Physical File Chamber Location</span>
+              <span class="section-tag" style="background: rgba(16,185,129,0.15); color: var(--success); border-color: rgba(16,185,129,0.3);">Track File</span>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseFileInChamber" class="form-label">Physical File Location</label>
+                <select id="caseFileInChamber" class="form-select" onchange="app.toggleChamberFormFields(this.value)">
+                  <option value="true">🟢 In Chamber (In Rack)</option>
+                  <option value="false">🟠 Outside Chamber (With Someone / In Court)</option>
+                </select>
+              </div>
+              <div id="holderFieldWrap" class="form-group" style="display: none;">
+                <label for="caseCurrentHolder" class="form-label">Current Holder / Location <span class="req-mark">*</span></label>
+                <input type="text" id="caseCurrentHolder" placeholder="e.g. Adv. Rahul / CO-IInd Court / With Client" class="form-input">
+              </div>
+            </div>
+
+            <div id="chamberLocationFieldsWrap" class="form-row-3">
+              <div class="form-group">
+                <label for="caseChamberAlmirah" class="form-label">Almirah / Rack Name</label>
+                <input type="text" id="caseChamberAlmirah" placeholder="e.g. Almirah-A" class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="caseChamberShelf" class="form-label">Shelf Number</label>
+                <input type="text" id="caseChamberShelf" placeholder="e.g. Shelf-1" class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="caseChamberBundle" class="form-label">Basta / Bundle #</label>
+                <input type="text" id="caseChamberBundle" placeholder="e.g. Basta #3" class="form-input">
+              </div>
+            </div>
           </div>
 
-          <!-- Actions -->
-          <div class="form-actions col-span-full">
-            <button type="submit" class="btn btn-primary">Save Case</button>
-            <button type="reset" class="btn btn-secondary">Reset</button>
-            <button type="button" onclick="app.closeCaseModal()" class="btn btn-danger action-right">Cancel</button>
+          <!-- Section 5: Client Details & Directives -->
+          <div class="form-section-card">
+            <div class="form-section-header">
+              <span class="section-icon-badge">👤 Client Contact &amp; Senior Notes</span>
+              <span class="section-tag">Direct Comms</span>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label for="caseClientName" class="form-label">Client Contact Person</label>
+                <input type="text" id="caseClientName" placeholder="Client or Pairokar name" class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="caseClientPhone" class="form-label">Client Mobile / WhatsApp</label>
+                <input type="tel" id="caseClientPhone" placeholder="e.g. 9876543210" class="form-input">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="caseInstructions" class="form-label">Senior's Remarks &amp; Action Items</label>
+              <textarea id="caseInstructions" rows="2" placeholder="Specific court instructions, affidavits to prepare, or evidence notes..." class="form-textarea"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="caseDriveLink" class="form-label">Google Drive / Scanned Dossier URL</label>
+              <input type="url" id="caseDriveLink" placeholder="https://drive.google.com/..." class="form-input">
+            </div>
+          </div>
+
+          <!-- Sticky Modal Footer -->
+          <div class="modal-actions-sticky">
+            <button type="button" onclick="app.closeCaseModal()" class="btn btn-secondary">Cancel</button>
+            <button type="reset" class="btn btn-ghost btn-sm">Clear</button>
+            <button type="submit" class="btn btn-primary" style="min-width: 140px; font-weight: 750;">
+              💾 Save Case
+            </button>
           </div>
 
         </form>

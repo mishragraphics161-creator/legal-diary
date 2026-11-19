@@ -1723,3 +1723,167 @@ body {
   color: var(--text-primary);
   margin-bottom: 6px;
 }
+
+/* --- 17. MODERN BEAUTIFIED FORM STYLES (New Case Entry Sheet) --- */
+.sheet-large {
+  max-width: 680px;
+}
+
+.modal-header-fancy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--border);
+}
+.modal-title-group {
+  display: flex;
+  flex-direction: column;
+}
+.modal-main-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.form-section-card {
+  background: var(--surface-subtle);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.form-section-card:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.08);
+}
+
+.form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 13px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+.section-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.section-tag {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .form-row-2, .form-row-3 {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+/* Chamber Tracking Special Card */
+.chamber-form-card {
+  background: rgba(16, 185, 129, 0.04);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all var(--transition-smooth);
+}
+.chamber-form-card.outside {
+  background: rgba(245, 158, 11, 0.04);
+  border-color: rgba(245, 158, 11, 0.25);
+}
+
+/* Preset Pills */
+.preset-pill-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+.preset-micro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.preset-micro-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--surface-subtle);
+  transform: translateY(-1px);
+}
+
+/* Sticky Modal Footer */
+.modal-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+@media (max-width: 640px) {
+  .modal-actions-sticky {
+    border-radius: 0;
+    padding: 10px 14px;
+  }
+  .modal-actions-sticky .btn {
+    flex: 1;
+  }
+}

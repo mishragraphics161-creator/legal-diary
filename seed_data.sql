@@ -92,3 +92,48 @@ CREATE POLICY "Allow all operations with anon key"
   FOR ALL 
   USING (true) 
   WITH CHECK (true);
+
+-- 5. Insert 23 Court Cases Provided by Senior (with chamber tracking & hearing details)
+INSERT INTO court_cases (
+  case_number, 
+  parties, 
+  case_type, 
+  representing, 
+  court_name, 
+  police_station_fir, 
+  act_sections, 
+  next_hearing_date, 
+  hearing_stage, 
+  senior_instructions, 
+  file_in_chamber, 
+  file_current_holder, 
+  chamber_almirah, 
+  chamber_shelf, 
+  chamber_bundle_no, 
+  status, 
+  priority
+)
+VALUES
+('Case #01', 'Pawan Gupta vs Vishvanath Pitariya', 'Criminal', 'Petitioner', 'ACJM-5', NULL, NULL, CURRENT_DATE, 'Final Arguments', 'Pairokar to appear with verification affidavit', true, 'Chamber', 'Almirah-A', 'Shelf-1', 'Bundle-1', 'Active', 'Urgent'),
+('Case #02', 'Pawan Gupta vs Raman Gupta', 'Civil', 'Petitioner', 'CJSD', NULL, NULL, CURRENT_DATE + INTERVAL '1 day', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-A', 'Shelf-1', 'Bundle-1', 'Active', 'Normal'),
+('Case #03', 'Pawan Gupta vs Ashok Singh', 'Criminal', 'Petitioner', 'ACJM-4', NULL, NULL, CURRENT_DATE + INTERVAL '2 days', 'Framing of Issues', '', true, 'Chamber', 'Almirah-A', 'Shelf-2', 'Bundle-1', 'Active', 'Normal'),
+('Case #04', 'Pawan Gupta vs Ashok Singh', 'Criminal', 'Petitioner', 'ACJM-1', NULL, NULL, CURRENT_DATE + INTERVAL '3 days', 'Admission / Notice', '', true, 'Chamber', 'Almirah-A', 'Shelf-2', 'Bundle-1', 'Active', 'Normal'),
+('Case #05', 'Pawan Gupta vs Ashok Singh', 'Civil', 'Petitioner', 'DJ', NULL, NULL, CURRENT_DATE + INTERVAL '4 days', 'Final Arguments', '', true, 'Chamber', 'Almirah-A', 'Shelf-3', 'Bundle-1', 'Active', 'Urgent'),
+('Case #06', 'Jafar Ali vs State of UP(2 Files)', 'Criminal', 'Applicant', 'CO-IInd', NULL, NULL, CURRENT_DATE, 'Police Report / CD', '2 Files - Verify case diary and obtain status report', true, 'Chamber', 'Almirah-B', 'Shelf-1', '2 Files', 'Active', 'Urgent'),
+('Case #07', 'Smt. Chhavi Rastogi vs Aman', 'Family', 'Petitioner', 'FTC-41', NULL, NULL, CURRENT_DATE + INTERVAL '1 day', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-B', 'Shelf-2', 'Bundle-2', 'Active', 'Normal'),
+('Case #08', 'Pawan Singh vs Kailash Singh', 'Civil', 'Petitioner', 'ACJJD-5', NULL, NULL, CURRENT_DATE + INTERVAL '2 days', 'Framing of Issues', '', true, 'Chamber', 'Almirah-B', 'Shelf-3', 'Bundle-2', 'Active', 'Normal'),
+('Case #09', 'Vimal vs Komal Singh (skeleton)', 'Family', 'Petitioner', 'AFC-1st', NULL, NULL, CURRENT_DATE + INTERVAL '3 days', 'Miscellaneous', 'Skeleton argument / file to be prepared', true, 'Chamber', 'Almirah-C', 'Shelf-1', 'Bundle-3', 'Active', 'Normal'),
+('Case #10', 'Mumtaz vs Unknown (FR)', 'Criminal', 'Petitioner', 'ACJM-3', NULL, NULL, CURRENT_DATE + INTERVAL '1 day', 'Admission / Notice', 'FR - Final Report submitted, protest petition to be filed', true, 'Chamber', 'Almirah-C', 'Shelf-2', 'Bundle-3', 'Active', 'Urgent'),
+('Case #11', 'Alok Verma vs Raunak Juneja', 'Criminal', 'Petitioner', 'AJM-3', NULL, NULL, CURRENT_DATE + INTERVAL '5 days', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-C', 'Shelf-3', 'Bundle-3', 'Active', 'Normal'),
+('Case #12', 'State vs Dharampal', 'Criminal', 'Accused', 'ADJ/FTC', NULL, NULL, CURRENT_DATE + INTERVAL '6 days', 'Final Arguments', '', true, 'Chamber', 'Almirah-D', 'Shelf-1', 'Bundle-4', 'Active', 'Urgent'),
+('Case #13', 'State vs Dharampal', 'Criminal', 'Accused', 'ACJM-5', NULL, NULL, CURRENT_DATE + INTERVAL '8 days', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-D', 'Shelf-1', 'Bundle-4', 'Active', 'Normal'),
+('Case #14', 'Shree Devi vs Janardan', 'Criminal', 'Petitioner', 'ACJM/FTC', NULL, NULL, CURRENT_DATE + INTERVAL '9 days', 'Framing of Issues', '', true, 'Chamber', 'Almirah-D', 'Shelf-2', 'Bundle-4', 'Active', 'Normal'),
+('Case #15', 'Shree Devi vs Janardan', 'Family', 'Petitioner', 'FC', NULL, NULL, CURRENT_DATE + INTERVAL '10 days', 'Miscellaneous', '', true, 'Chamber', 'Almirah-D', 'Shelf-2', 'Bundle-4', 'Active', 'Normal'),
+('Case #16', 'Gyanendara Mishra (Notice)', 'Civil', 'Petitioner', 'District Court', NULL, NULL, CURRENT_DATE + INTERVAL '4 days', 'Admission / Notice', 'Notice matter', true, 'Chamber', 'Almirah-A', 'Shelf-1', 'Bundle-1', 'Active', 'Urgent'),
+('Case #17', 'Prathvi Pal vs Banvari', 'Criminal', 'Petitioner', 'ACJM-3', NULL, NULL, CURRENT_DATE + INTERVAL '12 days', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-B', 'Shelf-2', 'Bundle-2', 'Active', 'Normal'),
+('Case #18', 'Madhuri Devi vs Geeta Devi', 'Civil', 'Petitioner', 'ADJ-2nd', NULL, NULL, CURRENT_DATE + INTERVAL '14 days', 'Final Arguments', '', true, 'Chamber', 'Almirah-C', 'Shelf-1', 'Bundle-3', 'Active', 'Normal'),
+('Case #19', 'Pooja vs Kaushal Singh (144(3) BNSS', 'Criminal', 'Applicant', 'AFC-1st', NULL, '144(3) BNSS', CURRENT_DATE + INTERVAL '5 days', 'Miscellaneous', 'Application under Section 144(3) BNSS', true, 'Chamber', 'Almirah-C', 'Shelf-2', 'Bundle-3', 'Active', 'Urgent'),
+('Case #20', 'Release Pramod Kumar', 'Bail', 'Accused', 'ACJM-5', 'SampoornaNagar', NULL, CURRENT_DATE + INTERVAL '7 days', 'Order / Judgment', 'Release Application - Location: SampoornaNagar', false, 'SampoornaNagar', 'Almirah-A', 'Shelf-3', 'Bundle-1', 'Active', 'Urgent'),
+('Case #21', 'Smt. Kishori Devi vs Pushpendra Kumar', 'Civil', 'Petitioner', 'Gram Nay. Gola', NULL, NULL, CURRENT_DATE + INTERVAL '16 days', 'Evidence / Cross', '', true, 'Chamber', 'Almirah-D', 'Shelf-3', 'Bundle-5', 'Active', 'Normal'),
+('Case #22', 'Ram Gulam vs Sahab Dayal', 'Civil', 'Petitioner', 'Gram Nay. Gola', NULL, NULL, CURRENT_DATE + INTERVAL '18 days', 'Framing of Issues', '', true, 'Chamber', 'Almirah-D', 'Shelf-3', 'Bundle-5', 'Active', 'Normal'),
+('Case #23', 'Daya Shankar Mishra vs Kulwant Singh', 'Civil', 'Petitioner', 'Gram Nay. Gola', NULL, NULL, CURRENT_DATE + INTERVAL '20 days', 'Final Arguments', '', true, 'Chamber', 'Almirah-D', 'Shelf-3', 'Bundle-5', 'Active', 'Normal');

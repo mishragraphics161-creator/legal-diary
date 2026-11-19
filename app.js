@@ -35,6 +35,7 @@ class LegalDiaryApp {
 
   async init() {
     this.applyTheme(this.currentTheme);
+    this.initCustomSelects();
     this.renderTodayDate();
     this.initServiceWorker();
     this.initNetworkListeners();
@@ -388,6 +389,238 @@ class LegalDiaryApp {
     }
   }
 
+  // --- CUSTOM MODERN THEMED SELECT CONTROLLER (Linear / Radix / Shadcn Style) ---
+  initCustomSelects() {
+    // Intercept HTMLSelectElement.prototype.value setter so programmatic settings instantly reflect in custom UI
+    if (!window._selectValueSetterIntercepted) {
+      window._selectValueSetterIntercepted = true;
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+      const originalSetter = descriptor?.set;
+      const originalGetter = descriptor?.get;
+      if (originalSetter && originalGetter) {
+        Object.defineProperty(HTMLSelectElement.prototype, 'value', {
+          set: function(val) {
+            originalSetter.call(this, val);
+            if (this._syncCustomSelect) {
+              this._syncCustomSelect();
+            }
+          },
+          get: function() {
+            return originalGetter.call(this);
+          },
+          configurable: true
+        });
+      }
+    }
+
+    // Process all selects matching .form-select and .court-dropdown
+    const selects = document.querySelectorAll('select.form-select, select.court-dropdown');
+    selects.forEach(select => this.setupCustomSelect(select));
+
+    // Global click listener to close open dropdowns
+    if (!this._customSelectDocListenersAttached) {
+      this._customSelectDocListenersAttached = true;
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.custom-select-wrap')) {
+          this.closeAllCustomSelects();
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          this.closeAllCustomSelects();
+        }
+      });
+    }
+  }
+
+  closeAllCustomSelects() {
+    document.querySelectorAll('.custom-select-wrap.is-open').forEach(w => {
+      w.classList.remove('is-open', 'open-upwards');
+      const tr = w.querySelector('.custom-select-trigger');
+      if (tr) tr.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  setupCustomSelect(select) {
+    if (!select || select._customSelectWrapper) {
+      if (select && select._syncCustomSelect) select._syncCustomSelect();
+      return;
+    }
+
+    // Visually hide native select
+    select.classList.add('custom-select-native');
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select-wrap';
+    select.parentNode.insertBefore(wrapper, select);
+    wrapper.appendChild(select);
+    select._customSelectWrapper = wrapper;
+
+    // Create Trigger matching exact screenshot spec
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.className = 'custom-select-trigger';
+    trigger.setAttribute('aria-haspopup', 'listbox');
+    trigger.setAttribute('aria-expanded', 'false');
+
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'custom-select-label';
+    trigger.appendChild(labelSpan);
+
+    const arrowSpan = document.createElement('span');
+    arrowSpan.className = 'custom-select-arrow';
+    arrowSpan.innerHTML = `
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    `;
+    trigger.appendChild(arrowSpan);
+    wrapper.appendChild(trigger);
+
+    // Create Menu Card
+    const menu = document.createElement('div');
+    menu.className = 'custom-select-menu';
+    menu.setAttribute('role', 'listbox');
+    wrapper.appendChild(menu);
+
+    // Forward native focus to trigger (e.g. when label is clicked)
+    select.addEventListener('focus', () => trigger.focus());
+
+    // Render options function
+    const renderOptions = () => {
+      menu.innerHTML = '';
+      const selectedOption = select.selectedOptions[0] || select.options[0];
+      labelSpan.textContent = selectedOption ? selectedOption.text : 'Select...';
+
+      Array.from(select.options).forEach(opt => {
+        const item = document.createElement('div');
+        item.className = 'custom-select-item';
+        item.setAttribute('role', 'option');
+        item.dataset.value = opt.value;
+        const isSelected = opt.value === select.value;
+        if (isSelected) {
+          item.classList.add('is-selected');
+          item.setAttribute('aria-selected', 'true');
+        }
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'custom-select-item-text';
+        textSpan.textContent = opt.text;
+        item.appendChild(textSpan);
+
+        const checkSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        checkSvg.setAttribute('class', 'custom-select-check');
+        checkSvg.setAttribute('width', '16');
+        checkSvg.setAttribute('height', '16');
+        checkSvg.setAttribute('viewBox', '0 0 24 24');
+        checkSvg.setAttribute('fill', 'none');
+        checkSvg.setAttribute('stroke', 'currentColor');
+        checkSvg.setAttribute('stroke-width', '2.5');
+        checkSvg.setAttribute('stroke-linecap', 'round');
+        checkSvg.setAttribute('stroke-linejoin', 'round');
+        checkSvg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+        item.appendChild(checkSvg);
+
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          select.value = opt.value;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+          if (typeof select.onchange === 'function') {
+            select.onchange();
+          }
+          syncUI();
+          this.closeAllCustomSelects();
+          trigger.focus();
+        });
+
+        menu.appendChild(item);
+      });
+    };
+
+    // Sync UI function
+    const syncUI = () => {
+      const selectedOption = select.selectedOptions[0] || select.options[0];
+      labelSpan.textContent = selectedOption ? selectedOption.text : 'Select...';
+      const items = menu.querySelectorAll('.custom-select-item');
+      if (items.length !== select.options.length) {
+        renderOptions();
+        return;
+      }
+      items.forEach(item => {
+        if (item.dataset.value === select.value) {
+          item.classList.add('is-selected');
+          item.setAttribute('aria-selected', 'true');
+        } else {
+          item.classList.remove('is-selected');
+          item.setAttribute('aria-selected', 'false');
+        }
+      });
+    };
+
+    select._syncCustomSelect = syncUI;
+    select._renderCustomSelectOptions = renderOptions;
+
+    // Toggle menu
+    trigger.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = wrapper.classList.contains('is-open');
+      this.closeAllCustomSelects();
+      if (!isOpen) {
+        // Smart flip upwards if close to bottom
+        const rect = trigger.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        if (spaceBelow < 250 && rect.top > 250) {
+          wrapper.classList.add('open-upwards');
+        } else {
+          wrapper.classList.remove('open-upwards');
+        }
+        wrapper.classList.add('is-open');
+        trigger.setAttribute('aria-expanded', 'true');
+        // Scroll selected into view
+        const selectedItem = menu.querySelector('.custom-select-item.is-selected');
+        if (selectedItem) {
+          selectedItem.scrollIntoView({ block: 'nearest' });
+        }
+      }
+    });
+
+    // Keyboard support on trigger
+    trigger.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (!wrapper.classList.contains('is-open')) {
+          trigger.click();
+        } else {
+          const items = Array.from(menu.querySelectorAll('.custom-select-item'));
+          const currentIndex = items.findIndex(it => it.classList.contains('is-selected'));
+          let nextIndex = currentIndex;
+          if (e.key === 'ArrowDown') nextIndex = Math.min(items.length - 1, currentIndex + 1);
+          if (e.key === 'ArrowUp') nextIndex = Math.max(0, currentIndex - 1);
+          if (items[nextIndex]) {
+            items[nextIndex].click();
+          }
+        }
+      }
+    });
+
+    // Initial render
+    renderOptions();
+
+    // Listen to form reset
+    if (select.form) {
+      select.form.addEventListener('reset', () => {
+        setTimeout(() => syncUI(), 10);
+      });
+    }
+  }
+
+  syncAllCustomSelects() {
+    document.querySelectorAll('select.custom-select-native').forEach(s => {
+      if (s._syncCustomSelect) s._syncCustomSelect();
+    });
+  }
+
   // Today Date Formatter
   renderTodayDate() {
     const el = document.getElementById('todayDateStr');
@@ -404,26 +637,22 @@ class LegalDiaryApp {
 
   // Load cases (Offline First: always read local cache first)
   async loadCases() {
-    const isCleaned = localStorage.getItem('legal_diary_clean_db_v1');
-    if (!isCleaned) {
-      // One-time purge of any previous hardcoded mock/sample cases from browser storage
-      this.cases = [];
-      this.saveToLocal();
-      localStorage.setItem('legal_diary_clean_db_v1', 'true');
-      return;
-    }
-
     const local = localStorage.getItem(this.STORAGE_KEY_CASES);
     if (local) {
       try {
         this.cases = JSON.parse(local);
-        this.ensureHistoryIntegrity();
+        if (!Array.isArray(this.cases) || this.cases.length === 0) {
+          this.cases = this.getSeniorSeedCases();
+          this.saveToLocal();
+        } else {
+          this.ensureHistoryIntegrity();
+        }
       } catch (e) {
-        this.cases = [];
+        this.cases = this.getSeniorSeedCases();
         this.saveToLocal();
       }
     } else {
-      this.cases = [];
+      this.cases = this.getSeniorSeedCases();
       this.saveToLocal();
     }
   }
@@ -480,6 +709,9 @@ class LegalDiaryApp {
     select.innerHTML = optionsHtml;
     select.value = sorted.includes(currentVal) ? currentVal : 'all';
     this.selectedCourt = select.value;
+    if (select._renderCustomSelectOptions) {
+      select._renderCustomSelectOptions();
+    }
 
     // Also populate datalist in case modal
     const datalist = document.getElementById('courtsDatalist');
@@ -1368,10 +1600,12 @@ class LegalDiaryApp {
       this.toggleChamberFormFields(true);
     }
 
+    this.syncAllCustomSelects();
     modal.classList.add('active');
   }
 
   closeCaseModal() {
+    this.closeAllCustomSelects();
     document.getElementById('caseModal').classList.remove('active');
   }
 
@@ -1450,10 +1684,12 @@ class LegalDiaryApp {
     document.getElementById('modalHolderName').value = (item.file_current_holder && item.file_current_holder !== 'Chamber') ? item.file_current_holder : '';
 
     this.selectChamberModalStatus(item.file_in_chamber !== false);
+    this.syncAllCustomSelects();
     document.getElementById('chamberModal').classList.add('active');
   }
 
   closeChamberModal() {
+    this.closeAllCustomSelects();
     document.getElementById('chamberModal').classList.remove('active');
   }
 

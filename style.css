@@ -1173,45 +1173,68 @@ body {
   color: #ffffff;
 }
 
-/* Form Groups & Inputs */
+/* Form Groups & Inputs (Generous Breathing Room & Modern Elevation) */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
 }
 .form-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .req-mark {
   color: var(--rose-500);
+  font-weight: 800;
+  margin-left: 3px;
 }
 
 .form-input, .form-select, .form-textarea {
   width: 100%;
-  padding: 8px 12px;
-  font-size: 13px;
+  height: 48px;
+  padding: 12px 16px;
+  font-size: 14px;
   font-family: inherit;
+  font-weight: 500;
   color: var(--text-primary);
   background: var(--surface-card);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
   outline: none;
   transition: all var(--transition-fast);
+  line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 42px;
+  cursor: pointer;
 }
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-glow);
+  background: var(--surface-card);
+  box-shadow: 0 0 0 4px var(--accent-glow);
+  transform: translateY(-1px);
 }
 .form-textarea {
+  height: auto;
+  min-height: 95px;
+  padding: 14px 16px;
+  line-height: 1.6;
   resize: vertical;
-  min-height: 60px;
 }
 
 .preset-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
   margin-top: 6px;
 }
@@ -1726,14 +1749,14 @@ body {
 
 /* --- 17. MODERN BEAUTIFIED FORM STYLES (New Case Entry Sheet) --- */
 .sheet-large {
-  max-width: 680px;
+  max-width: 760px;
 }
 
 .modal-header-fancy {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 22px 28px;
   background: var(--surface-card);
   border-bottom: 1px solid var(--border);
 }
@@ -1742,112 +1765,130 @@ body {
   flex-direction: column;
 }
 .modal-main-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .modal-subtitle {
   font-size: 12px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
+/* Generous Breathing Room Section Cards */
 .form-section-card {
   background: var(--surface-subtle);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  margin-bottom: 14px;
+  border-radius: var(--radius-xl);
+  padding: 24px 26px;
+  margin-bottom: 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .form-section-card:focus-within {
   border-color: var(--border-focus);
-  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.12);
 }
 
 .form-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 8px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--border-subtle);
-  font-size: 13px;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--text-primary);
 }
 .section-icon-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
 }
 .section-tag {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 2px 7px;
+  padding: 3px 9px;
   border-radius: var(--radius-pill);
   background: var(--surface-card);
   color: var(--text-muted);
   border: 1px solid var(--border);
 }
 
+/* Spacious Responsive Rows with Generous Gaps */
 .form-row-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 20px 22px;
 }
 .form-row-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 18px 20px;
 }
 @media (max-width: 640px) {
   .form-row-2, .form-row-3 {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 16px;
+  }
+  .form-section-card {
+    padding: 18px 16px;
+    margin-bottom: 18px;
+    gap: 16px;
+  }
+  .modal-header-fancy {
+    padding: 16px 18px;
   }
 }
 
-/* Chamber Tracking Special Card */
+/* Chamber Tracking Special Card with Airy Padding */
 .chamber-form-card {
-  background: rgba(16, 185, 129, 0.04);
-  border: 1px solid rgba(16, 185, 129, 0.22);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  margin-bottom: 14px;
+  background: rgba(16, 185, 129, 0.05);
+  border: 1.5px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--radius-xl);
+  padding: 24px 26px;
+  margin-bottom: 22px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
   transition: all var(--transition-smooth);
 }
 .chamber-form-card.outside {
-  background: rgba(245, 158, 11, 0.04);
-  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.28);
+}
+@media (max-width: 640px) {
+  .chamber-form-card {
+    padding: 18px 16px;
+    margin-bottom: 18px;
+    gap: 16px;
+  }
 }
 
-/* Preset Pills */
+/* Preset Pills (Comfortable Touch Targets & Spacing) */
 .preset-pill-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-top: 5px;
+  margin-top: 8px;
 }
 .preset-micro-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  font-size: 11px;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 14px;
+  font-size: 12px;
   font-weight: 600;
   border-radius: var(--radius-pill);
   background: var(--surface-card);
@@ -1855,35 +1896,50 @@ body {
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .preset-micro-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
-  background: var(--surface-subtle);
+  background: var(--accent-light);
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--accent-glow);
 }
 
-/* Sticky Modal Footer */
+/* Sticky Modal Footer with Ample Height and Spacing */
 .modal-actions-sticky {
   position: sticky;
   bottom: 0;
   background: var(--surface-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);
-  padding: 12px 18px;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 10px;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+  gap: 14px;
+  box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.12);
   z-index: 10;
   border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+.modal-actions-sticky .btn {
+  height: 48px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-md);
 }
 @media (max-width: 640px) {
   .modal-actions-sticky {
     border-radius: 0;
-    padding: 10px 14px;
+    padding: 12px 16px;
+    gap: 10px;
   }
   .modal-actions-sticky .btn {
     flex: 1;
+    height: 46px;
+    padding: 8px 14px;
+    font-size: 13px;
   }
 }
